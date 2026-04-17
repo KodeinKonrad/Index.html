@@ -2,276 +2,956 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Background Options</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=no"/>
+<title>Claude Dashboard</title>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Claude"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#0a0a0f"/>
+<link rel="apple-touch-icon" href="IMG_2821.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:#000;font-family:'DM Sans',sans-serif;color:#f0e6d3;padding:20px;min-height:100vh}
-h1{font-family:'DM Serif Display',serif;color:#d4a056;font-size:24px;margin-bottom:8px;text-align:center}
-.intro{text-align:center;color:#8a8494;font-size:14px;margin-bottom:24px}
-.preview{position:relative;width:100%;max-width:380px;height:520px;margin:0 auto 32px;border-radius:24px;overflow:hidden;background:#0a0a0f;border:1px solid rgba(255,255,255,0.08)}
-.label{display:flex;justify-content:space-between;align-items:center;padding:0 20px;margin-bottom:12px;max-width:380px;margin-left:auto;margin-right:auto}
-.label-num{background:#d4a056;color:#0a0a0f;width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
-.label-name{color:#e8e0d4;font-weight:600;font-size:16px;flex:1;margin-left:12px}
-.label-desc{color:#6a6474;font-size:11px}
-.content{position:absolute;inset:0;padding:32px 24px;display:flex;flex-direction:column;justify-content:space-between;z-index:10}
-.top{display:flex;flex-direction:column;align-items:center;text-align:center}
-.date{color:rgba(255,255,255,0.6);font-size:12px;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:8px}
-.greet{font-family:'DM Serif Display',serif;color:#f0e6d3;font-size:24px;margin-bottom:24px}
-.weather-icon{font-size:60px;margin-bottom:8px;filter:drop-shadow(0 4px 20px rgba(212,160,86,0.3))}
-.temp{font-family:'DM Serif Display',serif;color:#f0e6d3;font-size:48px;font-weight:400;line-height:1}
-.weather-desc{color:rgba(255,255,255,0.7);font-size:13px;margin-top:6px}
-.middle{padding:20px 0}
-.section-label{color:rgba(212,160,86,0.7);font-size:10px;text-transform:uppercase;letter-spacing:0.18em;margin-bottom:8px}
-.balance{display:flex;justify-content:space-between;color:#e0d8cc}
-.balance-num{font-size:18px;font-weight:600}
-.income{color:#4ade80}
-.expense{color:#ef4444}
-.bottom{padding-top:16px;border-top:1px solid rgba(255,255,255,0.08)}
-.countdown{display:flex;justify-content:space-between;color:#e0d8cc;font-size:13px;padding:6px 0}
-.days{color:#d4a056;font-weight:700}
+*{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+html,body{margin:0;padding:0;background:#0a0a0f;color:#f0e6d3;font-family:'DM Sans',-apple-system,sans-serif;overscroll-behavior:none;height:100%;overflow:hidden}
+#root{height:100%}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+input,textarea,button,select{font-family:inherit}
+select option{background:#1a1a2e}
 </style>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const {useState,useRef,useEffect,useCallback}=React;
 
-<h1>6 Background-Optionen</h1>
-<p class="intro">Scrolle durch — jede Vorschau zeigt echten Inhalt</p>
 
-<!-- 1. AURORA MESH -->
-<div class="label"><div class="label-num">1</div><div class="label-name">Aurora Mesh</div><div class="label-desc">animiert, subtil</div></div>
-<div class="preview">
-  <div style="position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,rgba(212,160,86,0.25),transparent 40%),radial-gradient(circle at 80% 60%,rgba(167,139,250,0.2),transparent 50%),radial-gradient(circle at 40% 90%,rgba(96,165,250,0.15),transparent 45%),#0a0a0f"></div>
-  <div class="content">
-    <div class="top">
-      <div class="date">Donnerstag, 17. April</div>
-      <div class="greet">Guten Abend</div>
-      <div class="weather-icon">☀</div>
-      <div class="temp">21°</div>
-      <div class="weather-desc">Klar · Wien</div>
-    </div>
-    <div class="middle">
-      <div class="section-label">Diesen Monat</div>
-      <div class="balance"><span><span class="income">+€2.840</span> &nbsp; <span class="expense">−€1.456</span></span></div>
-      <div style="color:#d4a056;font-size:22px;font-weight:700;margin-top:4px">Saldo €1.384 ↗</div>
-    </div>
-    <div class="bottom">
-      <div class="section-label">Countdowns</div>
-      <div class="countdown"><span>Urlaub Italien</span><span class="days">47 Tage</span></div>
-      <div class="countdown"><span>Geburtstag Mama</span><span class="days">12 Tage</span></div>
-    </div>
-  </div>
-</div>
+// ─── CUSTOM SVG ICONS ───
+function IcoHome({size,color}){return(<svg width={size} height={size} viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" fill={color} opacity="0.9"/><rect x="13" y="3" width="8" height="8" rx="2" fill={color} opacity="0.5"/><rect x="3" y="13" width="8" height="8" rx="2" fill={color} opacity="0.5"/><rect x="13" y="13" width="8" height="8" rx="2" fill={color} opacity="0.9"/><rect x="15" y="15" width="4" height="4" rx="1" fill={color}/></svg>);}
+function IcoRecht({size,color}){return(<svg width={size} height={size} viewBox="0 0 24 24" fill="none"><path d="M12 2L20 8V16L12 22L4 16V8L12 2Z" stroke={color} strokeWidth="1.5" fill="none"/><path d="M12 2L12 22" stroke={color} strokeWidth="1" opacity="0.4"/><path d="M4 8L20 8" stroke={color} strokeWidth="1" opacity="0.4"/><circle cx="12" cy="12" r="3" fill={color}/></svg>);}
+function IcoFitness({size,color}){return(<svg width={size} height={size} viewBox="0 0 24 24" fill="none"><path d="M12 3L4 9V15L12 21L20 15V9L12 3Z" stroke={color} strokeWidth="1.5" fill="none" opacity="0.4"/><path d="M13 7L9 12H12L11 17L15 12H12L13 7Z" fill={color}/></svg>);}
+function IcoFinanzen({size,color}){return(<svg width={size} height={size} viewBox="0 0 24 24" fill="none"><path d="M12 3L17 8L12 13L7 8L12 3Z" fill={color}/><path d="M12 11L17 16L12 21L7 16L12 11Z" fill={color} opacity="0.5"/><line x1="12" y1="8" x2="12" y2="16" stroke={color} strokeWidth="1" opacity="0.3"/></svg>);}
+function IcoListen({size,color}){return(<svg width={size} height={size} viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="4" height="4" rx="1" fill={color} opacity="0.5"/><rect x="8" y="6" width="14" height="2" rx="1" fill={color} opacity="0.7"/><rect x="2" y="11" width="4" height="4" rx="1" fill={color} opacity="0.5"/><rect x="8" y="12" width="14" height="2" rx="1" fill={color} opacity="0.7"/><path d="M3 16L4 18L6 15" stroke={color} strokeWidth="1.5" strokeLinecap="round" opacity="0.9"/><rect x="8" y="18" width="10" height="2" rx="1" fill={color} opacity="0.4"/></svg>);}
+function IcoNotizen({size,color}){return(<svg width={size} height={size} viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" fill={color}/><circle cx="12" cy="4" r="1.5" fill={color} opacity="0.6"/><circle cx="12" cy="20" r="1.5" fill={color} opacity="0.6"/><circle cx="4" cy="12" r="1.5" fill={color} opacity="0.6"/><circle cx="20" cy="12" r="1.5" fill={color} opacity="0.6"/><line x1="12" y1="7" x2="12" y2="9" stroke={color} strokeWidth="1.5" opacity="0.5"/><line x1="12" y1="15" x2="12" y2="17" stroke={color} strokeWidth="1.5" opacity="0.5"/><line x1="7" y1="12" x2="9" y2="12" stroke={color} strokeWidth="1.5" opacity="0.5"/><line x1="15" y1="12" x2="17" y2="12" stroke={color} strokeWidth="1.5" opacity="0.5"/><circle cx="5.5" cy="5.5" r="1.2" fill={color} opacity="0.4"/><circle cx="18.5" cy="5.5" r="1.2" fill={color} opacity="0.4"/><circle cx="5.5" cy="18.5" r="1.2" fill={color} opacity="0.4"/><circle cx="18.5" cy="18.5" r="1.2" fill={color} opacity="0.4"/></svg>);}
 
-<!-- 2. CONSTELLATION -->
-<div class="label"><div class="label-num">2</div><div class="label-name">Constellation</div><div class="label-desc">Sternenfeld mit Linien</div></div>
-<div class="preview">
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,#1a1a2e,#0a0a0f 70%)"></div>
-  <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.6" viewBox="0 0 380 520" preserveAspectRatio="none">
-    <line x1="50" y1="80" x2="120" y2="140" stroke="#d4a056" stroke-width="0.5"/>
-    <line x1="120" y1="140" x2="200" y2="100" stroke="#d4a056" stroke-width="0.5"/>
-    <line x1="200" y1="100" x2="280" y2="180" stroke="#d4a056" stroke-width="0.5"/>
-    <line x1="280" y1="180" x2="320" y2="260" stroke="#d4a056" stroke-width="0.5"/>
-    <line x1="320" y1="260" x2="240" y2="340" stroke="#d4a056" stroke-width="0.5"/>
-    <line x1="240" y1="340" x2="160" y2="380" stroke="#d4a056" stroke-width="0.5"/>
-    <line x1="160" y1="380" x2="80" y2="320" stroke="#d4a056" stroke-width="0.5"/>
-    <line x1="80" y1="320" x2="50" y2="80" stroke="#d4a056" stroke-width="0.5"/>
-    <circle cx="50" cy="80" r="2" fill="#d4a056"/>
-    <circle cx="120" cy="140" r="1.5" fill="#fff"/>
-    <circle cx="200" cy="100" r="2" fill="#d4a056"/>
-    <circle cx="280" cy="180" r="1.5" fill="#fff"/>
-    <circle cx="320" cy="260" r="2" fill="#d4a056"/>
-    <circle cx="240" cy="340" r="1.5" fill="#fff"/>
-    <circle cx="160" cy="380" r="2" fill="#d4a056"/>
-    <circle cx="80" cy="320" r="1.5" fill="#fff"/>
-    <circle cx="30" cy="200" r="1" fill="#fff" opacity="0.5"/>
-    <circle cx="350" cy="120" r="1" fill="#fff" opacity="0.5"/>
-    <circle cx="100" cy="450" r="1" fill="#fff" opacity="0.5"/>
-    <circle cx="280" cy="450" r="1" fill="#fff" opacity="0.5"/>
-    <circle cx="180" cy="220" r="1" fill="#fff" opacity="0.4"/>
-    <circle cx="350" cy="380" r="1" fill="#fff" opacity="0.4"/>
-  </svg>
-  <div class="content">
-    <div class="top">
-      <div class="date">Donnerstag, 17. April</div>
-      <div class="greet">Guten Abend</div>
-      <div class="weather-icon">☀</div>
-      <div class="temp">21°</div>
-      <div class="weather-desc">Klar · Wien</div>
-    </div>
-    <div class="middle">
-      <div class="section-label">Diesen Monat</div>
-      <div class="balance"><span><span class="income">+€2.840</span> &nbsp; <span class="expense">−€1.456</span></span></div>
-      <div style="color:#d4a056;font-size:22px;font-weight:700;margin-top:4px">Saldo €1.384 ↗</div>
-    </div>
-    <div class="bottom">
-      <div class="section-label">Countdowns</div>
-      <div class="countdown"><span>Urlaub Italien</span><span class="days">47 Tage</span></div>
-      <div class="countdown"><span>Geburtstag Mama</span><span class="days">12 Tage</span></div>
-    </div>
-  </div>
-</div>
+const TABS = [
+  { id: "home",    label: "Home",    Ico: IcoHome },
+  { id: "recht",   label: "Recht",   Ico: IcoRecht },
+  { id: "fitness", label: "Fitness", Ico: IcoFitness },
+  { id: "finanzen",label: "Finanzen",Ico: IcoFinanzen },
+  { id: "listen",  label: "Listen",  Ico: IcoListen },
+  { id: "notizen", label: "Notizen", Ico: IcoNotizen },
+];
+const CATS = [
+  { id: "food", label: "Lebensmittel", icon: "🛒", color: "#4ade80" },
+  { id: "drinks", label: "Getränke", icon: "🥤", color: "#22d3ee" },
+  { id: "household", label: "Haushalt", icon: "🏠", color: "#60a5fa" },
+  { id: "drugstore", label: "Drogerie", icon: "🧴", color: "#c084fc" },
+  { id: "transport", label: "Transport", icon: "🚗", color: "#f59e0b" },
+  { id: "gastro", label: "Gastronomie", icon: "🍽️", color: "#fb923c" },
+  { id: "subscriptions", label: "Abos/Verträge", icon: "📄", color: "#f472b6" },
+  { id: "clothing", label: "Kleidung", icon: "👕", color: "#34d399" },
+  { id: "health", label: "Gesundheit", icon: "💊", color: "#f87171" },
+  { id: "other", label: "Sonstiges", icon: "📦", color: "#94a3b8" },
+];
+const INCOME_CATS = [
+  { id: "salary", label: "Gehalt", icon: "💼", color: "#4ade80" },
+  { id: "side", label: "Nebeneinkommen", icon: "💡", color: "#60a5fa" },
+  { id: "other_in", label: "Sonstiges", icon: "📥", color: "#a78bfa" },
+];
+const PR = {
+  legal: "Du bist juristischer Recherche-Assistent für österreichisches Strafrecht (StGB/StPO). Zitiere Paragraphen, verweise auf Gerichtsentscheidungen (OGH/OLG/LG) als Kommentar: [Gericht, GZ, Datum] - Kernaussage. Deutsch, praxisnah.",
+  docA: "Du bist juristischer Dokumentenanalyst für österreichisches Recht. Analysiere: 1) Dokumenttyp 2) Inhalt 3) Rechtliche Relevanz mit Paragraphen 4) Gerichtsentscheidungen. Deutsch.",
+  text: "Textanalyse-Experte. Zusammenfassen, Kernaussagen, Details. Deutsch, nummeriert.",
+  fit: "Personal Trainer. Pläne für Rudergerät, Ergometer, Bodyweight. Zuhause, flexibel. Deutsch.",
+  receipt: "Du bist Rechnungsanalyst. Extrahiere den GESCHÄFTSNAMEN und ALLE Einzelpositionen. WICHTIG: Beachte STÜCKZAHLEN! '3x Joghurt 0.99' = Betrag 2.97. 'Menge: 2' = multipliziere Einzelpreis. Achte auf STK, x, Menge, Anz. Antworte NUR mit JSON-Objekt: {\"store\":\"Geschäftsname\",\"items\":[{\"produkt\":\"Name\",\"menge\":3,\"einzelpreis\":0.99,\"betrag\":2.97,\"kategorie\":\"Lebensmittel\"}]}. Kategorien: Lebensmittel, Getränke, Haushalt, Drogerie, Transport, Gastronomie, Abos, Kleidung, Gesundheit, Sonstiges. SUMME/TOTAL NICHT listen. Nur JSON.",
+  catCSV: "Kategorisiere diese Banktransaktionen. NUR JSON-Array. Bei NEGATIVEN Beträgen = Ausgabe. Bei POSITIVEN = Einnahme. Ausgaben-Kategorien: food,drinks,household,drugstore,transport,gastro,subscriptions,clothing,health,other. Einnahmen-Kategorien: salary,side,other_in. Format: [{\"desc\":\"...\",\"amount\":12.5,\"date\":\"2026-01-15\",\"category\":\"food\",\"type\":\"expense\"}] oder type:\"income\". Gehalt/Lohn=salary. Supermarkt=food. Restaurant/Cafe=gastro. Tankstelle/ÖBB=transport. DM/Bipa=drugstore. Apotheke=health. Netflix/Spotify=subscriptions. Nur JSON.",
+  noteTag: "Du bekommst eine Notiz. Analysiere den Inhalt und antworte NUR mit JSON: {\"title\":\"Kurztitel max 5 Worte\",\"category\":\"passende Kategorie\",\"tags\":[\"tag1\",\"tag2\"],\"type\":\"notiz|todo|idee|merker\"}. Wähle Kategorie frei passend zum Inhalt. Nur JSON.",
+  noteAnalyze: "Analysiere diesen Text und extrahiere strukturierte Aktionen. Antworte NUR mit JSON. Heute ist DATUM_HEUTE. Felder: {\"todos\":[{\"text\":\"Aufgabe\",\"date\":\"YYYY-MM-DD oder leer\",\"time\":\"HH:MM oder leer\",\"priority\":\"high|medium|low\"}],\"shopping\":[{\"name\":\"Artikel\",\"qty\":1}],\"note\":{\"save\":true,\"title\":\"Kurztitel\",\"category\":\"Kategorie\"},\"summary\":\"Was wurde erkannt\"}. Montag/Dienstag etc = nächster Wochentag. Bei Arzttermin priority=high. Wenn kein Todo: todos:[]. Wenn kein Einkauf: shopping:[]. Nur JSON.",
+};
+const N8N = "";
+function SG(k, fb) { try { var v = localStorage.getItem("cd_" + k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } }
+function SS(k, v) { try { localStorage.setItem("cd_" + k, JSON.stringify(v)); } catch (e) {} }
 
-<!-- 3. TOPOGRAPHIC -->
-<div class="label"><div class="label-num">3</div><div class="label-name">Topographic</div><div class="label-desc">Höhenlinien wie Landkarte</div></div>
-<div class="preview">
-  <div style="position:absolute;inset:0;background:#0a0a0f"></div>
-  <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.4" viewBox="0 0 400 520" preserveAspectRatio="none">
-    <g fill="none" stroke="#d4a056" stroke-width="0.5">
-      <path d="M-20,100 Q100,50 200,80 T420,120"/>
-      <path d="M-20,140 Q100,90 200,120 T420,160"/>
-      <path d="M-20,180 Q100,130 200,160 T420,200"/>
-      <path d="M-20,220 Q100,170 200,200 T420,240"/>
-      <path d="M-20,260 Q100,210 200,240 T420,280"/>
-      <path d="M-20,300 Q100,250 200,280 T420,320"/>
-      <path d="M-20,340 Q100,290 200,320 T420,360"/>
-      <path d="M-20,380 Q100,330 200,360 T420,400"/>
-      <path d="M-20,420 Q100,370 200,400 T420,440"/>
-      <path d="M-20,460 Q100,410 200,440 T420,480"/>
-    </g>
-    <g fill="none" stroke="#d4a056" stroke-width="0.3" opacity="0.5">
-      <ellipse cx="120" cy="380" rx="60" ry="30"/>
-      <ellipse cx="120" cy="380" rx="40" ry="20"/>
-      <ellipse cx="120" cy="380" rx="20" ry="10"/>
-      <ellipse cx="280" cy="180" rx="50" ry="25"/>
-      <ellipse cx="280" cy="180" rx="30" ry="15"/>
-    </g>
-  </svg>
-  <div class="content">
-    <div class="top">
-      <div class="date">Donnerstag, 17. April</div>
-      <div class="greet">Guten Abend</div>
-      <div class="weather-icon">☀</div>
-      <div class="temp">21°</div>
-      <div class="weather-desc">Klar · Wien</div>
-    </div>
-    <div class="middle">
-      <div class="section-label">Diesen Monat</div>
-      <div class="balance"><span><span class="income">+€2.840</span> &nbsp; <span class="expense">−€1.456</span></span></div>
-      <div style="color:#d4a056;font-size:22px;font-weight:700;margin-top:4px">Saldo €1.384 ↗</div>
-    </div>
-    <div class="bottom">
-      <div class="section-label">Countdowns</div>
-      <div class="countdown"><span>Urlaub Italien</span><span class="days">47 Tage</span></div>
-      <div class="countdown"><span>Geburtstag Mama</span><span class="days">12 Tage</span></div>
-    </div>
-  </div>
-</div>
+async function callC(msgs, sys) {
+  var ak = localStorage.getItem("claude_dashboard_api_key");
+  var h = { "Content-Type": "application/json" };
+  if (ak) { h["x-api-key"] = ak; h["anthropic-version"] = "2023-06-01"; h["anthropic-dangerous-direct-browser-access"] = "true"; }
+  var r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: h, body: JSON.stringify({ model: "claude-sonnet-4-5", max_tokens: 2000, system: sys, messages: msgs }) });
+  if (!r.ok) { var e = await r.json().catch(function() { return {}; }); throw new Error(e && e.error && e.error.message || "Fehler " + r.status); }
+  var d = await r.json();
+  return d.content.filter(function(b) { return b.type === "text"; }).map(function(b) { return b.text; }).join("\n");
+}
+async function callV(b64, mt, pr, sys) {
+  var ak = localStorage.getItem("claude_dashboard_api_key");
+  var h = { "Content-Type": "application/json" };
+  if (ak) { h["x-api-key"] = ak; h["anthropic-version"] = "2023-06-01"; h["anthropic-dangerous-direct-browser-access"] = "true"; }
+  var r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: h, body: JSON.stringify({ model: "claude-sonnet-4-5", max_tokens: 2000, system: sys, messages: [{ role: "user", content: [{ type: "image", source: { type: "base64", media_type: mt, data: b64 } }, { type: "text", text: pr }] }] }) });
+  if (!r.ok) { var e = await r.json().catch(function() { return {}; }); throw new Error(e && e.error && e.error.message || "Fehler " + r.status); }
+  var d = await r.json();
+  return d.content.filter(function(b) { return b.type === "text"; }).map(function(b) { return b.text; }).join("\n");
+}
 
-<!-- 4. LIQUID GOLD -->
-<div class="label"><div class="label-num">4</div><div class="label-name">Liquid Gold</div><div class="label-desc">flüssiger Goldakzent</div></div>
-<div class="preview">
-  <div style="position:absolute;inset:0;background:#0a0a0f"></div>
-  <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 400 520" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <radialGradient id="lg1" cx="30%" cy="20%"><stop offset="0%" stop-color="#d4a056" stop-opacity="0.4"/><stop offset="100%" stop-color="#d4a056" stop-opacity="0"/></radialGradient>
-      <radialGradient id="lg2" cx="70%" cy="80%"><stop offset="0%" stop-color="#b8860b" stop-opacity="0.3"/><stop offset="100%" stop-color="#b8860b" stop-opacity="0"/></radialGradient>
-      <linearGradient id="lg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4a056" stop-opacity="0.15"/><stop offset="50%" stop-color="transparent"/><stop offset="100%" stop-color="#b8860b" stop-opacity="0.1"/></linearGradient>
-    </defs>
-    <rect width="400" height="520" fill="url(#lg3)"/>
-    <ellipse cx="120" cy="100" rx="200" ry="180" fill="url(#lg1)"/>
-    <ellipse cx="280" cy="420" rx="220" ry="200" fill="url(#lg2)"/>
-    <path d="M0,260 Q200,200 400,260 L400,520 L0,520 Z" fill="#d4a056" opacity="0.04"/>
-  </svg>
-  <div class="content">
-    <div class="top">
-      <div class="date">Donnerstag, 17. April</div>
-      <div class="greet">Guten Abend</div>
-      <div class="weather-icon">☀</div>
-      <div class="temp">21°</div>
-      <div class="weather-desc">Klar · Wien</div>
-    </div>
-    <div class="middle">
-      <div class="section-label">Diesen Monat</div>
-      <div class="balance"><span><span class="income">+€2.840</span> &nbsp; <span class="expense">−€1.456</span></span></div>
-      <div style="color:#d4a056;font-size:22px;font-weight:700;margin-top:4px">Saldo €1.384 ↗</div>
-    </div>
-    <div class="bottom">
-      <div class="section-label">Countdowns</div>
-      <div class="countdown"><span>Urlaub Italien</span><span class="days">47 Tage</span></div>
-      <div class="countdown"><span>Geburtstag Mama</span><span class="days">12 Tage</span></div>
-    </div>
-  </div>
-</div>
+// ─── UI PRIMITIVES ───
+function SubPage({ title, onBack, children }) { return (<div style={{ display: "flex", flexDirection: "column", height: "100%" }}><div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}><button onClick={onBack} style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#d4a056", width: 34, height: 34, borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{fontSize:16}}>‹</span></button><span style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 18 }}>{title}</span></div><div style={{ flex: 1, overflowY: "auto", padding: 16 }}>{children}</div></div>); }
+function Card({ children, style, onClick }) { return <div onClick={onClick} style={{ background: "rgba(255,255,255,0.03)", borderRadius: 14, padding: 16, border: "1px solid rgba(255,255,255,0.05)", cursor: onClick ? "pointer" : "default", ...style }}>{children}</div>; }
+function Btn({ children, onClick, disabled, primary, small, danger, style: s }) { return <button onClick={onClick} disabled={disabled} style={{ padding: small ? "6px 14px" : "12px 18px", borderRadius: 10, border: "none", fontWeight: 600, fontSize: small ? 12 : 14, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", background: danger ? "rgba(239,68,68,0.15)" : primary ? "linear-gradient(135deg,#d4a056,#b8860b)" : "rgba(255,255,255,0.06)", color: danger ? "#ef4444" : primary ? "#0a0a0f" : "#c8c0b4", opacity: disabled ? 0.5 : 1, ...s }}>{children}</button>; }
+function AiBox({ text, loading }) { if (!text && !loading) return null; return <div style={{ marginTop: 14, padding: 14, borderRadius: 12, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", color: "#e0d8cc", fontSize: 14, lineHeight: 1.65, whiteSpace: "pre-wrap" }}>{text}{loading && <span style={{ color: "#d4a056", animation: "blink 1.2s infinite" }}> ●●●</span>}</div>; }
+function MC({ icon, bg, title, desc, onClick, badge }) { return <Card onClick={onClick} style={{ cursor: "pointer" }}><div style={{ display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 40, height: 40, borderRadius: 12, background: bg, display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</div><div style={{ flex: 1 }}><div style={{ color: "#e8e0d4", fontWeight: 600, fontSize: 15 }}>{title}</div><div style={{ color: "#6a6474", fontSize: 12 }}>{desc}</div></div>{badge && <span style={{ background: "#d4a056", color: "#0a0a0f", fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 10 }}>{badge}</span>}<span style={{fontSize:16}}>›</span></div></Card>; }
+function AiTool({ onBack, title, prompt, ph, btn }) { const [q, setQ] = useState(""); const [r, setR] = useState(""); const [l, setL] = useState(false); async function run() { if (!q.trim()) return; setL(true); setR(""); try { setR(await callC([{ role: "user", content: q }], prompt)); } catch (e) { setR("⚠️ " + e.message); } setL(false); } return (<SubPage title={title} onBack={onBack}><textarea value={q} onChange={function(e) { setQ(e.target.value); }} placeholder={ph} rows={3} style={{ width: "100%", padding: 12, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", resize: "vertical", minHeight: 80 }} /><Btn primary onClick={run} disabled={!q.trim() || l} style={{ width: "100%", marginTop: 10 }}>{l ? "Lädt..." : btn}</Btn><AiBox text={r} loading={l} /></SubPage>); }
 
-<!-- 5. CYBER GRID -->
-<div class="label"><div class="label-num">5</div><div class="label-name">Cyber Grid</div><div class="label-desc">leuchtendes Gitter</div></div>
-<div class="preview">
-  <div style="position:absolute;inset:0;background:#0a0a0f"></div>
-  <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.3" viewBox="0 0 400 520" preserveAspectRatio="none">
-    <defs>
-      <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#d4a056" stroke-width="0.4"/>
-      </pattern>
-    </defs>
-    <rect width="400" height="520" fill="url(#grid)"/>
-    <circle cx="40" cy="40" r="2" fill="#d4a056"/>
-    <circle cx="200" cy="200" r="2" fill="#d4a056"/>
-    <circle cx="360" cy="120" r="2" fill="#d4a056"/>
-    <circle cx="120" cy="360" r="2" fill="#d4a056"/>
-    <circle cx="280" cy="440" r="2" fill="#d4a056"/>
-    <circle cx="80" cy="80" r="1" fill="#d4a056" opacity="0.5"/>
-    <circle cx="320" cy="280" r="1" fill="#d4a056" opacity="0.5"/>
-  </svg>
-  <div style="position:absolute;inset:0;background:radial-gradient(circle at center,transparent 0%,#0a0a0f 75%)"></div>
-  <div class="content">
-    <div class="top">
-      <div class="date">Donnerstag, 17. April</div>
-      <div class="greet">Guten Abend</div>
-      <div class="weather-icon">☀</div>
-      <div class="temp">21°</div>
-      <div class="weather-desc">Klar · Wien</div>
-    </div>
-    <div class="middle">
-      <div class="section-label">Diesen Monat</div>
-      <div class="balance"><span><span class="income">+€2.840</span> &nbsp; <span class="expense">−€1.456</span></span></div>
-      <div style="color:#d4a056;font-size:22px;font-weight:700;margin-top:4px">Saldo €1.384 ↗</div>
-    </div>
-    <div class="bottom">
-      <div class="section-label">Countdowns</div>
-      <div class="countdown"><span>Urlaub Italien</span><span class="days">47 Tage</span></div>
-      <div class="countdown"><span>Geburtstag Mama</span><span class="days">12 Tage</span></div>
-    </div>
-  </div>
-</div>
+// ─── SMART CAMERA ───
+function SmartCamera({ onCapture, onClose }) {
+  const vRef = useRef(null); const cRef = useRef(null); const sRef = useRef(null); const aRef = useRef(null); const pRef = useRef(null); const stRef = useRef(0);
+  const [status, setStatus] = useState("starting"); const [sharp, setSharp] = useState(0); const [stab, setStab] = useState(0); const [bc, setBc] = useState("rgba(255,255,255,0.3)"); const [cap, setCap] = useState(null);
+  function cSharp(id) { var d = id.data, w = id.width, h = id.height, s = 4, sum = 0, c = 0; for (var y = 1; y < h - 1; y += s) { for (var x = 1; x < w - 1; x += s) { var i = (y * w + x) * 4; var cn = d[i] * .299 + d[i + 1] * .587 + d[i + 2] * .114; var t = d[((y - 1) * w + x) * 4] * .299 + d[((y - 1) * w + x) * 4 + 1] * .587 + d[((y - 1) * w + x) * 4 + 2] * .114; var b = d[((y + 1) * w + x) * 4] * .299 + d[((y + 1) * w + x) * 4 + 1] * .587 + d[((y + 1) * w + x) * 4 + 2] * .114; var l = d[(y * w + x - 1) * 4] * .299 + d[(y * w + x - 1) * 4 + 1] * .587 + d[(y * w + x - 1) * 4 + 2] * .114; var r = d[(y * w + x + 1) * 4] * .299 + d[(y * w + x + 1) * 4 + 1] * .587 + d[(y * w + x + 1) * 4 + 2] * .114; var lp = Math.abs(t + b + l + r - 4 * cn); sum += lp * lp; c++; } } return c > 0 ? Math.sqrt(sum / c) : 0; }
+  function cStab(cur, prev) { if (!prev) return 0; var df = 0, s = 16, c = 0; for (var i = 0; i < cur.data.length; i += s * 4) { var g1 = cur.data[i] * .299 + cur.data[i + 1] * .587 + cur.data[i + 2] * .114; var g2 = prev.data[i] * .299 + prev.data[i + 1] * .587 + prev.data[i + 2] * .114; df += Math.abs(g1 - g2); c++; } return Math.max(0, 100 - (c > 0 ? df / c : 255) * 2); }
+  function gFrame() { if (!vRef.current || !cRef.current) return null; var v = vRef.current, c = cRef.current, ctx = c.getContext("2d"); c.width = v.videoWidth || 640; c.height = v.videoHeight || 480; ctx.drawImage(v, 0, 0); return ctx.getImageData(0, 0, c.width, c.height); }
+  function doCapture() { if (!cRef.current) return; var url = cRef.current.toDataURL("image/jpeg", 0.9); setCap(url); setStatus("captured"); if (aRef.current) cancelAnimationFrame(aRef.current); if (sRef.current) sRef.current.getTracks().forEach(function(t) { t.stop(); }); if (navigator.vibrate) navigator.vibrate(100); onCapture(url.split(",")[1], "image/jpeg", url); }
+  function loop() { var f = gFrame(); if (!f) { aRef.current = requestAnimationFrame(loop); return; } var s = cSharp(f); var st = cStab(f, pRef.current); pRef.current = f; var ns = Math.min(100, s * 3); setSharp(Math.round(ns)); setStab(Math.round(st)); if (ns > 35 && st > 75) { stRef.current++; setBc("#4ade80"); setStatus("ready"); if (stRef.current >= 15) { doCapture(); return; } } else { stRef.current = Math.max(0, stRef.current - 2); setBc(ns > 35 ? "#f59e0b" : "rgba(255,255,255,0.3)"); setStatus("scanning"); } aRef.current = requestAnimationFrame(loop); }
+  useEffect(function() { var m = true; async function start() { try { var stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } }); if (!m) { stream.getTracks().forEach(function(t) { t.stop(); }); return; } sRef.current = stream; if (vRef.current) { vRef.current.srcObject = stream; vRef.current.onloadedmetadata = function() { vRef.current.play(); setStatus("scanning"); aRef.current = requestAnimationFrame(loop); }; } } catch (err) { setStatus("error"); } } start(); return function() { m = false; if (aRef.current) cancelAnimationFrame(aRef.current); if (sRef.current) sRef.current.getTracks().forEach(function(t) { t.stop(); }); }; }, []);
+  if (cap) return (<div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 1000, display: "flex", flexDirection: "column" }}><img src={cap} style={{ flex: 1, objectFit: "contain" }} /><div style={{ padding: 20, textAlign: "center" }}><span style={{ color: "#4ade80", fontWeight: 600 }}>✓ Aufgenommen</span></div></div>);
+  var stText = status === "starting" ? "Kamera startet..." : status === "scanning" ? "Rechnung ins Bild halten..." : status === "ready" ? "Erkannt! Halte still..." : "Kamera-Zugriff verweigert";
+  return (<div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 1000 }}><div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10, padding: "max(16px,env(safe-area-inset-top)) 16px 16px", background: "linear-gradient(to bottom,rgba(0,0,0,0.7),transparent)", display: "flex", justifyContent: "space-between", alignItems: "center" }}><button onClick={onClose} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", width: 40, height: 40, borderRadius: 20, cursor: "pointer", fontSize: 20 }}><span style={{fontSize:16}}>✕</span></button><span style={{ color: "#fff", fontSize: 14, fontWeight: 600 }}>Auto-Scan</span><div style={{ width: 40 }} /></div><video ref={vRef} playsInline muted autoPlay style={{ width: "100%", height: "100%", objectFit: "cover" }} /><canvas ref={cRef} style={{ display: "none" }} /><div style={{ position: "absolute", top: "15%", left: "8%", right: "8%", bottom: "25%", border: "3px solid " + bc, borderRadius: 16, transition: "border-color 0.3s", pointerEvents: "none" }} /><div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "20px 16px max(20px,env(safe-area-inset-bottom))", background: "linear-gradient(to top,rgba(0,0,0,0.8),transparent)" }}><div style={{ textAlign: "center", marginBottom: 12 }}><div style={{ color: status === "ready" ? "#4ade80" : "#fff", fontSize: 15, fontWeight: 600 }}>{stText}</div><div style={{ display: "flex", justifyContent: "center", gap: 20, marginTop: 8 }}><span style={{ fontSize: 11, color: sharp > 35 ? "#4ade80" : "#f59e0b" }}>Schärfe: {sharp}%</span><span style={{ fontSize: 11, color: stab > 75 ? "#4ade80" : "#f59e0b" }}>Stabilität: {stab}%</span></div></div><div style={{ display: "flex", justifyContent: "center" }}><button onClick={doCapture} style={{ width: 70, height: 70, borderRadius: 35, border: "4px solid rgba(255,255,255,0.8)", background: "rgba(255,255,255,0.2)", cursor: "pointer" }}><div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "rgba(255,255,255,0.9)" }} /></button></div></div></div>);
+}
 
-<!-- 6. NOIR MIST -->
-<div class="label"><div class="label-num">6</div><div class="label-name">Noir Mist</div><div class="label-desc">cinematischer Nebel</div></div>
-<div class="preview">
-  <div style="position:absolute;inset:0;background:linear-gradient(180deg,#1a1424 0%,#0a0a0f 50%,#1a1024 100%)"></div>
-  <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 400 520" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <filter id="blur1"><feGaussianBlur stdDeviation="40"/></filter>
-    </defs>
-    <ellipse cx="100" cy="150" rx="120" ry="80" fill="#d4a056" opacity="0.25" filter="url(#blur1)"/>
-    <ellipse cx="320" cy="380" rx="140" ry="90" fill="#a78bfa" opacity="0.15" filter="url(#blur1)"/>
-    <ellipse cx="200" cy="500" rx="150" ry="60" fill="#d4a056" opacity="0.1" filter="url(#blur1)"/>
-  </svg>
-  <div style="position:absolute;inset:0;background:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><filter id=%22n%22><feTurbulence baseFrequency=%220.9%22/></filter><rect width=%22100%22 height=%22100%22 filter=%22url(%23n)%22 opacity=%220.4%22/></svg>');opacity:0.15;mix-blend-mode:overlay"></div>
-  <div class="content">
-    <div class="top">
-      <div class="date">Donnerstag, 17. April</div>
-      <div class="greet">Guten Abend</div>
-      <div class="weather-icon">☀</div>
-      <div class="temp">21°</div>
-      <div class="weather-desc">Klar · Wien</div>
-    </div>
-    <div class="middle">
-      <div class="section-label">Diesen Monat</div>
-      <div class="balance"><span><span class="income">+€2.840</span> &nbsp; <span class="expense">−€1.456</span></span></div>
-      <div style="color:#d4a056;font-size:22px;font-weight:700;margin-top:4px">Saldo €1.384 ↗</div>
-    </div>
-    <div class="bottom">
-      <div class="section-label">Countdowns</div>
-      <div class="countdown"><span>Urlaub Italien</span><span class="days">47 Tage</span></div>
-      <div class="countdown"><span>Geburtstag Mama</span><span class="days">12 Tage</span></div>
-    </div>
-  </div>
-</div>
+// ─── SETUP ───
+function SetupScreen({ onSave }) { const [key, setKey] = useState(""); const [show, setShow] = useState(false); const [testing, setTesting] = useState(false); const [error, setError] = useState("");
+  async function go() { setTesting(true); setError(""); try { localStorage.setItem("claude_dashboard_api_key", key); await callC([{ role: "user", content: "Hi" }], "Antworte OK."); onSave(key); } catch (e) { localStorage.removeItem("claude_dashboard_api_key"); setError(e.message || "Fehlgeschlagen"); } setTesting(false); }
+  return (<div style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: 24, background: "linear-gradient(170deg,#0a0a0f 0%,#141420 50%,#1a1410 100%)" }}><div style={{ width: "100%", maxWidth: 380 }}><div style={{ textAlign: "center", marginBottom: 40 }}><div style={{ width: 72, height: 72, borderRadius: 22, margin: "0 auto 20px", background: "linear-gradient(135deg,#d4a056,#b8860b)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 32px rgba(212,160,86,0.3)" }}><svg width="32" height="32" viewBox="0 0 180 180"><path d="M90 40 L140 90 L90 140 L40 90 Z" fill="#0a0a0f" /></svg></div><h1 style={{ fontFamily: "'DM Serif Display',Georgia,serif", fontSize: 30, color: "#f0e6d3", margin: 0 }}>Claude Dashboard</h1><p style={{ color: "#8a8494", fontSize: 14, marginTop: 8 }}>Dein KI-Cockpit</p></div><div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: 24, border: "1px solid rgba(255,255,255,0.06)" }}><label style={{ color: "#a09aae", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.08em" }}>API-Schlüssel</label><div style={{ position: "relative", marginTop: 8 }}><input type={show ? "text" : "password"} value={key} onChange={function(e) { setKey(e.target.value); }} placeholder="sk-ant-api03-..." autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{ width: "100%", padding: "14px 48px 14px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 15, fontFamily: "monospace", outline: "none" }} /><button onClick={function() { setShow(!show); }} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#8a8494", cursor: "pointer", fontSize: 18 }}>{show ? "◡" : "◉"}</button></div><p style={{ color: "#6a6474", fontSize: 12, marginTop: 10 }}>Key auf <strong style={{ color: "#d4a056" }}>console.anthropic.com</strong></p>{error && <p style={{ color: "#e85d5d", fontSize: 13, marginTop: 10, padding: "8px 12px", background: "rgba(232,93,93,0.08)", borderRadius: 8 }}>{error}</p>}<Btn primary onClick={go} disabled={!key.trim() || testing} style={{ width: "100%", marginTop: 16 }}>{testing ? "Prüfe..." : "Verbinden"}</Btn></div></div></div>);
+}
 
-<p style="text-align:center;color:#6a6474;font-size:12px;padding:20px 0">
-Sag mir die Nummer, die dir am besten gefällt
-</p>
+// ─── SVG MINI CHARTS ───
+function PieChart({ data, size }) {
+  var total = data.reduce(function(s, d) { return s + d.value; }, 0);
+  if (total === 0) return null;
+  var cx = size / 2, cy = size / 2, r = size / 2 - 4, angle = -Math.PI / 2;
+  var paths = data.map(function(d) {
+    var slice = (d.value / total) * Math.PI * 2;
+    var x1 = cx + r * Math.cos(angle), y1 = cy + r * Math.sin(angle);
+    angle += slice;
+    var x2 = cx + r * Math.cos(angle), y2 = cy + r * Math.sin(angle);
+    var large = slice > Math.PI ? 1 : 0;
+    return { d: "M" + cx + "," + cy + " L" + x1 + "," + y1 + " A" + r + "," + r + " 0 " + large + ",1 " + x2 + "," + y2 + " Z", fill: d.color };
+  });
+  return (<svg width={size} height={size} viewBox={"0 0 " + size + " " + size}>{paths.map(function(p, i) { return <path key={i} d={p.d} fill={p.fill} />; })}</svg>);
+}
 
+function BarChart({ data, width, height }) {
+  var max = Math.max.apply(null, data.map(function(d) { return d.value; }));
+  if (max === 0) return null;
+  var barW = Math.floor((width - 20) / data.length) - 4;
+  return (<svg width={width} height={height} viewBox={"0 0 " + width + " " + height}>{data.map(function(d, i) { var h = (d.value / max) * (height - 20); return <rect key={i} x={10 + i * (barW + 4)} y={height - 10 - h} width={barW} height={h} rx={3} fill={d.color} />; })}</svg>);
+}
+
+// ─── HOME PAGE ───
+function AnimatedNum({ value, prefix, suffix, decimals }) {
+  var [val, setVal] = useState(0);
+  useEffect(function() {
+    var start = 0; var end = value || 0; var duration = 800; var startTime = null;
+    function tick(t) {
+      if (!startTime) startTime = t;
+      var elapsed = t - startTime;
+      var progress = Math.min(1, elapsed / duration);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      setVal(start + (end - start) * eased);
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }, [value]);
+  var d = decimals !== undefined ? decimals : 2;
+  return (<span>{prefix || ""}{val.toFixed(d)}{suffix || ""}</span>);
+}
+
+function WeatherWidget() {
+  var [w, setW] = useState(function() { return SG("weather", null); });
+  var [loc, setLoc] = useState(function() { return SG("weatherLoc", null); });
+  var [err, setErr] = useState("");
+
+  function codeToIcon(c) {
+    if (c === 0) return { icon: "☀", desc: "Klar", glow: "rgba(245,158,11,0.25)" };
+    if (c >= 1 && c <= 3) return { icon: c === 1 ? "🌤" : c === 2 ? "⛅" : "☁", desc: c === 1 ? "Heiter" : c === 2 ? "Teils bewölkt" : "Bewölkt", glow: "rgba(148,163,184,0.2)" };
+    if (c === 45 || c === 48) return { icon: "🌫", desc: "Nebel", glow: "rgba(148,163,184,0.2)" };
+    if (c >= 51 && c <= 57) return { icon: "🌦", desc: "Nieselregen", glow: "rgba(96,165,250,0.25)" };
+    if (c >= 61 && c <= 67) return { icon: "🌧", desc: "Regen", glow: "rgba(96,165,250,0.3)" };
+    if (c >= 71 && c <= 77) return { icon: "❄", desc: "Schnee", glow: "rgba(186,230,253,0.3)" };
+    if (c >= 80 && c <= 82) return { icon: "🌧", desc: "Schauer", glow: "rgba(96,165,250,0.3)" };
+    if (c >= 95) return { icon: "⛈", desc: "Gewitter", glow: "rgba(167,139,250,0.3)" };
+    return { icon: "🌡", desc: "Wetter", glow: "rgba(148,163,184,0.2)" };
+  }
+
+  async function fetchWeather(lat, lon) {
+    try {
+      var url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=temperature_2m,weather_code&timezone=auto";
+      var r = await fetch(url);
+      var d = await r.json();
+      if (d.current) {
+        var nw = { temp: Math.round(d.current.temperature_2m), code: d.current.weather_code, fetched: Date.now() };
+        setW(nw); SS("weather", nw);
+      }
+    } catch (e) { setErr("Wetter-Abruf fehlgeschlagen"); }
+  }
+
+  async function reverseGeo(lat, lon) {
+    try {
+      var r = await fetch("https://geocoding-api.open-meteo.com/v1/reverse?latitude=" + lat + "&longitude=" + lon + "&language=de");
+      var d = await r.json();
+      if (d.results && d.results[0]) {
+        var name = d.results[0].name;
+        setLoc(name); SS("weatherLoc", name);
+        return name;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function loadLocation() {
+    if (!navigator.geolocation) { setErr("GPS nicht verfügbar"); return; }
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        var lat = pos.coords.latitude; var lon = pos.coords.longitude;
+        fetchWeather(lat, lon);
+        reverseGeo(lat, lon);
+      },
+      function() { setErr("Standort verweigert"); }
+    );
+  }
+
+  useEffect(function() {
+    var stale = !w || (Date.now() - (w.fetched || 0)) > 30 * 60 * 1000; // 30 min cache
+    if (stale) loadLocation();
+  }, []);
+
+  if (err && !w) return (<div style={{ padding: 20, textAlign: "center" }}><div style={{ color: "#6a6474", fontSize: 13, marginBottom: 8 }}>{err}</div><Btn small onClick={loadLocation}>🔄 Erneut versuchen</Btn></div>);
+  if (!w) return (<div style={{ padding: 20, textAlign: "center", color: "#6a6474", fontSize: 13 }}>Lade Wetter...</div>);
+
+  var info = codeToIcon(w.code);
+  return (
+    <div style={{ position: "relative", padding: "20px 16px", textAlign: "center" }}>
+      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 180, height: 180, borderRadius: "50%", background: info.glow, filter: "blur(40px)", pointerEvents: "none" }} />
+      <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
+        <div style={{ fontSize: 56, lineHeight: 1, filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.4))" }}>{info.icon}</div>
+        <div style={{ textAlign: "left" }}>
+          <div style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 42, lineHeight: 1, fontWeight: 400 }}>{w.temp}°</div>
+          <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, marginTop: 4 }}>{info.desc}{loc ? " · " + loc : ""}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HomePage({ setTab }) {
+  var [cds, setCds] = useState(function() { return SG("countdowns", []); });
+  var [sa, setSa] = useState(false); var [cn, setCn] = useState(""); var [cd, setCd] = useState("");
+  var h = new Date().getHours();
+  var gr = h < 6 ? "Gute Nacht" : h < 12 ? "Guten Morgen" : h < 17 ? "Guten Tag" : h < 22 ? "Guten Abend" : "Gute Nacht";
+  var td = new Date().toLocaleDateString("de-AT", { weekday: "long", day: "numeric", month: "long" });
+  var exps = SG("expenses", []); var inc = SG("income", []);
+  var mo = new Date().toISOString().slice(0, 7);
+  var totExp = exps.filter(function(e) { return e.date && e.date.startsWith(mo); }).reduce(function(s, e) { return s + (e.amount || 0); }, 0);
+  var totInc = inc.filter(function(e) { return e.date && e.date.startsWith(mo); }).reduce(function(s, e) { return s + (e.amount || 0); }, 0);
+  var saldo = totInc - totExp;
+  var budget = SG("budget", 0);
+  var budgetPct = budget > 0 ? Math.round(totExp / budget * 100) : 0;
+  function dt(d) { return Math.max(0, Math.ceil((new Date(d) - new Date()) / 86400000)); }
+  function ac() { if (!cn || !cd) return; var u = cds.concat([{ id: Date.now(), name: cn, date: cd }]); setCds(u); SS("countdowns", u); setCn(""); setCd(""); setSa(false); }
+  function rc(id) { var u = cds.filter(function(c) { return c.id !== id; }); setCds(u); SS("countdowns", u); }
+
+  return (
+    <div style={{ position: "relative", minHeight: "100%" }}>
+      {/* AURORA MESH BACKGROUND */}
+      <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+        <div style={{ position: "absolute", top: "-10%", left: "-20%", width: "70%", height: "70%", borderRadius: "50%", background: "radial-gradient(circle,rgba(212,160,86,0.28),transparent 60%)", filter: "blur(40px)" }} />
+        <div style={{ position: "absolute", top: "30%", right: "-20%", width: "80%", height: "80%", borderRadius: "50%", background: "radial-gradient(circle,rgba(167,139,250,0.22),transparent 60%)", filter: "blur(50px)" }} />
+        <div style={{ position: "absolute", bottom: "-10%", left: "20%", width: "70%", height: "70%", borderRadius: "50%", background: "radial-gradient(circle,rgba(96,165,250,0.18),transparent 60%)", filter: "blur(50px)" }} />
+      </div>
+
+      {/* CONTENT */}
+      <div style={{ position: "relative", padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
+        <div>
+          <h1 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 28, margin: 0, letterSpacing: "-0.01em" }}>{gr}</h1>
+          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, margin: "4px 0 0", textTransform: "capitalize" }}>{td}</p>
+        </div>
+
+        {/* WEATHER */}
+        <Card style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <WeatherWidget />
+        </Card>
+
+        {/* MONTHLY OVERVIEW */}
+        <Card onClick={function() { setTab("finanzen"); }} style={{ cursor: "pointer", background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <span style={{ color: "rgba(212,160,86,0.8)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: 600 }}>Diesen Monat</span>
+            <span style={{ color: "#4a4454", fontSize: 16 }}>›</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+            <div><div style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>Einnahmen</div><div style={{ color: "#4ade80", fontSize: 20, fontWeight: 700 }}>+€<AnimatedNum value={totInc} /></div></div>
+            <div style={{ textAlign: "right" }}><div style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>Ausgaben</div><div style={{ color: "#ef4444", fontSize: 20, fontWeight: 700 }}>−€<AnimatedNum value={totExp} /></div></div>
+          </div>
+          <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}><div style={{ height: "100%", borderRadius: 2, background: saldo >= 0 ? "linear-gradient(90deg,#4ade80,#22c55e)" : "linear-gradient(90deg,#ef4444,#dc2626)", width: Math.min(100, Math.abs(saldo / Math.max(totInc, 1) * 100)) + "%", transition: "width 1s ease-out" }} /></div>
+          <div style={{ color: saldo >= 0 ? "#4ade80" : "#ef4444", fontSize: 14, fontWeight: 700, marginTop: 8 }}>Saldo €<AnimatedNum value={saldo} /> {saldo >= 0 ? "↗" : "↘"}</div>
+        </Card>
+
+        {/* BUDGET WARNING */}
+        {budget > 0 && budgetPct >= 80 && (
+          <Card style={{ background: budgetPct >= 100 ? "rgba(239,68,68,0.08)" : "rgba(245,158,11,0.08)", backdropFilter: "blur(20px)", borderColor: budgetPct >= 100 ? "rgba(239,68,68,0.3)" : "rgba(245,158,11,0.3)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ fontSize: 16, color: budgetPct >= 100 ? "#ef4444" : "#f59e0b" }}>⚠️</span><span style={{ color: budgetPct >= 100 ? "#ef4444" : "#f59e0b", fontWeight: 600, fontSize: 14 }}>{budgetPct >= 100 ? "Budget überschritten!" : "Budget zu " + budgetPct + "%"}</span></div>
+            <div style={{ height: 6, borderRadius: 3, background: "rgba(255,255,255,0.06)", marginTop: 8 }}><div style={{ height: "100%", borderRadius: 3, background: budgetPct >= 100 ? "#ef4444" : "#f59e0b", width: Math.min(100, budgetPct) + "%" }} /></div>
+            <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, marginTop: 4 }}>€{totExp.toFixed(0)} von €{budget}</div>
+          </Card>
+        )}
+
+        {/* COUNTDOWNS */}
+        {cds.length > 0 && (
+          <Card style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <span style={{ color: "rgba(212,160,86,0.8)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: 600 }}>Countdowns</span>
+              <button onClick={function() { setSa(!sa); }} style={{ background: "none", border: "none", color: "#d4a056", cursor: "pointer", fontSize: 18, fontWeight: 700 }}>+</button>
+            </div>
+            {cds.map(function(c) { return (<div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}><span style={{ color: "#e0d8cc", fontSize: 14 }}>{c.name}</span><div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ color: "#d4a056", fontWeight: 700, fontSize: 18 }}>{dt(c.date)}</span><span style={{ color: "rgba(255,255,255,0.4)", fontSize: 11 }}>Tage</span><button onClick={function(e) { e.stopPropagation(); rc(c.id); }} style={{ background: "none", border: "none", color: "#4a4454", cursor: "pointer", padding: 4 }}>✕</button></div></div>); })}
+          </Card>
+        )}
+
+        {cds.length === 0 && !sa && <Btn onClick={function() { setSa(true); }} small style={{ alignSelf: "flex-start" }}>+ Countdown hinzufügen</Btn>}
+        {sa && (
+          <Card style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(212,160,86,0.3)" }}>
+            <input value={cn} onChange={function(e) { setCn(e.target.value); }} placeholder="Name (z.B. Urlaub)" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 8 }} />
+            <input type="date" value={cd} onChange={function(e) { setCd(e.target.value); }} style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 8, colorScheme: "dark" }} />
+            <div style={{ display: "flex", gap: 8 }}><Btn primary onClick={ac} small>Speichern</Btn><Btn onClick={function() { setSa(false); }} small>Abbrechen</Btn></div>
+          </Card>
+        )}
+
+        {/* QUICK ACCESS */}
+        <div style={{ marginTop: 4 }}>
+          <div style={{ color: "rgba(212,160,86,0.8)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: 600, marginBottom: 8 }}>Schnellzugriff</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <Card onClick={function() { setTab("finanzen"); }} style={{ cursor: "pointer", padding: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)" }}><div style={{ fontSize: 22, marginBottom: 6 }}>📷</div><div style={{ color: "#e0d8cc", fontSize: 13, fontWeight: 500 }}>Rechnung scannen</div></Card>
+            <Card onClick={function() { setTab("listen"); }} style={{ cursor: "pointer", padding: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)" }}><div style={{ fontSize: 22, marginBottom: 6 }}>🛒</div><div style={{ color: "#e0d8cc", fontSize: 13, fontWeight: 500 }}>Einkaufsliste</div></Card>
+            <Card onClick={function() { setTab("notizen"); }} style={{ cursor: "pointer", padding: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)" }}><div style={{ fontSize: 22, marginBottom: 6 }}>🧠</div><div style={{ color: "#e0d8cc", fontSize: 13, fontWeight: 500 }}>Notiz erstellen</div></Card>
+            <Card onClick={function() { setTab("fitness"); }} style={{ cursor: "pointer", padding: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)" }}><div style={{ fontSize: 22, marginBottom: 6 }}>⏱</div><div style={{ color: "#e0d8cc", fontSize: 13, fontWeight: 500 }}>Timer starten</div></Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── RECHT (same as before) ───
+function DocA({ onBack }) { var [sc, setSc] = useState(false); var [pv, setPv] = useState(null); var [id, setId] = useState(null); var [ex, setEx] = useState(""); var [res, setRes] = useState(""); var [ld, setLd] = useState(false); function hc(b, m, u) { setId(b); setPv(u); setSc(false); } async function an() { if (!id) return; setLd(true); setRes(""); try { setRes(await callV(id, "image/jpeg", ex.trim() ? "Analysiere. Kontext: " + ex : "Analysiere rechtlich.", PR.docA)); } catch (e) { setRes("⚠️ " + e.message); } setLd(false); } if (sc) return <SmartCamera onCapture={hc} onClose={function() { setSc(false); }} />; if (!pv) return (<SubPage title="Dokument analysieren" onBack={onBack}><Btn primary onClick={function() { setSc(true); }} style={{ width: "100%", padding: 20 }}><span style={{fontSize:16}}>📷</span>Auto-Scan</Btn><p style={{ color: "#6a6474", fontSize: 12, textAlign: "center", marginTop: 12 }}>Kamera erkennt Dokument automatisch.</p></SubPage>); return (<SubPage title="Dokument analysieren" onBack={onBack}><div style={{ borderRadius: 12, overflow: "hidden", marginBottom: 12, border: "1px solid rgba(255,255,255,0.08)" }}><img src={pv} style={{ width: "100%", display: "block" }} /></div><Btn small onClick={function() { setPv(null); setId(null); setRes(""); }} style={{ marginBottom: 12 }}>Neues Foto</Btn><input value={ex} onChange={function(e) { setEx(e.target.value); }} placeholder="Kontext (optional)" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 10 }} /><Btn primary onClick={an} disabled={ld} style={{ width: "100%" }}>{ld ? "Analysiert..." : "Rechtlich beurteilen"}</Btn><AiBox text={res} loading={ld} /></SubPage>); }
+function RechtPage() { var [sub, setSub] = useState(null); if (sub === "l") return <AiTool onBack={function() { setSub(null); }} title="Rechtsrecherche" prompt={PR.legal} ph="z.B. '§ 128 StGB schwerer Diebstahl?'" btn="Recherchieren" />; if (sub === "d") return <DocA onBack={function() { setSub(null); }} />; if (sub === "t") return <AiTool onBack={function() { setSub(null); }} title="Text-Analyse" prompt={PR.text} ph="Text einfügen..." btn="Analysieren" />; return (<div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}><h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 22, margin: "0 0 4px" }}>Recht & Analyse</h2><MC icon={<span style={{fontSize:16}}>🔍</span>} bg="rgba(167,139,250,0.15)" title="Rechtsrecherche" desc="StGB, StPO, Entscheidungen" onClick={function() { setSub("l"); }} /><MC icon={<span style={{fontSize:16}}>📷</span>} bg="rgba(74,222,128,0.15)" title="Dokument analysieren" desc="Auto-Scan → Rechtsbewertung" onClick={function() { setSub("d"); }} /><MC icon={<span style={{fontSize:16}}>📄</span>} bg="rgba(96,165,250,0.15)" title="Text-Analyse" desc="Zusammenfassen & Kernpunkte" onClick={function() { setSub("t"); }} /></div>); }
+
+// ─── FITNESS (same as before) ───
+function IntTimer({ onBack }) { var [ws, setWs] = useState(30); var [rs, setRs] = useState(15); var [rn, setRn] = useState(8); var [cr, setCr] = useState(0); var [tl, setTl] = useState(0); var [ph, setPh] = useState("idle"); var [ir, setIr] = useState(false); var tr = useRef(null); var ac = useRef(null); function beep(f, d) { try { if (!ac.current) ac.current = new (window.AudioContext || window.webkitAudioContext)(); var o = ac.current.createOscillator(); var g = ac.current.createGain(); o.connect(g); g.connect(ac.current.destination); o.frequency.value = f || 800; g.gain.value = 0.3; o.start(); o.stop(ac.current.currentTime + (d || 150) / 1000); } catch (e) {} } function st() { setCr(1); setPh("work"); setTl(ws); setIr(true); beep(800); } function rt() { setIr(false); setPh("idle"); setCr(0); setTl(0); } useEffect(function() { if (!ir) { clearInterval(tr.current); return; } tr.current = setInterval(function() { setTl(function(t) { if (t <= 1) { if (ph === "work") { if (cr >= rn) { setPh("done"); setIr(false); beep(400, 500); return 0; } setPh("rest"); beep(400); return rs; } else { setCr(function(r) { return r + 1; }); setPh("work"); beep(800); return ws; } } if (t <= 4) beep(600, 80); return t - 1; }); }, 1000); return function() { clearInterval(tr.current); }; }, [ir, ph, cr, rn, ws, rs]); var pct = ph === "work" && ws > 0 ? (1 - tl / ws) * 100 : ph === "rest" && rs > 0 ? (1 - tl / rs) * 100 : 0; var pc = ph === "work" ? "#4ade80" : ph === "rest" ? "#f59e0b" : "#6a6474"; function NI({ label, value, onChange, min, max, step }) { return (<div style={{ flex: 1, textAlign: "center" }}><div style={{ color: "#6a6474", fontSize: 11, marginBottom: 4 }}>{label}</div><div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><button onClick={function() { onChange(Math.max(min, value - step)); }} style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "#d4a056", fontSize: 16, cursor: "pointer" }}>−</button><span style={{ color: "#f0e6d3", fontSize: 18, fontWeight: 700, minWidth: 30 }}>{value}</span><button onClick={function() { onChange(Math.min(max, value + step)); }} style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "#d4a056", fontSize: 16, cursor: "pointer" }}>+</button></div></div>); } return (<SubPage title="Intervall-Timer" onBack={onBack}><div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}><div style={{ position: "relative", width: 200, height: 200 }}><svg width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" /><circle cx="100" cy="100" r="90" fill="none" stroke={pc} strokeWidth="8" strokeDasharray={String(2 * Math.PI * 90)} strokeDashoffset={String(2 * Math.PI * 90 * (1 - pct / 100))} strokeLinecap="round" transform="rotate(-90 100 100)" style={{ transition: "stroke-dashoffset 0.3s" }} /></svg><div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}><div style={{ fontSize: 42, fontWeight: 700, color: "#f0e6d3", fontFamily: "monospace" }}>{String(Math.floor(tl / 60)).padStart(2, "0")}:{String(tl % 60).padStart(2, "0")}</div><div style={{ fontSize: 13, color: pc, fontWeight: 600 }}>{ph === "idle" ? "BEREIT" : ph === "work" ? "ARBEIT" : ph === "rest" ? "PAUSE" : "FERTIG!"}</div>{ph !== "idle" && ph !== "done" && <div style={{ fontSize: 12, color: "#6a6474" }}>Runde {cr}/{rn}</div>}</div></div><div style={{ display: "flex", gap: 12 }}>{ph === "idle" ? <Btn primary onClick={st}><span style={{fontSize:16}}>▶</span>Start</Btn> : <div style={{ display: "flex", gap: 12 }}><Btn primary={ir} onClick={function() { setIr(!ir); }}>{ir ? <><span style={{fontSize:16}}>⏸</span>Pause</> : <><span style={{fontSize:16}}>▶</span>Weiter</>}</Btn><Btn onClick={rt}><span style={{fontSize:16}}>↻</span>Reset</Btn></div>}</div>{ph === "idle" && <Card style={{ width: "100%" }}><div style={{ display: "flex", gap: 8 }}><NI label="Arbeit (s)" value={ws} onChange={setWs} min={5} max={120} step={5} /><NI label="Pause (s)" value={rs} onChange={setRs} min={5} max={120} step={5} /><NI label="Runden" value={rn} onChange={setRn} min={1} max={30} step={1} /></div><div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}><Btn small onClick={function() { setWs(20); setRs(10); setRn(8); }}>Tabata</Btn><Btn small onClick={function() { setWs(30); setRs(30); setRn(10); }}>HIIT</Btn><Btn small onClick={function() { setWs(45); setRs(15); setRn(6); }}>Ruder</Btn></div></Card>}</div></SubPage>); }
+function TrainLog({ onBack }) { var [logs, setLogs] = useState(function() { return SG("trainlog", []); }); var [tp, setTp] = useState("Rudergerät"); var [dur, setDur] = useState("30"); var [nt, setNt] = useState(""); function add() { var u = [{ id: Date.now(), type: tp, duration: parseInt(dur) || 0, note: nt, date: new Date().toISOString().split("T")[0] }].concat(logs); setLogs(u); SS("trainlog", u); setNt(""); } function rm(id) { var u = logs.filter(function(l) { return l.id !== id; }); setLogs(u); SS("trainlog", u); } return (<SubPage title="Trainingslog" onBack={onBack}><Card><div style={{ display: "flex", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>{["Rudergerät", "Ergometer", "Bodyweight"].map(function(t) { return <Btn key={t} small primary={tp === t} onClick={function() { setTp(t); }}>{t}</Btn>; })}</div><div style={{ display: "flex", gap: 8, marginBottom: 8 }}><input type="number" value={dur} onChange={function(e) { setDur(e.target.value); }} style={{ flex: 1, padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none" }} /><span style={{ color: "#6a6474", alignSelf: "center", fontSize: 13 }}>Min</span></div><input value={nt} onChange={function(e) { setNt(e.target.value); }} placeholder="Notiz" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 8 }} /><Btn primary onClick={add} style={{ width: "100%" }}>Eintragen</Btn></Card><div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>{logs.slice(0, 15).map(function(l) { return (<Card key={l.id} style={{ padding: 12 }}><div style={{ display: "flex", justifyContent: "space-between" }}><div><span style={{ color: "#d4a056", fontSize: 13, fontWeight: 600 }}>{l.type}</span><span style={{ color: "#6a6474", fontSize: 12, marginLeft: 8 }}>{l.duration}min — {l.date}</span></div><button onClick={function() { rm(l.id); }} style={{ background: "none", border: "none", color: "#4a4454", cursor: "pointer" }}><span style={{fontSize:16}}>🗑</span></button></div></Card>); })}{logs.length === 0 && <p style={{ color: "#4a4454", fontSize: 13, textAlign: "center" }}>Noch keine Einträge</p>}</div></SubPage>); }
+function YoutubeWorkouts({ onBack }) {
+  var [videos, setVideos] = useState(function() { return SG("ytworkouts", []); });
+  var [url, setUrl] = useState("");
+  var [loading, setLoading] = useState(false);
+
+  function getVideoId(u) {
+    var m = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+    return m ? m[1] : null;
+  }
+
+  async function addVideo() {
+    if (!url.trim()) return;
+    var vid = getVideoId(url.trim());
+    if (!vid) { alert("Kein gültiger YouTube-Link"); return; }
+    if (videos.some(function(v) { return v.videoId === vid; })) { alert("Video bereits in der Liste"); return; }
+    setLoading(true);
+    var title = "YouTube Workout";
+    var desc = "";
+    try {
+      var r = await fetch("https://noembed.com/embed?url=https://www.youtube.com/watch?v=" + vid);
+      var d = await r.json();
+      if (d.title) title = d.title;
+      if (d.author_name) desc = d.author_name;
+    } catch (e) {}
+    var entry = { id: Date.now(), videoId: vid, url: "https://www.youtube.com/watch?v=" + vid, title: title, channel: desc, thumb: "https://img.youtube.com/vi/" + vid + "/mqdefault.jpg", added: new Date().toISOString().split("T")[0] };
+    var u = [entry].concat(videos);
+    setVideos(u); SS("ytworkouts", u); setUrl(""); setLoading(false);
+  }
+
+  function rmVideo(id) { var u = videos.filter(function(v) { return v.id !== id; }); setVideos(u); SS("ytworkouts", u); }
+  function clearAll() { if (confirm("Alle Videos löschen?")) { setVideos([]); SS("ytworkouts", []); } }
+
+  return (<SubPage title="YouTube Workouts" onBack={onBack}>
+    <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+      <input value={url} onChange={function(e) { setUrl(e.target.value); }} onKeyDown={function(e) { if (e.key === "Enter") addVideo(); }} placeholder="YouTube-Link einfügen..." style={{ flex: 1, padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none" }} />
+      <Btn primary onClick={addVideo} disabled={!url.trim() || loading} small>{loading ? "..." : <span style={{fontSize:16}}>+</span>}</Btn>
+    </div>
+
+    {videos.length > 1 && <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}><Btn small danger onClick={clearAll}>Alle löschen</Btn></div>}
+
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {videos.map(function(v) {
+        return (
+          <div key={v.id} style={{ display: "flex", gap: 12, background: "rgba(255,255,255,0.03)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)", overflow: "hidden" }}>
+            <a href={v.url} target="_blank" rel="noopener noreferrer" style={{ flexShrink: 0, display: "block", width: 120, height: 68 }}>
+              <img src={v.thumb} alt="" style={{ width: 120, height: 68, objectFit: "cover", display: "block", borderRadius: "12px 0 0 12px" }} />
+            </a>
+            <div style={{ flex: 1, padding: "8px 8px 8px 0", display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0 }}>
+              <a href={v.url} target="_blank" rel="noopener noreferrer" style={{ color: "#e0d8cc", fontSize: 13, fontWeight: 600, textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{v.title}</a>
+              {v.channel && <div style={{ color: "#6a6474", fontSize: 11, marginTop: 2 }}>{v.channel}</div>}
+            </div>
+            <button onClick={function(e) { e.preventDefault(); rmVideo(v.id); }} style={{ background: "none", border: "none", color: "#4a4454", cursor: "pointer", padding: "0 10px", alignSelf: "center", flexShrink: 0 }}><span style={{fontSize:16}}>🗑</span></button>
+          </div>
+        );
+      })}
+    </div>
+    {videos.length === 0 && <p style={{ color: "#4a4454", fontSize: 13, textAlign: "center", marginTop: 20 }}>Noch keine Videos gespeichert.<br /><span style={{ fontSize: 12 }}>Füge YouTube-Links oben ein.</span></p>}
+  </SubPage>);
+}
+
+function FitnessPage() { var [sub, setSub] = useState(null); if (sub === "ti") return <IntTimer onBack={function() { setSub(null); }} />; if (sub === "wo") return <AiTool onBack={function() { setSub(null); }} title="Workout-Planer" prompt={PR.fit} ph="z.B. '30min Rudergerät HIIT'" btn="Plan erstellen" />; if (sub === "lo") return <TrainLog onBack={function() { setSub(null); }} />; if (sub === "yt") return <YoutubeWorkouts onBack={function() { setSub(null); }} />; var ytCount = SG("ytworkouts", []).length; return (<div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}><h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 22, margin: "0 0 4px" }}>Fitness</h2><MC icon={<span style={{fontSize:16}}>⏱</span>} bg="rgba(74,222,128,0.15)" title="Intervall-Timer" desc="HIIT, Tabata & Custom" onClick={function() { setSub("ti"); }} /><MC icon={<span style={{fontSize:16}}>💪</span>} bg="rgba(245,158,11,0.15)" title="Workout-Planer" desc="Rudergerät, Ergometer, Bodyweight" onClick={function() { setSub("wo"); }} /><MC icon={<span style={{fontSize:16}}>▶</span>} bg="rgba(239,68,68,0.15)" title="YouTube Workouts" desc="Deine Video-Sammlung" onClick={function() { setSub("yt"); }} badge={ytCount > 0 ? String(ytCount) : null} /><MC icon={<span style={{fontSize:16}}>📊</span>} bg="rgba(96,165,250,0.15)" title="Trainingslog" desc="Einheiten protokollieren" onClick={function() { setSub("lo"); }} /></div>); }
+
+// ─── FINANZEN ───
+function ReceiptScan({ onBack }) { var [sc, setSc] = useState(false); var [pv, setPv] = useState(null); var [id, setId] = useState(null); var [prods, setProds] = useState([]); var [storeName, setStoreName] = useState(""); var [ld, setLd] = useState(false); var [saved, setSaved] = useState(false);
+  function hc(b, m, u) { setId(b); setPv(u); setSc(false); }
+  var cm = { "Lebensmittel": "food", "Getränke": "drinks", "Haushalt": "household", "Drogerie": "drugstore", "Transport": "transport", "Gastronomie": "gastro", "Abos": "subscriptions", "Kleidung": "clothing", "Gesundheit": "health", "Sonstiges": "other" };
+  async function an() { if (!id) return; setLd(true); try { var res = await callV(id, "image/jpeg", "Analysiere diese Rechnung. Beachte Stückzahlen! Erkenne den Geschäftsnamen.", PR.receipt); var mObj = res.match(/\{[\s\S]*\}/); var mArr = res.match(/\[[\s\S]*\]/); var memory = SG("catMemory", {});
+    function mapItem(x) { var baseCid = cm[x.kategorie] || "other"; var memKey = (x.produkt||"").toLowerCase().trim(); var cid = memory[memKey] || baseCid; var cat = CATS.find(function(c){return c.id===cid;})||CATS[9]; return { produkt: x.produkt, menge: x.menge || 1, einzelpreis: x.einzelpreis || x.betrag, betrag: x.betrag || 0, kategorie: cat.label, cid: cid }; }
+    if (mObj) { try { var obj = JSON.parse(mObj[0]); if (obj.store) setStoreName(obj.store); if (obj.items) { setProds(obj.items.map(mapItem)); setLd(false); return; } } catch(e2) {} } if (mArr) { var p = JSON.parse(mArr[0]); setProds(p.map(mapItem)); } } catch (e) { alert("Fehler: " + e.message); } setLd(false); }
+  function fmtDate(d) { var parts = d.split("-"); return parts[2] + "." + parts[1] + "." + parts[0]; }
+  function sv() { var exps = SG("expenses", []); var purchases = SG("purchases", []); var receiptId = Date.now(); var today = new Date().toISOString().split("T")[0]; purchases.unshift({ id: receiptId, date: today, total: prods.reduce(function(s, p) { return s + p.betrag; }, 0), items: prods, photo: pv, store: storeName || "Einkauf" }); SS("purchases", purchases); prods.forEach(function(p) { exps.unshift({ id: Date.now() + Math.random(), amount: p.betrag, category: p.cid || "other", note: (p.menge > 1 ? p.menge + "x " : "") + p.produkt, date: today, source: "receipt", receiptId: receiptId, store: storeName || "Einkauf" }); }); SS("expenses", exps); setSaved(true); }
+  if (sc) return <SmartCamera onCapture={hc} onClose={function() { setSc(false); }} />;
+  if (saved) return (<SubPage title="Rechnung" onBack={onBack}><div style={{ textAlign: "center", padding: 40 }}><div style={{ fontSize: 48, marginBottom: 16 }}>✅</div><div style={{ color: "#4ade80", fontSize: 18, fontWeight: 600 }}>{prods.length} Produkte gespeichert!</div><div style={{ color: "#d4a056", fontSize: 22, fontWeight: 700, marginTop: 8 }}>€{prods.reduce(function(s, p) { return s + p.betrag; }, 0).toFixed(2)}</div><Btn onClick={onBack} style={{ marginTop: 20 }}>Zurück</Btn></div></SubPage>);
+  if (!pv) return (<SubPage title="Rechnung scannen" onBack={onBack}><Btn primary onClick={function() { setSc(true); }} style={{ width: "100%", padding: 20 }}><span style={{fontSize:16}}>📷</span>Auto-Scan starten</Btn><p style={{ color: "#6a6474", fontSize: 12, textAlign: "center", marginTop: 12 }}>Halte die Kamera auf die Rechnung.</p></SubPage>);
+  if (prods.length === 0) return (<SubPage title="Rechnung scannen" onBack={onBack}><div style={{ borderRadius: 12, overflow: "hidden", marginBottom: 12, border: "1px solid rgba(255,255,255,0.08)" }}><img src={pv} style={{ width: "100%", display: "block" }} /></div><Btn primary onClick={an} disabled={ld} style={{ width: "100%" }}>{ld ? "KI analysiert..." : "Produkte erkennen"}</Btn>{ld && <div style={{ marginTop: 12, textAlign: "center", color: "#d4a056", fontSize: 14 }}>●●● Claude liest die Rechnung</div>}<Btn small onClick={function() { setPv(null); setId(null); }} style={{ marginTop: 10 }}>Neues Foto</Btn></SubPage>);
+  var total = prods.reduce(function(s, p) { return s + p.betrag; }, 0);
+  return (<SubPage title="Rechnung" onBack={onBack}><Card style={{ marginBottom: 12 }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div><div style={{ color: "#4ade80", fontWeight: 600 }}>{prods.length} Produkte erkannt</div><input value={storeName} onChange={function(e) { setStoreName(e.target.value); }} placeholder="Geschäft (z.B. SPAR)" style={{ marginTop: 6, padding: "6px 10px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", width: "100%" }} /></div><div style={{ color: "#d4a056", fontSize: 22, fontWeight: 700, flexShrink: 0, marginLeft: 12 }}>€{total.toFixed(2)}</div></div></Card><div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>{prods.map(function(p, i) { var cat = CATS.find(function(c) { return c.id === p.cid; }) || CATS[9]; return (<div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "rgba(255,255,255,0.03)", borderRadius: 10 }}><div><span style={{ marginRight: 6 }}>{cat.icon}</span><span style={{ color: "#e0d8cc", fontSize: 14 }}>{p.menge > 1 ? p.menge + "x " : ""}{p.produkt}</span><div style={{ color: "#6a6474", fontSize: 11 }}>{p.kategorie}{p.menge > 1 ? " · à €" + (p.einzelpreis || 0).toFixed(2) : ""}</div></div><span style={{ color: "#d4a056", fontWeight: 700 }}>€{p.betrag.toFixed(2)}</span></div>); })}</div><Btn primary onClick={sv} style={{ width: "100%" }}>Alle speichern</Btn></SubPage>);
+}
+
+function PurchaseHistory({ onBack }) {
+  var [purchases, setPurchases] = useState(function() { return SG("purchases", []); });
+  var [sel, setSel] = useState(null);
+  var [editItems, setEditItems] = useState(null); // local editable copy of items
+  var catMemory = SG("catMemory", {}); // { "Produktname_lower": "categoryId" }
+
+  function fmtD(d) { if (!d) return ""; var p = d.split("-"); return p[2] + "." + p[1] + "." + p[0]; }
+
+  function openPurchase(id) {
+    var p = purchases.find(function(x) { return x.id === id; });
+    if (!p) return;
+    setSel(id);
+    setEditItems(JSON.parse(JSON.stringify(p.items || []))); // deep copy
+  }
+
+  function updateItem(idx, field, val) {
+    var u = editItems.slice();
+    u[idx] = Object.assign({}, u[idx], { [field]: val });
+    // If category changed, update cid too
+    if (field === "cid") {
+      var cat = CATS.find(function(c) { return c.id === val; });
+      if (cat) u[idx].kategorie = cat.label;
+      // Remember for future scans
+      var key = (u[idx].produkt || "").toLowerCase().trim();
+      if (key) {
+        catMemory[key] = val;
+        SS("catMemory", catMemory);
+      }
+    }
+    setEditItems(u);
+  }
+
+  function saveEdits() {
+    var updated = purchases.map(function(p) {
+      if (p.id === sel) {
+        var newTotal = editItems.reduce(function(s, i) { return s + (parseFloat(i.betrag) || 0); }, 0);
+        return Object.assign({}, p, { items: editItems, total: newTotal });
+      }
+      return p;
+    });
+    setPurchases(updated); SS("purchases", updated);
+    // Also update expenses
+    var exps = SG("expenses", []);
+    var updExps = exps.map(function(e) {
+      if (e.receiptId === sel) {
+        var match = editItems.find(function(i) { return i.produkt && e.note && e.note.includes(i.produkt.slice(0, 10)); });
+        if (match) return Object.assign({}, e, { category: match.cid || e.category });
+      }
+      return e;
+    });
+    SS("expenses", updExps);
+    setSel(null); setEditItems(null);
+  }
+
+  function rmPurchase(id) {
+    if (!confirm("Einkauf löschen?")) return;
+    var u = purchases.filter(function(p) { return p.id !== id; });
+    setPurchases(u); SS("purchases", u); setSel(null); setEditItems(null);
+  }
+
+  // DETAIL VIEW
+  if (sel && editItems) {
+    var p = purchases.find(function(x) { return x.id === sel; });
+    if (!p) { setSel(null); return null; }
+    return (
+      <SubPage title={p.store || "Einkauf"} onBack={function() { setSel(null); setEditItems(null); }}>
+        {/* Store + Date header */}
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ color: "#f0e6d3", fontWeight: 700, fontSize: 22 }}>{p.store || "Einkauf"}</div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+            <div style={{ color: "#6a6474", fontSize: 13 }}>{fmtD(p.date)}</div>
+            <div style={{ color: "#d4a056", fontWeight: 700, fontSize: 20 }}>€{editItems.reduce(function(s,i){return s+(parseFloat(i.betrag)||0);},0).toFixed(2)}</div>
+          </div>
+        </div>
+
+        {/* ITEMS — editable */}
+        <div style={{ color: "#6a6474", fontSize: 11, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>{editItems.length} Artikel</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+          {editItems.map(function(item, i) {
+            var cat = CATS.find(function(c) { return c.id === (item.cid || "other"); }) || CATS[9];
+            return (
+              <div key={i} style={{ borderRadius: 12, border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.03)", overflow: "hidden" }}>
+                <div style={{ padding: "10px 12px", borderLeft: "3px solid " + cat.color }}>
+                  {/* Product name — editable */}
+                  <input value={item.produkt || ""} onChange={function(e) { updateItem(i, "produkt", e.target.value); }}
+                    style={{ width: "100%", background: "none", border: "none", color: "#e0d8cc", fontSize: 14, fontWeight: 500, outline: "none", padding: 0, marginBottom: 6 }} />
+                  {/* Price + menge */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ color: "#6a6474", fontSize: 11 }}>{item.menge > 1 ? item.menge + "x à €" + (item.einzelpreis||0).toFixed(2) : ""}</span>
+                    <input type="number" value={item.betrag || 0} onChange={function(e) { updateItem(i, "betrag", parseFloat(e.target.value)||0); }}
+                      style={{ width: 70, background: "rgba(212,160,86,0.1)", border: "1px solid rgba(212,160,86,0.2)", borderRadius: 6, color: "#d4a056", fontSize: 14, fontWeight: 700, padding: "3px 8px", outline: "none", textAlign: "right" }} />
+                    {/* Category dropdown */}
+                    <select value={item.cid || "other"} onChange={function(e) { updateItem(i, "cid", e.target.value); }}
+                      style={{ flex: 1, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6, color: "#c8c0b4", fontSize: 11, padding: "3px 6px", outline: "none", colorScheme: "dark" }}>
+                      {CATS.map(function(c) { return <option key={c.id} value={c.id}>{c.icon} {c.label}</option>; })}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* PHOTO — at bottom */}
+        {p.photo && (
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ color: "#6a6474", fontSize: 11, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>Originalbeleg</div>
+            <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <img src={p.photo} style={{ width: "100%", display: "block" }} />
+            </div>
+          </div>
+        )}
+
+        <Btn primary onClick={saveEdits} style={{ width: "100%", marginBottom: 8 }}>✓ Änderungen speichern</Btn>
+        <Btn danger onClick={function() { rmPurchase(p.id); }} style={{ width: "100%" }}>🗑 Einkauf löschen</Btn>
+      </SubPage>
+    );
+  }
+
+  // LIST VIEW
+  return (
+    <SubPage title="Einkäufe" onBack={onBack}>
+      {purchases.length === 0
+        ? <p style={{ color: "#4a4454", fontSize: 13, textAlign: "center" }}>Keine Einkäufe gespeichert</p>
+        : purchases.map(function(p) {
+            return (
+              <div key={p.id} onClick={function() { openPurchase(p.id); }} style={{ cursor: "pointer", marginBottom: 12, borderRadius: 14, border: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.03)", overflow: "hidden" }}>
+                {/* Store name — big header bar */}
+                <div style={{ padding: "12px 16px 8px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  <div style={{ color: "#f0e6d3", fontWeight: 700, fontSize: 20, letterSpacing: "-0.01em" }}>{p.store || "Einkauf"}</div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                    <div style={{ color: "#6a6474", fontSize: 13 }}>{fmtD(p.date)} · {(p.items||[]).length} Artikel</div>
+                    <div style={{ color: "#d4a056", fontWeight: 700, fontSize: 18 }}>€{(p.total||0).toFixed(2)}</div>
+                  </div>
+                </div>
+                {/* Article preview */}
+                <div style={{ padding: "8px 16px 12px" }}>
+                  <div style={{ color: "#6a6474", fontSize: 11, lineHeight: 1.7 }}>
+                    {(p.items||[]).slice(0,5).map(function(item,i) {
+                      var cat = CATS.find(function(c){return c.id===(item.cid||"other");})||CATS[9];
+                      return cat.icon + " " + (item.menge>1?item.menge+"x ":"") + item.produkt + " €" + (item.betrag||0).toFixed(2);
+                    }).join("   ·   ")}
+                    {(p.items||[]).length > 5 ? "   ·   +" + ((p.items||[]).length - 5) + " weitere" : ""}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+      }
+    </SubPage>
+  );
+}
+
+function MonthOverview({ onBack }) { var exps = SG("expenses", []); var inc = SG("income", []); var purchases = SG("purchases", []); var mo = new Date().toISOString().slice(0, 7);
+  var mExps = exps.filter(function(e) { return e.date && e.date.startsWith(mo); }); var mInc = inc.filter(function(e) { return e.date && e.date.startsWith(mo); });
+  var totExp = mExps.reduce(function(s, e) { return s + e.amount; }, 0); var totInc = mInc.reduce(function(s, e) { return s + e.amount; }, 0);
+  var byCat = CATS.map(function(c) { return { id: c.id, label: c.label, icon: c.icon, color: c.color, value: mExps.filter(function(e) { return e.category === c.id; }).reduce(function(s, e) { return s + e.amount; }, 0) }; }).filter(function(c) { return c.value > 0; }).sort(function(a, b) { return b.value - a.value; });
+  function fmtD(d) { if (!d) return ""; var p = d.split("-"); return p[2] + "." + p[1] + "." + p[0]; }
+  // Build flat product list from all expenses this month, sorted by date
+  var productList = mExps.slice().sort(function(a, b) { return b.date > a.date ? 1 : b.date < a.date ? -1 : 0; });
+  return (<SubPage title="Monatsübersicht" onBack={onBack}>
+    <Card style={{ marginBottom: 14 }}><div style={{ display: "flex", justifyContent: "space-between" }}><div><div style={{ color: "#6a6474", fontSize: 11 }}>Einnahmen</div><div style={{ color: "#4ade80", fontSize: 22, fontWeight: 700 }}>€{totInc.toFixed(2)}</div></div><div style={{ textAlign: "right" }}><div style={{ color: "#6a6474", fontSize: 11 }}>Ausgaben</div><div style={{ color: "#ef4444", fontSize: 22, fontWeight: 700 }}>€{totExp.toFixed(2)}</div></div></div><div style={{ color: totInc - totExp >= 0 ? "#4ade80" : "#ef4444", fontSize: 14, fontWeight: 600, marginTop: 8, textAlign: "center" }}>Saldo: €{(totInc - totExp).toFixed(2)}</div></Card>
+    {byCat.length > 0 && <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}><PieChart data={byCat} size={160} /></div>}
+    {byCat.length > 0 && <div style={{ marginBottom: 14 }}><BarChart data={byCat} width={300} height={120} /></div>}
+    {byCat.map(function(c) { return (<Card key={c.id} style={{ padding: 12, marginBottom: 8 }}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}><span style={{ color: "#e0d8cc", fontSize: 14 }}>{c.icon} {c.label}</span><span style={{ color: "#d4a056", fontWeight: 700 }}>€{c.value.toFixed(2)}</span></div><div style={{ height: 6, borderRadius: 3, background: "rgba(255,255,255,0.06)" }}><div style={{ height: "100%", borderRadius: 3, background: c.color, width: (totExp > 0 ? c.value / totExp * 100 : 0) + "%" }} /></div></Card>); })}
+    {productList.length > 0 && <div style={{ marginTop: 8 }}>
+      <div style={{ color: "#e8e0d4", fontWeight: 600, fontSize: 15, marginBottom: 10 }}>Alle Ausgaben ({productList.length})</div>
+      {productList.map(function(e, i) { var cat = CATS.find(function(c) { return c.id === e.category; }) || CATS[9]; return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 8, marginBottom: 4, borderLeft: "3px solid " + cat.color }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ color: "#e0d8cc", fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.note || cat.label}</div>
+          <div style={{ display: "flex", gap: 8, marginTop: 2 }}>
+            <span style={{ color: "#6a6474", fontSize: 11 }}>{fmtD(e.date)}</span>
+            {e.store && <span style={{ color: "#8a8494", fontSize: 11 }}>{e.store}</span>}
+            <span style={{ color: cat.color, fontSize: 10 }}>{cat.icon} {cat.label}</span>
+          </div>
+        </div>
+        <span style={{ color: "#d4a056", fontWeight: 700, fontSize: 14, flexShrink: 0 }}>€{(e.amount || 0).toFixed(2)}</span>
+      </div>); })}
+    </div>}
+    {productList.length === 0 && byCat.length === 0 && <p style={{ color: "#4a4454", fontSize: 13, textAlign: "center" }}>Keine Daten diesen Monat</p>}
+  </SubPage>);
+}
+
+function AddExp({ onBack }) { var [am, setAm] = useState(""); var [ca, setCa] = useState("food"); var [no, setNo] = useState(""); function sv() { if (!am) return; var e = SG("expenses", []); e.unshift({ id: Date.now(), amount: parseFloat(am), category: ca, note: no, date: new Date().toISOString().split("T")[0] }); SS("expenses", e); onBack(); } return (<SubPage title="Ausgabe erfassen" onBack={onBack}><div style={{ marginBottom: 14 }}><div style={{ color: "#6a6474", fontSize: 12, marginBottom: 6 }}>Betrag</div><div style={{ position: "relative" }}><span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#d4a056", fontSize: 18, fontWeight: 700 }}>€</span><input type="number" value={am} onChange={function(e) { setAm(e.target.value); }} placeholder="0.00" inputMode="decimal" style={{ width: "100%", padding: "14px 14px 14px 32px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 22, fontWeight: 700, outline: "none" }} /></div></div><div style={{ color: "#6a6474", fontSize: 12, marginBottom: 8 }}>Kategorie</div><div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>{CATS.map(function(c) { return (<button key={c.id} onClick={function() { setCa(c.id); }} style={{ padding: "10px 12px", borderRadius: 10, border: ca === c.id ? "2px solid " + c.color : "1px solid rgba(255,255,255,0.06)", background: ca === c.id ? c.color + "15" : "rgba(255,255,255,0.03)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, color: "#e0d8cc", fontSize: 13 }}><span>{c.icon}</span>{c.label}</button>); })}</div><input value={no} onChange={function(e) { setNo(e.target.value); }} placeholder="Notiz" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 14 }} /><Btn primary onClick={sv} disabled={!am} style={{ width: "100%" }}>Speichern</Btn></SubPage>); }
+
+function AddIncome({ onBack }) { var [am, setAm] = useState(""); var [ca, setCa] = useState("salary"); var [no, setNo] = useState(""); function sv() { if (!am) return; var i = SG("income", []); i.unshift({ id: Date.now(), amount: parseFloat(am), category: ca, note: no, date: new Date().toISOString().split("T")[0] }); SS("income", i); onBack(); } return (<SubPage title="Einnahme erfassen" onBack={onBack}><div style={{ marginBottom: 14 }}><div style={{ color: "#6a6474", fontSize: 12, marginBottom: 6 }}>Betrag</div><div style={{ position: "relative" }}><span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#4ade80", fontSize: 18, fontWeight: 700 }}>€</span><input type="number" value={am} onChange={function(e) { setAm(e.target.value); }} placeholder="0.00" inputMode="decimal" style={{ width: "100%", padding: "14px 14px 14px 32px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 22, fontWeight: 700, outline: "none" }} /></div></div><div style={{ color: "#6a6474", fontSize: 12, marginBottom: 8 }}>Kategorie</div><div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>{INCOME_CATS.map(function(c) { return (<button key={c.id} onClick={function() { setCa(c.id); }} style={{ padding: "12px", borderRadius: 10, border: ca === c.id ? "2px solid " + c.color : "1px solid rgba(255,255,255,0.06)", background: ca === c.id ? c.color + "15" : "rgba(255,255,255,0.03)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, color: "#e0d8cc", fontSize: 14 }}><span>{c.icon}</span>{c.label}</button>); })}</div><input value={no} onChange={function(e) { setNo(e.target.value); }} placeholder="Notiz" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 14 }} /><Btn primary onClick={sv} disabled={!am} style={{ width: "100%" }}>Speichern</Btn></SubPage>); }
+
+function BudgetSetting({ onBack }) { var [b, setB] = useState(function() { return String(SG("budget", 0)); }); function sv() { SS("budget", parseFloat(b) || 0); onBack(); } return (<SubPage title="Budget-Limit" onBack={onBack}><div style={{ color: "#6a6474", fontSize: 12, marginBottom: 6 }}>Monatliches Budget</div><div style={{ position: "relative" }}><span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#d4a056", fontSize: 18, fontWeight: 700 }}>€</span><input type="number" value={b} onChange={function(e) { setB(e.target.value); }} placeholder="z.B. 2000" inputMode="decimal" style={{ width: "100%", padding: "14px 14px 14px 32px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 22, fontWeight: 700, outline: "none" }} /></div><p style={{ color: "#6a6474", fontSize: 12, marginTop: 8 }}>Warnung erscheint bei 80%</p><Btn primary onClick={sv} style={{ width: "100%", marginTop: 16 }}>Speichern</Btn></SubPage>); }
+
+function Goals({ onBack }) { var [goals, setGoals] = useState(function() { return SG("savgoals", []); }); var [sh, setSh] = useState(false); var [n, setN] = useState(""); var [t, setT] = useState(""); function ag() { if (!n || !t) return; var u = goals.concat([{ id: Date.now(), name: n, target: parseFloat(t), current: 0 }]); setGoals(u); SS("savgoals", u); setN(""); setT(""); setSh(false); } function ug(id, v) { var u = goals.map(function(g) { return g.id === id ? Object.assign({}, g, { current: Math.max(0, v) }) : g; }); setGoals(u); SS("savgoals", u); } function rg(id) { var u = goals.filter(function(g) { return g.id !== id; }); setGoals(u); SS("savgoals", u); } return (<SubPage title="Sparziele" onBack={onBack}>{goals.map(function(g) { var p = Math.min(100, g.current / g.target * 100); return (<Card key={g.id} style={{ marginBottom: 12 }}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}><span style={{ color: "#e8e0d4", fontWeight: 600, fontSize: 15 }}>{g.name}</span><button onClick={function() { rg(g.id); }} style={{ background: "none", border: "none", color: "#4a4454", cursor: "pointer" }}><span style={{fontSize:16}}>🗑</span></button></div><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}><span style={{ color: "#d4a056", fontWeight: 700, fontSize: 18 }}>€{g.current.toFixed(0)}</span><span style={{ color: "#6a6474", fontSize: 13 }}>von €{g.target.toFixed(0)} ({p.toFixed(0)}%)</span></div><div style={{ height: 10, borderRadius: 5, background: "rgba(255,255,255,0.06)", marginBottom: 8 }}><div style={{ height: "100%", borderRadius: 5, background: p >= 100 ? "#4ade80" : "linear-gradient(90deg,#d4a056,#b8860b)", width: p + "%", transition: "width 0.5s" }} /></div><div style={{ display: "flex", gap: 6 }}>{[10, 50, 100].map(function(v) { return <Btn key={v} small onClick={function() { ug(g.id, g.current + v); }}>+€{v}</Btn>; })}</div></Card>); })}{!sh ? <Btn onClick={function() { setSh(true); }} style={{ width: "100%" }}><span style={{fontSize:16}}>+</span>Neues Sparziel</Btn> : <Card><input value={n} onChange={function(e) { setN(e.target.value); }} placeholder="Name" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 8 }} /><input type="number" value={t} onChange={function(e) { setT(e.target.value); }} placeholder="Zielbetrag €" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 8 }} /><div style={{ display: "flex", gap: 8 }}><Btn primary onClick={ag}>Anlegen</Btn><Btn onClick={function() { setSh(false); }}>Abbrechen</Btn></div></Card>}</SubPage>); }
+
+function FinanzenPage() {
+  var [sub, setSub] = useState(null);
+  var exps = SG("expenses", []);
+  var totExp = exps.filter(function(e) { return e.date && e.date.startsWith(new Date().toISOString().slice(0, 7)); }).reduce(function(s, e) { return s + (e.amount || 0); }, 0);
+  var purchases = SG("purchases", []);
+  if (sub === "rc") return <ReceiptScan onBack={function() { setSub(null); }} />;
+  if (sub === "ad") return <AddExp onBack={function() { setSub(null); }} />;
+  if (sub === "ai") return <AddIncome onBack={function() { setSub(null); }} />;
+  if (sub === "pu") return <PurchaseHistory onBack={function() { setSub(null); }} />;
+  if (sub === "mo") return <MonthOverview onBack={function() { setSub(null); }} />;
+  if (sub === "go") return <Goals onBack={function() { setSub(null); }} />;
+  if (sub === "bu") return <BudgetSetting onBack={function() { setSub(null); }} />;
+  return (<div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+    <h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 22, margin: "0 0 4px" }}>Finanzen</h2>
+    <Card><div style={{ color: "#6a6474", fontSize: 12 }}>Ausgaben diesen Monat</div><div style={{ color: "#f0e6d3", fontSize: 28, fontWeight: 700 }}>€{totExp.toFixed(2)}</div></Card>
+    <MC icon={<span style={{fontSize:16}}>📷</span>} bg="rgba(74,222,128,0.15)" title="Rechnung scannen" desc="Auto-Scan · Produkte erkennen" onClick={function() { setSub("rc"); }} />
+    <MC icon={<span style={{fontSize:16}}>+</span>} bg="rgba(96,165,250,0.15)" title="Ausgabe erfassen" desc="Manuell eintragen" onClick={function() { setSub("ad"); }} />
+    <MC icon={<span style={{fontSize:16}}>📊</span>} bg="rgba(52,211,153,0.15)" title="Einnahme erfassen" desc="Gehalt, Nebeneinkommen" onClick={function() { setSub("ai"); }} />
+    <MC icon={<span style={{fontSize:16}}>🛒</span>} bg="rgba(245,158,11,0.15)" title="Einkäufe" desc="Rechnungen & Details" onClick={function() { setSub("pu"); }} badge={purchases.length > 0 ? String(purchases.length) : null} />
+    <MC icon={<span style={{fontSize:16}}>📊</span>} bg="rgba(167,139,250,0.15)" title="Monatsübersicht" desc="Grafiken & Kategorien" onClick={function() { setSub("mo"); }} />
+    <MC icon={<span style={{fontSize:16}}>🎯</span>} bg="rgba(244,114,182,0.15)" title="Sparziele" desc="Fortschritt tracken" onClick={function() { setSub("go"); }} />
+    <MC icon={<span style={{fontSize:16}}>⚠️</span>} bg="rgba(245,158,11,0.15)" title="Budget-Limit" desc="Monatliches Limit setzen" onClick={function() { setSub("bu"); }} />
+  </div>);
+}
+
+// ─── LISTEN PAGE ───
+function ShoppingList({ onBack }) {
+  var [items, setItems] = useState(function() { return SG("shoplist", []); });
+  var [name, setName] = useState(""); var [qty, setQty] = useState("1");
+  function add() { if (!name.trim()) return; var u = items.concat([{ id: Date.now(), name: name, qty: parseInt(qty) || 1, done: false }]); setItems(u); SS("shoplist", u); setName(""); setQty("1"); }
+  function toggle(id) { var u = items.map(function(i) { return i.id === id ? Object.assign({}, i, { done: !i.done }) : i; }); setItems(u); SS("shoplist", u); }
+  function rm(id) { var u = items.filter(function(i) { return i.id !== id; }); setItems(u); SS("shoplist", u); }
+  function clearDone() { var u = items.filter(function(i) { return !i.done; }); setItems(u); SS("shoplist", u); }
+  function clearAll() { if (confirm("Gesamte Liste löschen?")) { setItems([]); SS("shoplist", []); } }
+  var pending = items.filter(function(i) { return !i.done; }); var done = items.filter(function(i) { return i.done; });
+  return (<SubPage title="Einkaufsliste" onBack={onBack}>
+    <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+      <input value={name} onChange={function(e) { setName(e.target.value); }} onKeyDown={function(e) { if (e.key === "Enter") add(); }} placeholder="Artikel hinzufügen..." style={{ flex: 1, padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none" }} />
+      <input type="number" value={qty} onChange={function(e) { setQty(e.target.value); }} style={{ width: 50, padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", textAlign: "center" }} />
+      <Btn primary onClick={add} small><span style={{fontSize:16}}>+</span></Btn>
+    </div>
+    {items.length > 0 && <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}><Btn small danger onClick={clearAll}><span style={{fontSize:16}}>🗑</span>Alle löschen</Btn></div>}
+    {pending.map(function(i) { return (<div key={i.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}><button onClick={function() { toggle(i.id); }} style={{ background: "none", border: "2px solid rgba(255,255,255,0.2)", width: 24, height: 24, borderRadius: 6, cursor: "pointer", flexShrink: 0 }} /><span style={{ color: "#e0d8cc", fontSize: 14, flex: 1 }}>{i.qty > 1 ? i.qty + "x " : ""}{i.name}</span><button onClick={function() { rm(i.id); }} style={{ background: "rgba(239,68,68,0.1)", border: "none", color: "#ef4444", cursor: "pointer", padding: "6px 8px", borderRadius: 8, display: "flex", alignItems: "center" }}><span style={{fontSize:16}}>🗑</span></button></div>); })}
+    {done.length > 0 && <div style={{ marginTop: 16 }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}><span style={{ color: "#6a6474", fontSize: 12 }}>Erledigt ({done.length})</span><Btn small danger onClick={clearDone}>Erledigte löschen</Btn></div>
+      {done.map(function(i) { return (<div key={i.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", opacity: 0.5 }}><button onClick={function() { toggle(i.id); }} style={{ background: "#4ade80", border: "none", width: 24, height: 24, borderRadius: 6, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{fontSize:16}}>✓</span></button><span style={{ color: "#6a6474", fontSize: 14, textDecoration: "line-through", flex: 1 }}>{i.qty > 1 ? i.qty + "x " : ""}{i.name}</span><button onClick={function() { rm(i.id); }} style={{ background: "none", border: "none", color: "#4a4454", cursor: "pointer" }}><span style={{fontSize:16}}>🗑</span></button></div>); })}</div>}
+    {items.length === 0 && <p style={{ color: "#4a4454", fontSize: 13, textAlign: "center", marginTop: 20 }}>Liste ist leer</p>}
+  </SubPage>);
+}
+
+function TodoList({ onBack }) {
+  var [todos, setTodos] = useState(function() { return SG("todos", []); });
+  var [name, setName] = useState(""); var [prio, setPrio] = useState("medium"); var [due, setDue] = useState("");
+  function add() { if (!name.trim()) return; var u = todos.concat([{ id: Date.now(), name: name, priority: prio, due: due, done: false, created: new Date().toISOString().split("T")[0] }]); setTodos(u); SS("todos", u); setName(""); setDue(""); }
+  function toggle(id) { var u = todos.map(function(t) { return t.id === id ? Object.assign({}, t, { done: !t.done }) : t; }); setTodos(u); SS("todos", u); }
+  function rm(id) { var u = todos.filter(function(t) { return t.id !== id; }); setTodos(u); SS("todos", u); }
+  function clearDone() { var u = todos.filter(function(t) { return !t.done; }); setTodos(u); SS("todos", u); }
+  function clearAll() { if (confirm("Alle Aufgaben löschen?")) { setTodos([]); SS("todos", []); } }
+  var prioColors = { high: "#ef4444", medium: "#f59e0b", low: "#4ade80" };
+  var prioLabels = { high: "Hoch", medium: "Mittel", low: "Niedrig" };
+  var pending = todos.filter(function(t) { return !t.done; }).sort(function(a, b) { var p = { high: 0, medium: 1, low: 2 }; return p[a.priority] - p[b.priority]; });
+  var done = todos.filter(function(t) { return t.done; });
+  return (<SubPage title="Todo-Liste" onBack={onBack}>
+    <Card style={{ marginBottom: 14 }}>
+      <input value={name} onChange={function(e) { setName(e.target.value); }} onKeyDown={function(e) { if (e.key === "Enter") add(); }} placeholder="Neue Aufgabe..." style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 8 }} />
+      <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>{["high", "medium", "low"].map(function(p) { return <Btn key={p} small primary={prio === p} onClick={function() { setPrio(p); }} style={{ borderColor: prioColors[p] }}>{prioLabels[p]}</Btn>; })}</div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <input type="date" value={due} onChange={function(e) { setDue(e.target.value); }} style={{ flex: 1, padding: 8, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 13, outline: "none", colorScheme: "dark" }} />
+        <Btn primary onClick={add}><span style={{fontSize:16}}>+</span></Btn>
+      </div>
+    </Card>
+    {todos.length > 0 && <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 4 }}><Btn small danger onClick={clearAll}><span style={{fontSize:16}}>🗑</span>Alle löschen</Btn></div>}
+    {pending.map(function(t) { return (<div key={t.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", marginBottom: 6, background: "rgba(255,255,255,0.03)", borderRadius: 10, borderLeft: "3px solid " + prioColors[t.priority] }}><button onClick={function() { toggle(t.id); }} style={{ background: "none", border: "2px solid " + prioColors[t.priority], width: 22, height: 22, borderRadius: 6, cursor: "pointer", flexShrink: 0 }} /><div style={{ flex: 1 }}><div style={{ color: "#e0d8cc", fontSize: 14 }}>{t.name}</div>{t.due && <div style={{ color: "#6a6474", fontSize: 11, marginTop: 2 }}><span style={{fontSize:16}}>📅</span>{t.due}</div>}</div><button onClick={function() { rm(t.id); }} style={{ background: "rgba(239,68,68,0.1)", border: "none", color: "#ef4444", cursor: "pointer", padding: "6px 8px", borderRadius: 8, display: "flex", alignItems: "center", flexShrink: 0 }}><span style={{fontSize:16}}>🗑</span></button></div>); })}
+    {done.length > 0 && <div style={{ marginTop: 14 }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}><span style={{ color: "#6a6474", fontSize: 12 }}>Erledigt ({done.length})</span><Btn small danger onClick={clearDone}>Erledigte löschen</Btn></div></div>}
+    {done.map(function(t) { return (<div key={t.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", marginBottom: 4, opacity: 0.4 }}><button onClick={function() { toggle(t.id); }} style={{ background: "#4ade80", border: "none", width: 22, height: 22, borderRadius: 6, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{fontSize:16}}>✓</span></button><span style={{ color: "#6a6474", textDecoration: "line-through", fontSize: 13, flex: 1 }}>{t.name}</span><button onClick={function() { rm(t.id); }} style={{ background: "none", border: "none", color: "#4a4454", cursor: "pointer" }}><span style={{fontSize:16}}>🗑</span></button></div>); })}
+    {todos.length === 0 && <p style={{ color: "#4a4454", fontSize: 13, textAlign: "center" }}>Keine Aufgaben</p>}
+  </SubPage>);
+}
+
+function ListenPage() {
+  var [sub, setSub] = useState(null);
+  var shopCount = SG("shoplist", []).filter(function(i) { return !i.done; }).length;
+  var todoCount = SG("todos", []).filter(function(t) { return !t.done; }).length;
+  if (sub === "shop") return <ShoppingList onBack={function() { setSub(null); }} />;
+  if (sub === "todo") return <TodoList onBack={function() { setSub(null); }} />;
+  return (<div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+    <h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 22, margin: "0 0 4px" }}>Listen</h2>
+    <MC icon={<span style={{fontSize:16}}>🛒</span>} bg="rgba(74,222,128,0.15)" title="Einkaufsliste" desc="Mit Mengenangaben" onClick={function() { setSub("shop"); }} badge={shopCount > 0 ? String(shopCount) : null} />
+    <MC icon={<span style={{fontSize:16}}>📋</span>} bg="rgba(167,139,250,0.15)" title="Todo-Liste" desc="Prioritäten & Fälligkeitsdatum" onClick={function() { setSub("todo"); }} badge={todoCount > 0 ? String(todoCount) : null} />
+  </div>);
+}
+
+// ─── NOTIZEN PAGE ───
+function NotizenPage() {
+  var [notes, setNotes] = useState(function() { return SG("notes", []); });
+  var [input, setInput] = useState("");
+  var [recording, setRecording] = useState(false);
+  var [loading, setLoading] = useState(false);
+  var [filter, setFilter] = useState("all");
+  var [selNote, setSelNote] = useState(null);
+  var [suggestions, setSuggestions] = useState(null); // null = input mode, object = suggestions mode
+  var [selTodos, setSelTodos] = useState([]);
+  var [selShop, setSelShop] = useState([]);
+  var [selNote2, setSelNote2] = useState(true);
+  var recognitionRef = useRef(null);
+
+  function startVoice() {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { alert("Spracheingabe wird von diesem Browser nicht unterstützt."); return; }
+    var rec = new SR();
+    rec.lang = "de-DE"; rec.continuous = false; rec.interimResults = true;
+    rec.onresult = function(e) { var t = ""; for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; setInput(t); };
+    rec.onerror = function() { setRecording(false); };
+    rec.onend = function() { setRecording(false); };
+    try { rec.start(); recognitionRef.current = rec; setRecording(true); } catch(e) { alert("Fehler: " + e.message); }
+  }
+  function stopVoice() { try { if (recognitionRef.current) { recognitionRef.current.stop(); recognitionRef.current = null; } } catch(e) {} setRecording(false); }
+
+  async function analyze() {
+    if (!input.trim()) return;
+    setLoading(true);
+    var today = new Date().toLocaleDateString("de-AT", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    var prompt = PR.noteAnalyze.replace("DATUM_HEUTE", today);
+    var result = { todos: [], shopping: [], note: { save: true, title: input.slice(0, 30), category: "Allgemein" }, summary: "" };
+    try {
+      var res = await callC([{ role: "user", content: input.trim() }], prompt);
+      var m = res.match(/\{[\s\S]*\}/);
+      if (m) result = JSON.parse(m[0]);
+    } catch (e) {}
+    setSuggestions(result);
+    setSelTodos((result.todos || []).map(function(_, i) { return i; }));
+    setSelShop((result.shopping || []).map(function(_, i) { return i; }));
+    setSelNote2(result.note && result.note.save !== false);
+    setLoading(false);
+  }
+
+  function confirmSave() {
+    var today = new Date().toISOString().split("T")[0];
+    var time = new Date().toLocaleTimeString("de-AT", { hour: "2-digit", minute: "2-digit" });
+    // Save selected todos
+    if (selTodos.length > 0) {
+      var todos = SG("todos", []);
+      selTodos.forEach(function(i) {
+        var t = suggestions.todos[i];
+        var prioMap = { high: "high", medium: "medium", low: "low" };
+        todos.push({ id: Date.now() + i, name: t.text + (t.time ? " um " + t.time : ""), priority: prioMap[t.priority] || "medium", due: t.date || "", done: false, created: today });
+      });
+      SS("todos", todos);
+    }
+    // Save selected shopping items
+    if (selShop.length > 0) {
+      var shoplist = SG("shoplist", []);
+      selShop.forEach(function(i) {
+        var s = suggestions.shopping[i];
+        shoplist.push({ id: Date.now() + i + 100, name: s.name, qty: s.qty || 1, done: false });
+      });
+      SS("shoplist", shoplist);
+    }
+    // Save note
+    if (selNote2) {
+      var n2 = suggestions.note || {};
+      var newNote = { id: Date.now(), text: input.trim(), title: n2.title || input.slice(0, 30), category: n2.category || "Allgemein", tags: n2.tags || [], type: n2.type || "notiz", date: today, time: time };
+      var u = [newNote].concat(notes);
+      setNotes(u); SS("notes", u);
+    }
+    setSuggestions(null); setInput("");
+  }
+
+  function rmNote(id) { var u = notes.filter(function(n) { return n.id !== id; }); setNotes(u); SS("notes", u); setSelNote(null); }
+  var categories = ["all"].concat(Array.from(new Set(notes.map(function(n) { return n.category; }))));
+  var filtered = filter === "all" ? notes : notes.filter(function(n) { return n.category === filter; });
+  var typeIcons = { notiz: "📝", todo: "✅", idee: "💡", merker: "📌" };
+
+  function toggleIdx(arr, setArr, i) { setArr(arr.includes(i) ? arr.filter(function(x) { return x !== i; }) : arr.concat([i])); }
+
+  // Detail view
+  if (selNote) {
+    var n = notes.find(function(x) { return x.id === selNote; });
+    if (!n) { setSelNote(null); return null; }
+    return (<SubPage title={n.title} onBack={function() { setSelNote(null); }}>
+      <div style={{ color: "#6a6474", fontSize: 12, marginBottom: 12 }}>{n.date} · {n.time} · {typeIcons[n.type] || "📝"} {n.type}</div>
+      <Card style={{ marginBottom: 14 }}><p style={{ color: "#e0d8cc", fontSize: 15, lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap" }}>{n.text}</p></Card>
+      <div style={{ color: "#6a6474", fontSize: 12, marginBottom: 6 }}>Kategorie: <span style={{ color: "#d4a056" }}>{n.category}</span></div>
+      {(n.tags || []).length > 0 && <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>{n.tags.map(function(t, i) { return <span key={i} style={{ background: "rgba(212,160,86,0.1)", color: "#d4a056", padding: "4px 10px", borderRadius: 8, fontSize: 12 }}>#{t}</span>; })}</div>}
+      <Btn danger onClick={function() { rmNote(n.id); }} style={{ width: "100%", marginTop: 8 }}>🗑 Notiz löschen</Btn>
+    </SubPage>);
+  }
+
+  // Suggestions view
+  if (suggestions) {
+    var hasTodos = (suggestions.todos || []).length > 0;
+    var hasShop = (suggestions.shopping || []).length > 0;
+    var prioColors = { high: "#ef4444", medium: "#f59e0b", low: "#4ade80" };
+    var prioLabel = { high: "Hoch", medium: "Mittel", low: "Niedrig" };
+    return (<div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
+        <button onClick={function() { setSuggestions(null); }} style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#d4a056", width: 34, height: 34, borderRadius: 10, cursor: "pointer", fontSize: 18 }}>‹</button>
+        <span style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 18 }}>KI-Vorschläge</span>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
+        <Card style={{ marginBottom: 14, borderColor: "rgba(212,160,86,0.2)" }}>
+          <div style={{ color: "#6a6474", fontSize: 11, marginBottom: 4 }}>Original</div>
+          <p style={{ color: "#c8c0b4", fontSize: 13, margin: 0, fontStyle: "italic" }}>{input}</p>
+        </Card>
+        {suggestions.summary ? <p style={{ color: "#4ade80", fontSize: 13, marginBottom: 14 }}>✓ {suggestions.summary}</p> : null}
+
+        {/* TODOS */}
+        {hasTodos && <div style={{ marginBottom: 16 }}>
+          <div style={{ color: "#e8e0d4", fontWeight: 600, fontSize: 15, marginBottom: 8 }}>✅ Todo-Liste</div>
+          {suggestions.todos.map(function(t, i) {
+            var sel = selTodos.includes(i);
+            return (<div key={i} onClick={function() { toggleIdx(selTodos, setSelTodos, i); }} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "12px", borderRadius: 10, marginBottom: 6, background: sel ? "rgba(74,222,128,0.08)" : "rgba(255,255,255,0.03)", border: sel ? "2px solid #4ade80" : "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}>
+              <div style={{ width: 22, height: 22, borderRadius: 6, border: sel ? "none" : "2px solid rgba(255,255,255,0.2)", background: sel ? "#4ade80" : "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>{sel && <span style={{ color: "#0a0a0f", fontSize: 14 }}>✓</span>}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: "#e0d8cc", fontSize: 14, fontWeight: 500 }}>{t.text}</div>
+                <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                  {t.date && <span style={{ color: "#6a6474", fontSize: 11 }}>📅 {t.date}</span>}
+                  {t.time && <span style={{ color: "#6a6474", fontSize: 11 }}>🕐 {t.time}</span>}
+                  {t.priority && <span style={{ color: prioColors[t.priority] || "#f59e0b", fontSize: 11 }}>{prioLabel[t.priority] || "Mittel"}</span>}
+                </div>
+              </div>
+            </div>);
+          })}
+        </div>}
+
+        {/* SHOPPING */}
+        {hasShop && <div style={{ marginBottom: 16 }}>
+          <div style={{ color: "#e8e0d4", fontWeight: 600, fontSize: 15, marginBottom: 8 }}>🛒 Einkaufsliste</div>
+          {suggestions.shopping.map(function(s, i) {
+            var sel = selShop.includes(i);
+            return (<div key={i} onClick={function() { toggleIdx(selShop, setSelShop, i); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px", borderRadius: 10, marginBottom: 6, background: sel ? "rgba(74,222,128,0.08)" : "rgba(255,255,255,0.03)", border: sel ? "2px solid #4ade80" : "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}>
+              <div style={{ width: 22, height: 22, borderRadius: 6, border: sel ? "none" : "2px solid rgba(255,255,255,0.2)", background: sel ? "#4ade80" : "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{sel && <span style={{ color: "#0a0a0f", fontSize: 14 }}>✓</span>}</div>
+              <span style={{ color: "#e0d8cc", fontSize: 14 }}>{s.qty > 1 ? s.qty + "x " : ""}{s.name}</span>
+            </div>);
+          })}
+        </div>}
+
+        {/* NOTE */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ color: "#e8e0d4", fontWeight: 600, fontSize: 15, marginBottom: 8 }}>📝 Als Notiz speichern</div>
+          <div onClick={function() { setSelNote2(!selNote2); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px", borderRadius: 10, background: selNote2 ? "rgba(212,160,86,0.08)" : "rgba(255,255,255,0.03)", border: selNote2 ? "2px solid #d4a056" : "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}>
+            <div style={{ width: 22, height: 22, borderRadius: 6, border: selNote2 ? "none" : "2px solid rgba(255,255,255,0.2)", background: selNote2 ? "#d4a056" : "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{selNote2 && <span style={{ color: "#0a0a0f", fontSize: 14 }}>✓</span>}</div>
+            <div><div style={{ color: "#e0d8cc", fontSize: 14 }}>{(suggestions.note && suggestions.note.title) || input.slice(0, 40)}</div><div style={{ color: "#6a6474", fontSize: 11, marginTop: 2 }}>{(suggestions.note && suggestions.note.category) || "Allgemein"}</div></div>
+          </div>
+        </div>
+
+        {!hasTodos && !hasShop && <p style={{ color: "#6a6474", fontSize: 13, textAlign: "center" }}>Keine Todos oder Einkäufe erkannt — wird als Notiz gespeichert.</p>}
+      </div>
+      <div style={{ padding: 16, borderTop: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
+        <Btn primary onClick={confirmSave} style={{ width: "100%", padding: 16, fontSize: 16 }}>
+          ✓ Auswahl speichern ({selTodos.length + selShop.length + (selNote2 ? 1 : 0)} Einträge)
+        </Btn>
+      </div>
+    </div>);
+  }
+
+  // Input view
+  return (<div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div style={{ padding: 16, flexShrink: 0 }}>
+      <h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 22, margin: "0 0 12px" }}>Notizen</h2>
+      <Card style={{ marginBottom: 12 }}>
+        <textarea value={input} onChange={function(e) { setInput(e.target.value); }} placeholder="Notiz eingeben oder diktieren..." rows={3} style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", resize: "vertical", minHeight: 80 }} />
+        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          {!recording && <button onClick={startVoice} style={{ width: 44, height: 44, borderRadius: 12, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.06)", color: "#c8c0b4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🎤</button>}
+          <Btn primary onClick={analyze} disabled={!input.trim() || loading || recording} style={{ flex: 1 }}>{loading ? "KI analysiert..." : "🧠 Analysieren & Speichern"}</Btn>
+        </div>
+        {recording && <button onClick={stopVoice} style={{ width: "100%", marginTop: 10, padding: "14px", borderRadius: 12, border: "3px solid #ef4444", background: "rgba(239,68,68,0.15)", color: "#ef4444", cursor: "pointer", fontWeight: 700, fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, animation: "blink 1.5s infinite" }}><span style={{ fontSize: 20 }}>⏹</span> AUFNAHME STOPPEN</button>}
+      </Card>
+      {categories.length > 2 && <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8 }}>{categories.map(function(c) { return <Btn key={c} small primary={filter === c} onClick={function() { setFilter(c); }}>{c === "all" ? "Alle" : c}</Btn>; })}</div>}
+    </div>
+    <div style={{ flex: 1, overflowY: "auto", padding: "0 16px 16px" }}>
+      {filtered.map(function(n) { return (<Card key={n.id} onClick={function() { setSelNote(n.id); }} style={{ cursor: "pointer", marginBottom: 8, padding: 14 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span>{typeIcons[n.type] || "📝"}</span><span style={{ color: "#e0d8cc", fontWeight: 600, fontSize: 14 }}>{n.title}</span></div>
+            <div style={{ color: "#8a8494", fontSize: 12, marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{n.text.slice(0, 60)}{n.text.length > 60 ? "..." : ""}</div>
+            <div style={{ display: "flex", gap: 4, marginTop: 6, flexWrap: "wrap" }}>
+              <span style={{ background: "rgba(255,255,255,0.06)", padding: "2px 8px", borderRadius: 6, fontSize: 10, color: "#6a6474" }}>{n.category}</span>
+              {(n.tags || []).slice(0, 2).map(function(t, i) { return <span key={i} style={{ background: "rgba(212,160,86,0.1)", padding: "2px 8px", borderRadius: 6, fontSize: 10, color: "#d4a056" }}>#{t}</span>; })}
+            </div>
+          </div>
+          <span style={{ color: "#4a4454", fontSize: 11, flexShrink: 0 }}>{n.date}</span>
+        </div>
+      </Card>); })}
+      {filtered.length === 0 && <p style={{ color: "#4a4454", fontSize: 13, textAlign: "center", marginTop: 20 }}>Keine Notizen</p>}
+    </div>
+  </div>);
+}
+
+// ─── MAIN APP ───
+function App() {
+  var [apiKey, setApiKey] = useState(function() { return localStorage.getItem("claude_dashboard_api_key") || ""; });
+  var [tab, setTab] = useState("home");
+
+  if (!apiKey) return <SetupScreen onSave={setApiKey} />;
+
+  var page = null;
+  if (tab === "home") page = <HomePage setTab={setTab} />;
+  else if (tab === "recht") page = <RechtPage />;
+  else if (tab === "fitness") page = <FitnessPage />;
+  else if (tab === "finanzen") page = <FinanzenPage />;
+  else if (tab === "listen") page = <ListenPage />;
+  else if (tab === "notizen") page = <NotizenPage />;
+  else page = <HomePage setTab={setTab} />;
+
+  return (
+    <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "linear-gradient(170deg,#0a0a0f 0%,#141420 50%,#1a1410 100%)", fontFamily: "'DM Sans',sans-serif" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap');@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}*{-webkit-tap-highlight-color:transparent;box-sizing:border-box}body{margin:0}`}</style>
+      <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 1, overflowY: "auto", paddingTop: "env(safe-area-inset-top)" }}>{page}</div>
+      </div>
+      <div style={{ background: "rgba(10,10,15,0.97)", backdropFilter: "blur(20px)", flexShrink: 0, borderTop: "1px solid rgba(255,255,255,0.08)", paddingBottom: (window.navigator.standalone || window.matchMedia("(display-mode: standalone)").matches) ? "0px" : "env(safe-area-inset-bottom)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr" }}>
+          {TABS.map(function(t) {
+            var a = tab === t.id;
+            var col = a ? "#d4a056" : "#8a8494";
+            var badge = null;
+            if (t.id === "listen") { var c = SG("todos", []).filter(function(x) { return !x.done; }).length; if (c > 0) badge = c; }
+            return (
+              <button key={t.id} onClick={function() { setTab(t.id); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, padding: "6px 4px 4px", border: "none", cursor: "pointer", background: "none", position: "relative" }}>
+                {a && <div style={{ position: "absolute", top: 0, left: "25%", right: "25%", height: 2, borderRadius: "0 0 3px 3px", background: "linear-gradient(90deg,#d4a056,#f0c070)" }} />}
+                <t.Ico size={26} color={col} />
+                <span style={{ fontSize: 10, fontWeight: a ? 700 : 500, color: col, letterSpacing: "0.02em" }}>{t.label}</span>
+                {badge && <span style={{ position: "absolute", top: 2, right: "calc(50% - 20px)", background: "#ef4444", color: "#fff", fontSize: 9, fontWeight: 700, width: 14, height: 14, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center" }}>{badge}</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
 </body>
 </html>
