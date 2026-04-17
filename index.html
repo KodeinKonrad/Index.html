@@ -111,7 +111,7 @@ function SetupScreen({onSave}){
 const[key,setKey]=useState("");const[show,setShow]=useState(false);const[testing,setTesting]=useState(false);const[error,setError]=useState("");
 async function testAndSave(){
 setTesting(true);setError("");
-try{await callClaude([{role:"user",content:"Hi"}],"Antworte nur OK.");localStorage.setItem(KEY_STORE,key);onSave(key);}
+try{localStorage.setItem(KEY_STORE,key);await callClaude([{role:"user",content:"Hi"}],"Antworte nur OK.");onSave(key);}catch(e){localStorage.removeItem(KEY_STORE);setError(e.message||"Fehlgeschlagen");}
 catch(e){setError(e.message||"Fehlgeschlagen");}
 setTesting(false);
 }
