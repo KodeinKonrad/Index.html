@@ -112,7 +112,6 @@ const[key,setKey]=useState("");const[show,setShow]=useState(false);const[testing
 async function testAndSave(){
 setTesting(true);setError("");
 try{localStorage.setItem(KEY_STORE,key);await callClaude([{role:"user",content:"Hi"}],"Antworte nur OK.");onSave(key);}catch(e){localStorage.removeItem(KEY_STORE);setError(e.message||"Fehlgeschlagen");}
-catch(e){setError(e.message||"Fehlgeschlagen");}
 setTesting(false);
 }
 return(<div style={{minHeight:"100dvh",display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",padding:24,background:"linear-gradient(170deg,#0a0a0f 0%,#141420 50%,#1a1410 100%)"}}>
