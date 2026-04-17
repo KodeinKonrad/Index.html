@@ -790,7 +790,7 @@ function App() {
       <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         <div style={{ flex: 1, overflowY: "auto", paddingTop: "env(safe-area-inset-top)" }}>{page}</div>
       </div>
-      <div style={{ background: "rgba(10,10,15,0.97)", backdropFilter: "blur(20px)", flexShrink: 0, borderTop: "1px solid rgba(255,255,255,0.07)", paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <div style={{ background: "rgba(10,10,15,0.97)", backdropFilter: "blur(20px)", flexShrink: 0, borderTop: "1px solid rgba(255,255,255,0.07)", paddingBottom: (window.navigator.standalone || window.matchMedia("(display-mode: standalone)").matches) ? "10px" : "env(safe-area-inset-bottom)" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr" }}>
           {TABS.map(function(t) {
             var a = tab === t.id;
