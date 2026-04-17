@@ -299,11 +299,14 @@ function PurchaseHistory({ onBack }) { var purchases = SG("purchases", []); var 
     return (<Card key={p.id} onClick={function() { setSel(p.id); }} style={{ cursor: "pointer", marginBottom: 10 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div style={{ flex: 1 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ color: "#e0d8cc", fontWeight: 600, fontSize: 15 }}>{p.store || "Einkauf"}</span><span style={{ color: "#d4a056", fontWeight: 700, fontSize: 18 }}>€{(p.total || 0).toFixed(2)}</span></div>
-          <div style={{ color: "#6a6474", fontSize: 12, marginTop: 2 }}>{fmtD(p.date)} · {(p.items || []).length} Artikel</div>
-          <div style={{ color: "#8a8494", fontSize: 11, marginTop: 6, lineHeight: 1.5 }}>{(p.items || []).slice(0, 4).map(function(item) { return (item.menge > 1 ? item.menge + "x " : "") + item.produkt + " €" + (item.betrag || 0).toFixed(2); }).join(" · ")}{(p.items || []).length > 4 ? " · +" + ((p.items || []).length - 4) + " weitere" : ""}</div>
+          <div style={{ color: "#f0e6d3", fontWeight: 700, fontSize: 20, marginBottom: 3 }}>{p.store || "Einkauf"}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+            <span style={{ color: "#d4a056", fontWeight: 700, fontSize: 22 }}>€{(p.total || 0).toFixed(2)}</span>
+            <span style={{ color: "#6a6474", fontSize: 13 }}>{fmtD(p.date)} · {(p.items || []).length} Artikel</span>
+          </div>
+          <div style={{ color: "#8a8494", fontSize: 11, lineHeight: 1.6 }}>{(p.items || []).slice(0, 4).map(function(item) { return (item.menge > 1 ? item.menge + "x " : "") + item.produkt + " €" + (item.betrag || 0).toFixed(2); }).join("  ·  ")}{(p.items || []).length > 4 ? "  ·  +" + ((p.items || []).length - 4) + " weitere" : ""}</div>
         </div>
-        <span style={{fontSize:16}}>›</span>
+        <span style={{ color: "#4a4454", fontSize: 20, flexShrink: 0, marginLeft: 8 }}>›</span>
       </div>
     </Card>); })}</SubPage>);
 }
@@ -449,15 +452,15 @@ function NotizenPage() {
 
   function startVoice() {
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) { alert("Spracheingabe nicht unterstützt"); return; }
+    if (!SR) { alert("Spracheingabe wird von diesem Browser nicht unterstützt. Bitte tippe deine Notiz."); return; }
     var rec = new SR();
-    rec.lang = "de-DE"; rec.continuous = true; rec.interimResults = true;
+    rec.lang = "de-DE"; rec.continuous = false; rec.interimResults = true;
     rec.onresult = function(e) { var t = ""; for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; setInput(t); };
-    rec.onerror = function() { setRecording(false); };
+    rec.onerror = function(e) { console.log("Speech error:", e.error); setRecording(false); };
     rec.onend = function() { setRecording(false); };
-    rec.start(); recognitionRef.current = rec; setRecording(true);
+    try { rec.start(); recognitionRef.current = rec; setRecording(true); } catch(e) { alert("Fehler beim Starten der Aufnahme: " + e.message); }
   }
-  function stopVoice() { if (recognitionRef.current) recognitionRef.current.stop(); setRecording(false); }
+  function stopVoice() { try { if (recognitionRef.current) { recognitionRef.current.stop(); recognitionRef.current = null; } } catch(e) {} setRecording(false); }
 
   async function saveNote() {
     if (!input.trim()) return;
@@ -501,10 +504,16 @@ function NotizenPage() {
       <Card style={{ marginBottom: 12 }}>
         <textarea value={input} onChange={function(e) { setInput(e.target.value); }} placeholder="Notiz eingeben oder diktieren..." rows={3} style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", resize: "vertical", minHeight: 60 }} />
         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <button onClick={recording ? stopVoice : startVoice} style={{ width: 44, height: 44, borderRadius: 12, border: "none", cursor: "pointer", background: recording ? "rgba(239,68,68,0.2)" : "rgba(255,255,255,0.06)", color: recording ? "#ef4444" : "#c8c0b4", display: "flex", alignItems: "center", justifyContent: "center" }}>{recording ? <span style={{fontSize:16}}>🔇</span> : <span style={{fontSize:16}}>🎤</span>}</button>
-          <Btn primary onClick={saveNote} disabled={!input.trim() || loading} style={{ flex: 1 }}>{loading ? "Claude taggt..." : "Speichern"}</Btn>
+          {!recording ? (
+            <button onClick={startVoice} style={{ width: 44, height: 44, borderRadius: 12, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.06)", color: "#c8c0b4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🎤</button>
+          ) : null}
+          <Btn primary onClick={saveNote} disabled={!input.trim() || loading || recording} style={{ flex: 1 }}>{loading ? "Claude taggt..." : "Speichern"}</Btn>
         </div>
-        {recording && <div style={{ color: "#ef4444", fontSize: 12, marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}><span style={{ animation: "blink 1s infinite" }}>●</span> Aufnahme läuft...</div>}
+        {recording && (
+          <button onClick={stopVoice} style={{ width: "100%", marginTop: 10, padding: "14px", borderRadius: 12, border: "3px solid #ef4444", background: "rgba(239,68,68,0.15)", color: "#ef4444", cursor: "pointer", fontWeight: 700, fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, animation: "blink 1.5s infinite" }}>
+            <span style={{ fontSize: 20 }}>⏹</span> AUFNAHME STOPPEN
+          </button>
+        )}
       </Card>
 
       {categories.length > 2 && <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8 }}>{categories.map(function(c) { return <Btn key={c} small primary={filter === c} onClick={function() { setFilter(c); }}>{c === "all" ? "Alle" : c}</Btn>; })}</div>}
