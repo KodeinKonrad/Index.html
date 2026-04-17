@@ -1,316 +1,380 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-  <title>Claude Dashboard</title>
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Claude" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#0a0a0f" />
-  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23d4a056'/><stop offset='1' stop-color='%23b8860b'/></linearGradient></defs><rect width='180' height='180' rx='40' fill='url(%23g)'/><path d='M90 55 L125 90 L90 125 L55 90 Z' fill='%230a0a0f'/></svg>" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23d4a056'/><stop offset='1' stop-color='%23b8860b'/></linearGradient></defs><rect width='180' height='180' rx='40' fill='url(%23g)'/><path d='M90 55 L125 90 L90 125 L55 90 Z' fill='%230a0a0f'/></svg>" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
-  <style>
-    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: #0a0a0f; color: #f0e6d3; font-family: 'DM Sans', -apple-system, sans-serif; min-height: 100dvh; overscroll-behavior: none; }
-    #root { min-height: 100dvh; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-    input, textarea, button { font-family: inherit; }
-  </style>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=no"/>
+<title>Claude Dashboard</title>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Claude"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#0a0a0f"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23d4a056'/><stop offset='1' stop-color='%23b8860b'/></linearGradient></defs><rect width='180' height='180' rx='40' fill='url(%23g)'/><path d='M90 55 L125 90 L90 125 L55 90 Z' fill='%230a0a0f'/></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<style>
+*{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+html,body{margin:0;padding:0;background:#0a0a0f;color:#f0e6d3;font-family:'DM Sans',-apple-system,sans-serif;min-height:100dvh;overscroll-behavior:none}
+#root{min-height:100dvh}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+input,textarea,button{font-family:inherit}
+</style>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="text/babel" data-presets="react">
-    const { useState, useRef, useEffect, useCallback } = React;
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const {useState,useRef,useEffect,useCallback}=React;
 
-    const SYSTEM_PROMPTS = {
-      daily: "Du bist ein persönlicher Assistent in einem iOS-Dashboard. Gib eine kurze, motivierende Tageszusammenfassung in 2-3 Sätzen auf Deutsch. Sei warm und konkret. Kein Smalltalk.",
-      quick: "Du bist ein hilfreicher Assistent. Antworte auf Deutsch, präzise und kompakt. Maximal 3-4 Sätze, es sei denn die Frage erfordert mehr.",
-      chat: "Du bist Claude, ein hilfreicher KI-Assistent von Anthropic. Antworte auf Deutsch. Sei gründlich aber nicht ausschweifend.",
-      ideas: "Du bist ein kreativer Ideengeber. Generiere 3 kurze, ungewöhnliche Projektideen zu einem Thema. Auf Deutsch, als nummerierte Liste. Jede Idee maximal 2 Sätze.",
-      summarize: "Du bist ein Zusammenfassungs-Experte. Fasse den gegebenen Text in 3-5 Kernpunkten auf Deutsch zusammen. Nummerierte Liste.",
-    };
+const TABS=[
+{id:"home",label:"Home",icon:"🏠"},
+{id:"recht",label:"Recht",icon:"⚖️"},
+{id:"fitness",label:"Fitness",icon:"💪"},
+{id:"finanzen",label:"Finanzen",icon:"💰"},
+{id:"chat",label:"Chat",icon:"💬"},
+];
+const CATS=[
+{id:"food",label:"Lebensmittel",icon:"🛒",color:"#4ade80"},
+{id:"household",label:"Haushalt",icon:"🏠",color:"#60a5fa"},
+{id:"transport",label:"Auto/Transport",icon:"🚗",color:"#f59e0b"},
+{id:"leisure",label:"Freizeit",icon:"🎉",color:"#a78bfa"},
+{id:"subscriptions",label:"Abos/Verträge",icon:"📄",color:"#f472b6"},
+{id:"clothing",label:"Kleidung",icon:"👕",color:"#34d399"},
+{id:"other",label:"Sonstiges",icon:"📦",color:"#94a3b8"},
+];
+const P={
+legal:"Du bist juristischer Recherche-Assistent für österreichisches Strafrecht (StGB/StPO). Zitiere Paragraphen, verweise auf Gerichtsentscheidungen (OGH/OLG/LG) als Kommentar: [Gericht, GZ, Datum] - Kernaussage. Unterscheide Rechtslage vs. Einschätzung. Deutsch, praxisnah.",
+docAnalysis:"Du bist juristischer Dokumentenanalyst für österreichisches Recht. Analysiere das Dokument: 1) Dokumenttyp 2) Inhalt 3) Rechtliche Relevanz mit Paragraphen 4) Gerichtsentscheidungen. Deutsch.",
+text:"Textanalyse-Experte. Zusammenfassen, Kernaussagen, Details. Deutsch, nummeriert.",
+fitness:"Personal Trainer. Pläne für Rudergerät, Ergometer, Bodyweight. Zuhause, flexibel. Deutsch.",
+chat:"Du bist Claude. Antworte auf Deutsch, gründlich aber kompakt.",
+reflection:"Generiere EINE Reflexionsfrage. Thema: Wachstum, Dankbarkeit, Selbsterkenntnis. Nur die Frage. Deutsch.",
+categorize:"Kategorisiere Banktransaktionen. NUR JSON-Array. Kategorien: food,household,transport,leisure,subscriptions,clothing,other. Format: [{\"desc\":\"...\",\"amount\":12.5,\"date\":\"2026-01-15\",\"category\":\"food\"}]. Supermärkte=food, Tankstellen/ÖBB=transport, Netflix=subscriptions, Restaurant=leisure. Nur JSON.",
+};
+const KEY_STORE="claude_dashboard_api_key";
+function S_get(k,fb){try{var v=localStorage.getItem("cd_"+k);return v?JSON.parse(v):fb;}catch(e){return fb;}}
+function S_set(k,v){try{localStorage.setItem("cd_"+k,JSON.stringify(v));}catch(e){}}
 
-    const KEY_STORAGE = "claude_dashboard_api_key";
+async function callClaude(messages,system){
+var ak=localStorage.getItem(KEY_STORE);
+var h={"Content-Type":"application/json"};
+if(ak){h["x-api-key"]=ak;h["anthropic-version"]="2023-06-01";h["anthropic-dangerous-direct-browser-access"]="true";}
+var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:h,body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:2000,system:system,messages:messages})});
+if(!r.ok){var e=await r.json().catch(function(){return{};});throw new Error(e&&e.error&&e.error.message||"Fehler "+r.status);}
+var d=await r.json();
+return d.content.filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("\n");
+}
 
-    async function callClaude(apiKey, messages, systemPrompt) {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-5",
-          max_tokens: 1024,
-          system: systemPrompt,
-          messages,
-        }),
-      });
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err?.error?.message || `API-Fehler ${response.status}`);
-      }
-      const data = await response.json();
-      return data.content.filter((b) => b.type === "text").map((b) => b.text).join("\n");
-    }
+async function callClaudeVision(base64,mediaType,textPrompt,system){
+var ak=localStorage.getItem(KEY_STORE);
+var h={"Content-Type":"application/json"};
+if(ak){h["x-api-key"]=ak;h["anthropic-version"]="2023-06-01";h["anthropic-dangerous-direct-browser-access"]="true";}
+var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:h,body:JSON.stringify({
+model:"claude-sonnet-4-5",max_tokens:2000,system:system,
+messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:mediaType,data:base64}},{type:"text",text:textPrompt}]}]
+})});
+if(!r.ok){var e=await r.json().catch(function(){return{};});throw new Error(e&&e.error&&e.error.message||"Fehler "+r.status);}
+var d=await r.json();
+return d.content.filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("\n");
+}
 
-    function SetupScreen({ onSave }) {
-      const [key, setKey] = useState("");
-      const [show, setShow] = useState(false);
-      const [testing, setTesting] = useState(false);
-      const [error, setError] = useState("");
+/* ── UI Components ── */
+function SubPage({title,onBack,children}){
+return(<div style={{display:"flex",flexDirection:"column",height:"100%"}}>
+<div style={{display:"flex",alignItems:"center",gap:10,padding:"14px 16px",borderBottom:"1px solid rgba(255,255,255,0.06)",flexShrink:0,paddingTop:"max(14px,env(safe-area-inset-top))"}}>
+<button onClick={onBack} style={{background:"rgba(255,255,255,0.06)",border:"none",color:"#d4a056",width:34,height:34,borderRadius:10,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>‹</button>
+<span style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:18}}>{title}</span>
+</div>
+<div style={{flex:1,overflowY:"auto",padding:16}}>{children}</div>
+</div>);
+}
+function Card({children,style,onClick}){return <div onClick={onClick} style={{background:"rgba(255,255,255,0.03)",borderRadius:14,padding:16,border:"1px solid rgba(255,255,255,0.05)",cursor:onClick?"pointer":"default",...style}}>{children}</div>;}
+function Btn({children,onClick,disabled,primary,small,style:s}){return <button onClick={onClick} disabled={disabled} style={{padding:small?"6px 14px":"12px 18px",borderRadius:10,border:"none",fontWeight:600,fontSize:small?12:14,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",background:primary?"linear-gradient(135deg,#d4a056,#b8860b)":"rgba(255,255,255,0.06)",color:primary?"#0a0a0f":"#c8c0b4",opacity:disabled?0.5:1,...s}}>{children}</button>;}
+function AiBox({text,loading}){if(!text&&!loading)return null;return <div style={{marginTop:14,padding:14,borderRadius:12,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.06)",color:"#e0d8cc",fontSize:14,lineHeight:1.65,whiteSpace:"pre-wrap"}}>{text}{loading&&<span style={{color:"#d4a056",animation:"blink 1.2s infinite"}}> ●●●</span>}</div>;}
+function MenuCard({icon,bg,title,desc,onClick}){return <Card onClick={onClick} style={{cursor:"pointer"}}><div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:40,height:40,borderRadius:12,background:bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{icon}</div><div style={{flex:1}}><div style={{color:"#e8e0d4",fontWeight:600,fontSize:15}}>{title}</div><div style={{color:"#6a6474",fontSize:12}}>{desc}</div></div><span style={{color:"#4a4454",fontSize:18}}>›</span></div></Card>;}
+function AiTool({onBack,title,prompt,placeholder,btnLabel}){
+var ref=React.createRef();
+const[q,setQ]=useState("");const[r,setR]=useState("");const[l,setL]=useState(false);
+async function run(){if(!q.trim())return;setL(true);setR("");try{setR(await callClaude([{role:"user",content:q}],prompt));}catch(e){setR("⚠️ "+e.message);}setL(false);}
+return(<SubPage title={title} onBack={onBack}>
+<textarea value={q} onChange={function(e){setQ(e.target.value);}} placeholder={placeholder} rows={3} style={{width:"100%",padding:12,borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",resize:"vertical",minHeight:80}}/>
+<Btn primary onClick={run} disabled={!q.trim()||l} style={{width:"100%",marginTop:10}}>{l?"Lädt...":btnLabel}</Btn>
+<AiBox text={r} loading={l}/>
+</SubPage>);
+}
 
-      const testAndSave = async () => {
-        setTesting(true);
-        setError("");
-        try {
-          await callClaude(key, [{ role: "user", content: "Hi" }], "Antworte nur mit 'OK'.");
-          localStorage.setItem(KEY_STORAGE, key);
-          onSave(key);
-        } catch (e) {
-          setError(e.message || "Verbindung fehlgeschlagen");
-        }
-        setTesting(false);
-      };
+/* ── SETUP ── */
+function SetupScreen({onSave}){
+const[key,setKey]=useState("");const[show,setShow]=useState(false);const[testing,setTesting]=useState(false);const[error,setError]=useState("");
+async function testAndSave(){
+setTesting(true);setError("");
+try{await callClaude([{role:"user",content:"Hi"}],"Antworte nur OK.");localStorage.setItem(KEY_STORE,key);onSave(key);}
+catch(e){setError(e.message||"Fehlgeschlagen");}
+setTesting(false);
+}
+return(<div style={{minHeight:"100dvh",display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",padding:24,background:"linear-gradient(170deg,#0a0a0f 0%,#141420 50%,#1a1410 100%)"}}>
+<div style={{width:"100%",maxWidth:380}}>
+<div style={{textAlign:"center",marginBottom:40}}>
+<div style={{width:72,height:72,borderRadius:22,margin:"0 auto 20px",background:"linear-gradient(135deg,#d4a056,#b8860b)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 8px 32px rgba(212,160,86,0.3)"}}>
+<svg width="32" height="32" viewBox="0 0 180 180"><path d="M90 40 L140 90 L90 140 L40 90 Z" fill="#0a0a0f"/></svg>
+</div>
+<h1 style={{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:30,color:"#f0e6d3",margin:0}}>Claude Dashboard</h1>
+<p style={{color:"#8a8494",fontSize:14,marginTop:8}}>Dein persönliches KI-Cockpit</p>
+</div>
+<div style={{background:"rgba(255,255,255,0.04)",borderRadius:16,padding:24,border:"1px solid rgba(255,255,255,0.06)"}}>
+<label style={{color:"#a09aae",fontSize:12,textTransform:"uppercase",letterSpacing:"0.08em"}}>API-Schlüssel</label>
+<div style={{position:"relative",marginTop:8}}>
+<input type={show?"text":"password"} value={key} onChange={function(e){setKey(e.target.value);}} placeholder="sk-ant-api03-..." autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{width:"100%",padding:"14px 48px 14px 14px",borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:15,fontFamily:"monospace",outline:"none"}}/>
+<button onClick={function(){setShow(!show);}} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#8a8494",cursor:"pointer",fontSize:18}}>{show?"◡":"◉"}</button>
+</div>
+<p style={{color:"#6a6474",fontSize:12,marginTop:10,lineHeight:1.5}}>Key auf <strong style={{color:"#d4a056"}}>platform.claude.com</strong> → API Keys</p>
+{error&&<p style={{color:"#e85d5d",fontSize:13,marginTop:10,padding:"8px 12px",background:"rgba(232,93,93,0.08)",borderRadius:8}}>{error}</p>}
+<Btn primary onClick={testAndSave} disabled={!key.trim()||testing} style={{width:"100%",marginTop:16}}>{testing?"Prüfe...":"Verbinden & Starten"}</Btn>
+</div>
+<p style={{color:"#3a3444",fontSize:11,textAlign:"center",marginTop:20}}>Key wird nur lokal gespeichert.</p>
+</div></div>);
+}
 
-      return (
-        <div style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: 24, background: "linear-gradient(170deg, #0a0a0f 0%, #141420 50%, #1a1410 100%)" }}>
-          <div style={{ width: "100%", maxWidth: 380 }}>
-            <div style={{ textAlign: "center", marginBottom: 40 }}>
-              <div style={{ width: 72, height: 72, borderRadius: 22, margin: "0 auto 20px", background: "linear-gradient(135deg, #d4a056 0%, #b8860b 100%)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 32px rgba(212,160,86,0.3)" }}>
-                <svg width="32" height="32" viewBox="0 0 180 180"><path d="M90 40 L140 90 L90 140 L40 90 Z" fill="#0a0a0f"/></svg>
-              </div>
-              <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 30, color: "#f0e6d3", margin: 0, letterSpacing: "-0.02em" }}>Claude Dashboard</h1>
-              <p style={{ color: "#8a8494", fontSize: 14, marginTop: 8 }}>Dein persönliches KI-Cockpit</p>
-            </div>
-            <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: 24, border: "1px solid rgba(255,255,255,0.06)" }}>
-              <label style={{ color: "#a09aae", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.08em" }}>API-Schlüssel</label>
-              <div style={{ position: "relative", marginTop: 8 }}>
-                <input type={show ? "text" : "password"} value={key} onChange={(e) => setKey(e.target.value)} placeholder="sk-ant-api03-..." autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{ width: "100%", padding: "14px 48px 14px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 15, fontFamily: "monospace", outline: "none" }} />
-                <button onClick={() => setShow(!show)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#8a8494", cursor: "pointer", fontSize: 18, padding: 4 }}>{show ? "◡" : "◉"}</button>
-              </div>
-              <p style={{ color: "#6a6474", fontSize: 12, marginTop: 10, lineHeight: 1.5 }}>Hol dir den Key auf <strong style={{ color: "#d4a056" }}>platform.claude.com</strong> → API Keys → Create Key</p>
-              {error && <p style={{ color: "#e85d5d", fontSize: 13, marginTop: 10, padding: "8px 12px", background: "rgba(232,93,93,0.08)", borderRadius: 8 }}>{error}</p>}
-              <button onClick={testAndSave} disabled={!key.trim() || testing} style={{ width: "100%", padding: 14, marginTop: 16, borderRadius: 10, border: "none", fontWeight: 600, fontSize: 15, cursor: "pointer", background: key.trim() ? "linear-gradient(135deg, #d4a056, #b8860b)" : "rgba(255,255,255,0.06)", color: key.trim() ? "#0a0a0f" : "#6a6474", opacity: testing ? 0.7 : 1 }}>
-                {testing ? "Verbindung wird geprüft..." : "Verbinden & Starten"}
-              </button>
-            </div>
-            <p style={{ color: "#3a3444", fontSize: 11, textAlign: "center", marginTop: 20 }}>Dein Key wird nur lokal auf diesem Gerät gespeichert.</p>
-          </div>
-        </div>
-      );
-    }
+/* ── HOME ── */
+function HomePage(){
+const[refl,setRefl]=useState("");
+const[cds,setCds]=useState(function(){return S_get("countdowns",[]);});
+const[showAdd,setShowAdd]=useState(false);const[cdN,setCdN]=useState("");const[cdD,setCdD]=useState("");
+var h=new Date().getHours();
+var greetText=h<6?"Gute Nacht":h<12?"Guten Morgen":h<17?"Guten Tag":h<22?"Guten Abend":"Gute Nacht";
+var today=new Date().toLocaleDateString("de-AT",{weekday:"long",day:"numeric",month:"long"});
+var exps=S_get("expenses",[]);
+var mo=new Date().toISOString().slice(0,7);
+var total=exps.filter(function(e){return e.date&&e.date.startsWith(mo);}).reduce(function(s,e){return s+(e.amount||0);},0);
 
-    function DashCard({ icon, title, accent, children, onClick }) {
-      return (
-        <div onClick={onClick} style={{ background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: 18, border: "1px solid rgba(255,255,255,0.05)", cursor: onClick ? "pointer" : "default", transition: "transform 0.15s" }} onPointerDown={(e) => onClick && (e.currentTarget.style.transform = "scale(0.98)")} onPointerUp={(e) => onClick && (e.currentTarget.style.transform = "scale(1)")} onPointerLeave={(e) => onClick && (e.currentTarget.style.transform = "scale(1)")}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: children ? 12 : 0 }}>
-            <span style={{ width: 34, height: 34, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, background: `${accent}18`, color: accent }}>{icon}</span>
-            <span style={{ color: "#e8e0d4", fontWeight: 600, fontSize: 15 }}>{title}</span>
-            {onClick && <span style={{ marginLeft: "auto", color: "#4a4454", fontSize: 18 }}>›</span>}
-          </div>
-          {children}
-        </div>
-      );
-    }
+useEffect(function(){callClaude([{role:"user",content:"Es ist "+today}],P.reflection).then(function(t){setRefl(t);}).catch(function(){setRefl("Was hat dir heute Energie gegeben?");});},[]);
+function daysTo(d){return Math.max(0,Math.ceil((new Date(d)-new Date())/86400000));}
+function addCD(){if(!cdN||!cdD)return;var u=cds.concat([{id:Date.now(),name:cdN,date:cdD}]);setCds(u);S_set("countdowns",u);setCdN("");setCdD("");setShowAdd(false);}
+function rmCD(id){var u=cds.filter(function(c){return c.id!==id;});setCds(u);S_set("countdowns",u);}
 
-    function ToolPage({ title, onBack, children }) {
-      return (
-        <div style={{ minHeight: "100dvh", background: "linear-gradient(170deg, #0a0a0f 0%, #141420 50%, #1a1410 100%)", display: "flex", flexDirection: "column" }}>
-          <div style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid rgba(255,255,255,0.05)", flexShrink: 0, paddingTop: "max(16px, env(safe-area-inset-top))" }}>
-            <button onClick={onBack} style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#d4a056", width: 36, height: 36, borderRadius: 10, cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>‹</button>
-            <h2 style={{ fontFamily: "'DM Serif Display', Georgia, serif", color: "#f0e6d3", fontSize: 20, margin: 0 }}>{title}</h2>
-          </div>
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>{children}</div>
-        </div>
-      );
-    }
+return(<div style={{padding:16,display:"flex",flexDirection:"column",gap:14}}>
+<div><h1 style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:26,margin:0}}>{greetText}</h1><p style={{color:"#6a6474",fontSize:13,margin:"4px 0 0"}}>{today}</p></div>
+{total>0&&<Card><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{color:"#6a6474",fontSize:11}}>Ausgaben Monat</div><div style={{color:"#f0e6d3",fontSize:24,fontWeight:700}}>€{total.toFixed(2)}</div></div><span style={{fontSize:24}}>💰</span></div></Card>}
+{cds.length>0&&<Card><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}><span>🎯</span><span style={{color:"#e8e0d4",fontWeight:600,fontSize:14}}>Countdowns</span></div>
+{cds.map(function(c){return(<div key={c.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}><div><span style={{color:"#c8c0b4",fontSize:14}}>{c.name}</span><span style={{color:"#6a6474",fontSize:12,marginLeft:8}}>{new Date(c.date).toLocaleDateString("de-AT")}</span></div><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{color:"#d4a056",fontWeight:700,fontSize:20}}>{daysTo(c.date)}</span><span style={{color:"#6a6474",fontSize:11}}>Tage</span><button onClick={function(){rmCD(c.id);}} style={{background:"none",border:"none",color:"#4a4454",cursor:"pointer",fontSize:14}}>✕</button></div></div>);})}</Card>}
+<Btn onClick={function(){setShowAdd(!showAdd);}} small>+ Countdown</Btn>
+{showAdd&&<Card>
+<input value={cdN} onChange={function(e){setCdN(e.target.value);}} placeholder="Name (z.B. Urlaub)" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8}}/>
+<input type="date" value={cdD} onChange={function(e){setCdD(e.target.value);}} style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8,colorScheme:"dark"}}/>
+<Btn primary onClick={addCD} small>Speichern</Btn></Card>}
+<Card><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}><span>⚡</span><span style={{color:"#e8e0d4",fontWeight:600,fontSize:14}}>Reflexion</span></div><p style={{color:"#c8c0b4",fontSize:14,lineHeight:1.6,margin:0,fontStyle:"italic"}}>{refl||"Wird geladen..."}</p></Card>
+</div>);
+}
 
-    function ChatPage({ apiKey, onBack }) {
-      const [messages, setMessages] = useState([]);
-      const [input, setInput] = useState("");
-      const [loading, setLoading] = useState(false);
-      const scrollRef = useRef(null);
+/* ── RECHT ── */
+function DocAnalysis({onBack}){
+const[preview,setPreview]=useState(null);const[imgData,setImgData]=useState(null);const[mType,setMType]=useState("image/jpeg");
+const[extra,setExtra]=useState("");const[result,setResult]=useState("");const[loading,setLoading]=useState(false);
+const fileRef=useRef(null);
+function handleFile(e){var file=e.target.files&&e.target.files[0];if(!file)return;setMType(file.type||"image/jpeg");var reader=new FileReader();reader.onload=function(ev){setPreview(ev.target.result);setImgData(ev.target.result.split(",")[1]);};reader.readAsDataURL(file);}
+async function analyze(){if(!imgData)return;setLoading(true);setResult("");try{var prompt=extra.trim()?"Analysiere dieses Dokument. Kontext: "+extra:"Analysiere dieses Dokument rechtlich.";setResult(await callClaudeVision(imgData,mType,prompt,P.docAnalysis));}catch(e){setResult("⚠️ "+e.message);}setLoading(false);}
+if(!preview)return(<SubPage title="Dokument analysieren" onBack={onBack}>
+<input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleFile} style={{display:"none"}}/>
+<Btn primary onClick={function(){fileRef.current.click();}} style={{width:"100%",padding:20}}>📷 Foto aufnehmen</Btn>
+<div style={{height:10}}/>
+<Btn onClick={function(){if(fileRef.current){fileRef.current.removeAttribute("capture");fileRef.current.click();}}} style={{width:"100%"}}>📤 Aus Fotos wählen</Btn>
+<p style={{color:"#6a6474",fontSize:12,textAlign:"center",marginTop:12}}>Fotografiere ein Dokument für rechtliche Analyse.</p>
+</SubPage>);
+return(<SubPage title="Dokument analysieren" onBack={onBack}>
+<input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleFile} style={{display:"none"}}/>
+<div style={{borderRadius:12,overflow:"hidden",marginBottom:12,border:"1px solid rgba(255,255,255,0.08)"}}><img src={preview} style={{width:"100%",display:"block"}}/></div>
+<Btn small onClick={function(){setPreview(null);setImgData(null);setResult("");}} style={{marginBottom:12}}>Anderes Foto</Btn>
+<input value={extra} onChange={function(e){setExtra(e.target.value);}} placeholder="Kontext (optional)" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:10}}/>
+<Btn primary onClick={analyze} disabled={loading} style={{width:"100%"}}>{loading?"Analysiert...":"Rechtlich beurteilen"}</Btn>
+<AiBox text={result} loading={loading}/>
+</SubPage>);
+}
+function RechtPage(){
+const[sub,setSub]=useState(null);
+if(sub==="legal")return <AiTool onBack={function(){setSub(null);}} title="Rechtsrecherche" prompt={P.legal} placeholder="z.B. 'Schwerer Diebstahl § 128 StGB?'" btnLabel="Recherchieren"/>;
+if(sub==="doc")return <DocAnalysis onBack={function(){setSub(null);}}/>;
+if(sub==="text")return <AiTool onBack={function(){setSub(null);}} title="Text-Analyse" prompt={P.text} placeholder="Text einfügen..." btnLabel="Analysieren"/>;
+return(<div style={{padding:16,display:"flex",flexDirection:"column",gap:12}}>
+<h2 style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:22,margin:"0 0 4px"}}>Recht & Analyse</h2>
+<MenuCard icon="🔍" bg="rgba(167,139,250,0.15)" title="Rechtsrecherche" desc="StGB, StPO, Gerichtsentscheidungen" onClick={function(){setSub("legal");}}/>
+<MenuCard icon="📷" bg="rgba(74,222,128,0.15)" title="Dokument analysieren" desc="Foto → rechtliche Beurteilung" onClick={function(){setSub("doc");}}/>
+<MenuCard icon="📄" bg="rgba(96,165,250,0.15)" title="Text-Analyse" desc="Zusammenfassen & Kernpunkte" onClick={function(){setSub("text");}}/>
+</div>);
+}
 
-      useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [messages, loading]);
+/* ── FITNESS ── */
+function IntTimer({onBack}){
+const[ws,setWs]=useState(30);const[rs,setRs]=useState(15);const[rnds,setRnds]=useState(8);
+const[cr,setCr]=useState(0);const[tl,setTl]=useState(0);const[ph,setPh]=useState("idle");const[isRun,setIsRun]=useState(false);
+const timerRef=useRef(null);const acRef=useRef(null);
+function beep(f,d){try{if(!acRef.current)acRef.current=new(window.AudioContext||window.webkitAudioContext)();var o=acRef.current.createOscillator();var g=acRef.current.createGain();o.connect(g);g.connect(acRef.current.destination);o.frequency.value=f||800;g.gain.value=0.3;o.start();o.stop(acRef.current.currentTime+(d||150)/1000);}catch(err){}}
+function startT(){setCr(1);setPh("work");setTl(ws);setIsRun(true);beep(800);}
+function resetT(){setIsRun(false);setPh("idle");setCr(0);setTl(0);}
+useEffect(function(){
+if(!isRun){clearInterval(timerRef.current);return;}
+timerRef.current=setInterval(function(){setTl(function(t){
+if(t<=1){if(ph==="work"){if(cr>=rnds){setPh("done");setIsRun(false);beep(400,500);return 0;}setPh("rest");beep(400);return rs;}else{setCr(function(r){return r+1;});setPh("work");beep(800);return ws;}}
+if(t<=4)beep(600,80);return t-1;});},1000);
+return function(){clearInterval(timerRef.current);};
+},[isRun,ph,cr,rnds,ws,rs]);
+var pct=0;if(ph==="work"&&ws>0)pct=(1-tl/ws)*100;if(ph==="rest"&&rs>0)pct=(1-tl/rs)*100;
+var pc=ph==="work"?"#4ade80":ph==="rest"?"#f59e0b":"#6a6474";
+var mm=String(Math.floor(tl/60)).padStart(2,"0");var ss=String(tl%60).padStart(2,"0");
+var phL=ph==="idle"?"Bereit":ph==="work"?"ARBEIT":ph==="rest"?"PAUSE":"FERTIG!";
+function NI({label,value,onChange,min,max,step}){return(<div style={{flex:1,textAlign:"center"}}><div style={{color:"#6a6474",fontSize:11,marginBottom:4}}>{label}</div><div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><button onClick={function(){onChange(Math.max(min,value-step));}} style={{width:28,height:28,borderRadius:8,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(0,0,0,0.3)",color:"#d4a056",fontSize:16,cursor:"pointer"}}>−</button><span style={{color:"#f0e6d3",fontSize:18,fontWeight:700,minWidth:30}}>{value}</span><button onClick={function(){onChange(Math.min(max,value+step));}} style={{width:28,height:28,borderRadius:8,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(0,0,0,0.3)",color:"#d4a056",fontSize:16,cursor:"pointer"}}>+</button></div></div>);}
+return(<SubPage title="Intervall-Timer" onBack={onBack}><div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:20}}>
+<div style={{position:"relative",width:200,height:200}}>
+<svg width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8"/><circle cx="100" cy="100" r="90" fill="none" stroke={pc} strokeWidth="8" strokeDasharray={String(2*Math.PI*90)} strokeDashoffset={String(2*Math.PI*90*(1-pct/100))} strokeLinecap="round" transform="rotate(-90 100 100)" style={{transition:"stroke-dashoffset 0.3s"}}/></svg>
+<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}><div style={{fontSize:42,fontWeight:700,color:"#f0e6d3",fontFamily:"monospace"}}>{mm}:{ss}</div><div style={{fontSize:13,color:pc,fontWeight:600}}>{phL}</div>{ph!=="idle"&&ph!=="done"&&<div style={{fontSize:12,color:"#6a6474"}}>Runde {cr}/{rnds}</div>}</div></div>
+<div style={{display:"flex",gap:12}}>
+{ph==="idle"?<Btn primary onClick={startT}>▶ Start</Btn>:<div style={{display:"flex",gap:12}}><Btn primary={isRun} onClick={function(){setIsRun(!isRun);}}>{isRun?"⏸ Pause":"▶ Weiter"}</Btn><Btn onClick={resetT}>↻ Reset</Btn></div>}
+</div>
+{ph==="idle"&&<Card style={{width:"100%"}}><div style={{display:"flex",gap:8}}><NI label="Arbeit (s)" value={ws} onChange={setWs} min={5} max={120} step={5}/><NI label="Pause (s)" value={rs} onChange={setRs} min={5} max={120} step={5}/><NI label="Runden" value={rnds} onChange={setRnds} min={1} max={30} step={1}/></div>
+<div style={{display:"flex",gap:8,marginTop:12,flexWrap:"wrap"}}><Btn small onClick={function(){setWs(20);setRs(10);setRnds(8);}}>Tabata</Btn><Btn small onClick={function(){setWs(30);setRs(30);setRnds(10);}}>HIIT</Btn><Btn small onClick={function(){setWs(45);setRs(15);setRnds(6);}}>Ruder</Btn></div></Card>}
+</div></SubPage>);
+}
+function TrainLog({onBack}){
+const[logs,setLogs]=useState(function(){return S_get("trainlog",[]);});const[type,setType]=useState("Rudergerät");const[dur,setDur]=useState("30");const[note,setNote]=useState("");
+function add(){var u=[{id:Date.now(),type:type,duration:parseInt(dur)||0,note:note,date:new Date().toISOString().split("T")[0]}].concat(logs);setLogs(u);S_set("trainlog",u);setNote("");}
+function rm(id){var u=logs.filter(function(l){return l.id!==id;});setLogs(u);S_set("trainlog",u);}
+return(<SubPage title="Trainingslog" onBack={onBack}>
+<Card><div style={{display:"flex",gap:8,marginBottom:8,flexWrap:"wrap"}}>{["Rudergerät","Ergometer","Bodyweight"].map(function(t){return <Btn key={t} small primary={type===t} onClick={function(){setType(t);}}>{t}</Btn>;})}</div>
+<div style={{display:"flex",gap:8,marginBottom:8}}><input type="number" value={dur} onChange={function(e){setDur(e.target.value);}} style={{flex:1,padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none"}}/><span style={{color:"#6a6474",alignSelf:"center",fontSize:13}}>Min</span></div>
+<input value={note} onChange={function(e){setNote(e.target.value);}} placeholder="Notiz" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8}}/>
+<Btn primary onClick={add} style={{width:"100%"}}>Eintragen</Btn></Card>
+<div style={{marginTop:14,display:"flex",flexDirection:"column",gap:8}}>
+{logs.slice(0,20).map(function(l){return(<Card key={l.id} style={{padding:12}}><div style={{display:"flex",justifyContent:"space-between"}}><div><span style={{color:"#d4a056",fontSize:13,fontWeight:600}}>{l.type}</span><span style={{color:"#6a6474",fontSize:12,marginLeft:8}}>{l.duration}min — {l.date}</span>{l.note&&<div style={{color:"#8a8494",fontSize:12,marginTop:2}}>{l.note}</div>}</div><button onClick={function(){rm(l.id);}} style={{background:"none",border:"none",color:"#4a4454",cursor:"pointer"}}>🗑</button></div></Card>);})}
+{logs.length===0&&<p style={{color:"#4a4454",fontSize:13,textAlign:"center"}}>Noch keine Einträge</p>}
+</div></SubPage>);
+}
+function FitnessPage(){
+const[sub,setSub]=useState(null);
+if(sub==="timer")return <IntTimer onBack={function(){setSub(null);}}/>;
+if(sub==="workout")return <AiTool onBack={function(){setSub(null);}} title="Workout-Planer" prompt={P.fitness} placeholder="z.B. '30min Rudergerät HIIT'" btnLabel="Plan erstellen"/>;
+if(sub==="log")return <TrainLog onBack={function(){setSub(null);}}/>;
+return(<div style={{padding:16,display:"flex",flexDirection:"column",gap:12}}>
+<h2 style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:22,margin:"0 0 4px"}}>Fitness</h2>
+<MenuCard icon="⏱" bg="rgba(74,222,128,0.15)" title="Intervall-Timer" desc="HIIT, Tabata & Custom" onClick={function(){setSub("timer");}}/>
+<MenuCard icon="🏋️" bg="rgba(245,158,11,0.15)" title="Workout-Planer" desc="Rudergerät, Ergometer, Bodyweight" onClick={function(){setSub("workout");}}/>
+<MenuCard icon="📊" bg="rgba(96,165,250,0.15)" title="Trainingslog" desc="Einheiten protokollieren" onClick={function(){setSub("log");}}/>
+</div>);
+}
 
-      const send = async () => {
-        if (!input.trim() || loading) return;
-        const text = input.trim();
-        setInput("");
-        const newMsgs = [...messages, { role: "user", content: text }];
-        setMessages(newMsgs);
-        setLoading(true);
-        try {
-          const result = await callClaude(apiKey, newMsgs, SYSTEM_PROMPTS.chat);
-          setMessages([...newMsgs, { role: "assistant", content: result }]);
-        } catch (e) {
-          setMessages([...newMsgs, { role: "assistant", content: `⚠️ ${e.message}` }]);
-        }
-        setLoading(false);
-      };
+/* ── FINANZEN ── */
+function AddExp({onBack}){
+const[amt,setAmt]=useState("");const[cat,setCat]=useState("food");const[note,setNote]=useState("");
+function save(){if(!amt)return;var e=S_get("expenses",[]);e.unshift({id:Date.now(),amount:parseFloat(amt),category:cat,note:note,date:new Date().toISOString().split("T")[0]});S_set("expenses",e);onBack();}
+return(<SubPage title="Ausgabe erfassen" onBack={onBack}>
+<div style={{marginBottom:14}}><div style={{color:"#6a6474",fontSize:12,marginBottom:6}}>Betrag</div><div style={{position:"relative"}}><span style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",color:"#d4a056",fontSize:18,fontWeight:700}}>€</span><input type="number" value={amt} onChange={function(e){setAmt(e.target.value);}} placeholder="0.00" inputMode="decimal" style={{width:"100%",padding:"14px 14px 14px 32px",borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:22,fontWeight:700,outline:"none"}}/></div></div>
+<div style={{color:"#6a6474",fontSize:12,marginBottom:8}}>Kategorie</div>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:14}}>{CATS.map(function(c){return(<button key={c.id} onClick={function(){setCat(c.id);}} style={{padding:"10px 12px",borderRadius:10,border:cat===c.id?"2px solid "+c.color:"1px solid rgba(255,255,255,0.06)",background:cat===c.id?c.color+"15":"rgba(255,255,255,0.03)",cursor:"pointer",display:"flex",alignItems:"center",gap:8,color:"#e0d8cc",fontSize:13}}><span>{c.icon}</span>{c.label}</button>);})}</div>
+<input value={note} onChange={function(e){setNote(e.target.value);}} placeholder="Notiz (optional)" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:14}}/>
+<Btn primary onClick={save} disabled={!amt} style={{width:"100%"}}>Speichern</Btn>
+</SubPage>);
+}
+function CsvImport({onBack}){
+const[raw,setRaw]=useState([]);const[categorized,setCategorized]=useState([]);const[loading,setLoading]=useState(false);const[imported,setImported]=useState(false);const fileRef=useRef(null);
+function parseCSV(text){var lines=text.split("\n").filter(function(l){return l.trim();});if(lines.length<2)return[];var sep=lines[0].indexOf(";")>=0?";":","
+;var headers=lines[0].split(sep).map(function(h){return h.replace(/"/g,"").trim().toLowerCase();});var dateIdx=headers.findIndex(function(h){return h.indexOf("buchung")>=0||h.indexOf("datum")>=0;});var descIdx=headers.findIndex(function(h){return h.indexOf("empfänger")>=0||h.indexOf("auftraggeber")>=0||h.indexOf("text")>=0||h.indexOf("verwendung")>=0;});var amtIdx=headers.findIndex(function(h){return h.indexOf("betrag")>=0||h.indexOf("amount")>=0||h.indexOf("umsatz")>=0;});var results=[];for(var i=1;i<lines.length;i++){var cols=lines[i].split(sep).map(function(c){return c.replace(/"/g,"").trim();});if(cols.length<3)continue;var amtStr=(cols[amtIdx>=0?amtIdx:cols.length-2]||"0").replace(/[^\d,.\-]/g,"").replace(",",".");var amt=parseFloat(amtStr);if(isNaN(amt)||amt>=0)continue;var dateStr=cols[dateIdx>=0?dateIdx:0]||"";var dm=dateStr.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);if(dm)dateStr=dm[3]+"-"+dm[2].padStart(2,"0")+"-"+dm[1].padStart(2,"0");results.push({desc:cols[descIdx>=0?descIdx:1]||"Unbekannt",amount:Math.abs(amt),date:dateStr});}return results;}
+function handleFile(e){var file=e.target.files&&e.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(ev){setRaw(parseCSV(ev.target.result));};reader.readAsText(file,"utf-8");}
+async function categorize(){if(!raw.length)return;setLoading(true);try{var input=raw.map(function(t){return t.date+" | "+t.desc+" | "+t.amount.toFixed(2);}).join("\n");var result=await callClaude([{role:"user",content:input}],P.categorize);var m=result.match(/\[[\s\S]*\]/);if(m){setCategorized(JSON.parse(m[0]));}else{throw new Error("Fehlgeschlagen");}}catch(e){alert("Fehler: "+e.message);}setLoading(false);}
+function doImport(){var existing=S_get("expenses",[]);var ne=categorized.map(function(t){return{id:Date.now()+Math.random(),amount:t.amount,category:t.category||"other",note:t.desc,date:t.date,source:"csv"};});S_set("expenses",ne.concat(existing));setImported(true);}
+if(imported)return(<SubPage title="CSV" onBack={onBack}><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:16}}>✅</div><div style={{color:"#4ade80",fontSize:18,fontWeight:600}}>{categorized.length} importiert!</div><Btn onClick={onBack} style={{marginTop:16}}>Zurück</Btn></div></SubPage>);
+if(raw.length===0)return(<SubPage title="CSV importieren" onBack={onBack}><input ref={fileRef} type="file" accept=".csv,.txt" onChange={handleFile} style={{display:"none"}}/><Btn primary onClick={function(){fileRef.current.click();}} style={{width:"100%",padding:20}}>📤 CSV auswählen</Btn>
+<Card style={{marginTop:14}}><div style={{color:"#e8e0d4",fontWeight:600,fontSize:14,marginBottom:8}}>easybank Export:</div><div style={{color:"#8a8494",fontSize:13,lineHeight:1.8}}>1. easybank App → Konto → Umsätze<br/>2. Zeitraum wählen<br/>3. Exportieren → CSV<br/>4. Hier hochladen</div></Card></SubPage>);
+if(categorized.length===0)return(<SubPage title="CSV importieren" onBack={onBack}><Card style={{marginBottom:12}}><div style={{color:"#4ade80",fontWeight:600}}>{raw.length} Ausgaben gefunden</div><div style={{color:"#6a6474",fontSize:12}}>€{raw.reduce(function(s,t){return s+t.amount;},0).toFixed(2)}</div></Card><Btn primary onClick={categorize} disabled={loading} style={{width:"100%"}}>{loading?"Kategorisiert...":"Automatisch kategorisieren"}</Btn></SubPage>);
+return(<SubPage title="CSV importieren" onBack={onBack}><Card style={{marginBottom:12}}><div style={{color:"#4ade80",fontWeight:600}}>{categorized.length} kategorisiert</div></Card>
+<div style={{maxHeight:300,overflowY:"auto",marginBottom:12}}>{categorized.map(function(t,i){var cat=CATS.find(function(c){return c.id===t.category;})||CATS[6];return(<div key={i} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid rgba(255,255,255,0.04)"}}><span style={{color:"#c8c0b4",fontSize:12}}>{cat.icon} {t.desc}</span><span style={{color:"#e0d8cc",fontSize:13,fontWeight:600}}>€{(t.amount||0).toFixed(2)}</span></div>);})}</div>
+<Btn primary onClick={doImport} style={{width:"100%"}}>Alle importieren</Btn></SubPage>);
+}
+function MonthView({onBack}){
+var exps=S_get("expenses",[]);var mo=new Date().toISOString().slice(0,7);var tm=exps.filter(function(e){return e.date&&e.date.startsWith(mo);});var total=tm.reduce(function(s,e){return s+e.amount;},0);
+var byCat=CATS.map(function(c){return{id:c.id,label:c.label,icon:c.icon,color:c.color,total:tm.filter(function(e){return e.category===c.id;}).reduce(function(s,e){return s+e.amount;},0)};}).filter(function(c){return c.total>0;}).sort(function(a,b){return b.total-a.total;});
+return(<SubPage title="Monatsübersicht" onBack={onBack}>
+<Card style={{marginBottom:14}}><div style={{color:"#6a6474",fontSize:12}}>Gesamt {new Date().toLocaleDateString("de-AT",{month:"long",year:"numeric"})}</div><div style={{color:"#f0e6d3",fontSize:28,fontWeight:700}}>€{total.toFixed(2)}</div></Card>
+{byCat.map(function(c){return(<Card key={c.id} style={{padding:12,marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><span style={{color:"#e0d8cc",fontSize:14}}>{c.icon} {c.label}</span><span style={{color:"#d4a056",fontWeight:700}}>€{c.total.toFixed(2)}</span></div><div style={{height:6,borderRadius:3,background:"rgba(255,255,255,0.06)"}}><div style={{height:"100%",borderRadius:3,background:c.color,width:(total>0?c.total/total*100:0)+"%"}}/></div></Card>);})}
+{byCat.length===0&&<p style={{color:"#4a4454",fontSize:13,textAlign:"center"}}>Keine Ausgaben</p>}
+</SubPage>);
+}
+function Goals({onBack}){
+const[goals,setGoals]=useState(function(){return S_get("savgoals",[]);});const[show,setShow]=useState(false);const[n,setN]=useState("");const[t,setT]=useState("");
+function addG(){if(!n||!t)return;var u=goals.concat([{id:Date.now(),name:n,target:parseFloat(t),current:0}]);setGoals(u);S_set("savgoals",u);setN("");setT("");setShow(false);}
+function updG(id,v){var u=goals.map(function(g){return g.id===id?Object.assign({},g,{current:Math.max(0,v)}):g;});setGoals(u);S_set("savgoals",u);}
+function rmG(id){var u=goals.filter(function(g){return g.id!==id;});setGoals(u);S_set("savgoals",u);}
+return(<SubPage title="Sparziele" onBack={onBack}>
+{goals.map(function(g){var p=Math.min(100,g.current/g.target*100);return(<Card key={g.id} style={{marginBottom:12}}>
+<div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><span style={{color:"#e8e0d4",fontWeight:600,fontSize:15}}>{g.name}</span><button onClick={function(){rmG(g.id);}} style={{background:"none",border:"none",color:"#4a4454",cursor:"pointer"}}>🗑</button></div>
+<div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><span style={{color:"#d4a056",fontWeight:700,fontSize:18}}>€{g.current.toFixed(0)}</span><span style={{color:"#6a6474",fontSize:13}}>von €{g.target.toFixed(0)} ({p.toFixed(0)}%)</span></div>
+<div style={{height:10,borderRadius:5,background:"rgba(255,255,255,0.06)",marginBottom:8}}><div style={{height:"100%",borderRadius:5,background:p>=100?"#4ade80":"linear-gradient(90deg,#d4a056,#b8860b)",width:p+"%",transition:"width 0.5s"}}/></div>
+<div style={{display:"flex",gap:6}}>{[10,50,100].map(function(v){return <Btn key={v} small onClick={function(){updG(g.id,g.current+v);}}>+€{v}</Btn>;})}</div>
+</Card>);})}
+{!show?<Btn onClick={function(){setShow(true);}} style={{width:"100%"}}>+ Neues Sparziel</Btn>:
+<Card><input value={n} onChange={function(e){setN(e.target.value);}} placeholder="Name" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8}}/>
+<input type="number" value={t} onChange={function(e){setT(e.target.value);}} placeholder="Zielbetrag €" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8}}/>
+<div style={{display:"flex",gap:8}}><Btn primary onClick={addG}>Anlegen</Btn><Btn onClick={function(){setShow(false);}}>Abbrechen</Btn></div></Card>}
+</SubPage>);
+}
+function FinanzenPage(){
+const[sub,setSub]=useState(null);
+var exps=S_get("expenses",[]);var total=exps.filter(function(e){return e.date&&e.date.startsWith(new Date().toISOString().slice(0,7));}).reduce(function(s,e){return s+(e.amount||0);},0);
+if(sub==="add")return <AddExp onBack={function(){setSub(null);}}/>;
+if(sub==="csv")return <CsvImport onBack={function(){setSub(null);}}/>;
+if(sub==="overview")return <MonthView onBack={function(){setSub(null);}}/>;
+if(sub==="goals")return <Goals onBack={function(){setSub(null);}}/>;
+return(<div style={{padding:16,display:"flex",flexDirection:"column",gap:12}}>
+<h2 style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:22,margin:"0 0 4px"}}>Finanzen</h2>
+<Card><div style={{color:"#6a6474",fontSize:12,marginBottom:4}}>Diesen Monat</div><div style={{color:"#f0e6d3",fontSize:32,fontWeight:700}}>€{total.toFixed(2)}</div></Card>
+<MenuCard icon="➕" bg="rgba(74,222,128,0.15)" title="Ausgabe erfassen" desc="Manuell eintragen" onClick={function(){setSub("add");}}/>
+<MenuCard icon="📤" bg="rgba(212,160,86,0.15)" title="CSV importieren" desc="easybank Umsätze einlesen" onClick={function(){setSub("csv");}}/>
+<MenuCard icon="📊" bg="rgba(96,165,250,0.15)" title="Monatsübersicht" desc="Ausgaben nach Kategorien" onClick={function(){setSub("overview");}}/>
+<MenuCard icon="🎯" bg="rgba(167,139,250,0.15)" title="Sparziele" desc="Fortschritt tracken" onClick={function(){setSub("goals");}}/>
+</div>);
+}
 
-      return (
-        <ToolPage title="Chat" onBack={onBack}>
-          <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: "16px 16px 8px" }}>
-            {messages.length === 0 && <p style={{ color: "#4a4454", textAlign: "center", marginTop: 40, fontSize: 14 }}>Starte ein Gespräch mit Claude...</p>}
-            {messages.map((m, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start", marginBottom: 10 }}>
-                <div style={{ maxWidth: "82%", padding: "12px 16px", borderRadius: 16, fontSize: 15, lineHeight: 1.55, whiteSpace: "pre-wrap", wordBreak: "break-word", ...(m.role === "user" ? { background: "linear-gradient(135deg, #d4a056, #b8860b)", color: "#0a0a0f", borderBottomRightRadius: 4 } : { background: "rgba(255,255,255,0.05)", color: "#e0d8cc", borderBottomLeftRadius: 4 }) }}>{m.content}</div>
-              </div>
-            ))}
-            {loading && (
-              <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 10 }}>
-                <div style={{ padding: "12px 16px", borderRadius: 16, borderBottomLeftRadius: 4, background: "rgba(255,255,255,0.05)", color: "#d4a056" }}>
-                  <span style={{ animation: "blink 1.2s infinite" }}>●</span>
-                  <span style={{ animation: "blink 1.2s infinite 0.2s", marginLeft: 4 }}>●</span>
-                  <span style={{ animation: "blink 1.2s infinite 0.4s", marginLeft: 4 }}>●</span>
-                </div>
-              </div>
-            )}
-          </div>
-          <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", gap: 10, alignItems: "flex-end", flexShrink: 0, paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
-            <textarea value={input} onChange={(e) => { setInput(e.target.value); e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"; }} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }} placeholder="Nachricht..." rows={1} style={{ flex: 1, padding: "12px 14px", borderRadius: 12, resize: "none", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 15, outline: "none", minHeight: 44, maxHeight: 120 }} />
-            <button onClick={send} disabled={!input.trim() || loading} style={{ width: 44, height: 44, borderRadius: 12, border: "none", cursor: "pointer", background: input.trim() ? "linear-gradient(135deg, #d4a056, #b8860b)" : "rgba(255,255,255,0.06)", color: input.trim() ? "#0a0a0f" : "#4a4454", fontSize: 20, flexShrink: 0 }}>↑</button>
-          </div>
-        </ToolPage>
-      );
-    }
+/* ── CHAT ── */
+function ChatPage(){
+const[msgs,setMsgs]=useState([]);const[inp,setInp]=useState("");const[ld,setLd]=useState(false);const scrollRef=useRef(null);
+useEffect(function(){if(scrollRef.current)scrollRef.current.scrollTo({top:scrollRef.current.scrollHeight,behavior:"smooth"});},[msgs,ld]);
+async function send(){if(!inp.trim()||ld)return;var t=inp.trim();setInp("");var nm=msgs.concat([{role:"user",content:t}]);setMsgs(nm);setLd(true);try{var r=await callClaude(nm.map(function(m){return{role:m.role,content:m.content};}),P.chat);setMsgs(nm.concat([{role:"assistant",content:r}]));}catch(e){setMsgs(nm.concat([{role:"assistant",content:"⚠️ "+e.message}]));}setLd(false);}
+return(<div style={{display:"flex",flexDirection:"column",height:"100%"}}>
+<div ref={scrollRef} style={{flex:1,overflowY:"auto",padding:"16px 16px 8px"}}>
+{msgs.length===0&&<p style={{color:"#4a4454",textAlign:"center",marginTop:40,fontSize:14}}>Starte ein Gespräch...</p>}
+{msgs.map(function(m,i){var isU=m.role==="user";return(<div key={i} style={{display:"flex",justifyContent:isU?"flex-end":"flex-start",marginBottom:10}}><div style={{maxWidth:"82%",padding:"12px 16px",borderRadius:16,fontSize:14,lineHeight:1.55,whiteSpace:"pre-wrap",wordBreak:"break-word",background:isU?"linear-gradient(135deg,#d4a056,#b8860b)":"rgba(255,255,255,0.05)",color:isU?"#0a0a0f":"#e0d8cc",borderBottomRightRadius:isU?4:16,borderBottomLeftRadius:isU?16:4}}>{m.content}</div></div>);})}
+{ld&&<div style={{display:"flex",marginBottom:10}}><div style={{padding:"12px 16px",borderRadius:16,borderBottomLeftRadius:4,background:"rgba(255,255,255,0.05)",color:"#d4a056"}}><span style={{animation:"blink 1.2s infinite"}}>●</span><span style={{animation:"blink 1.2s infinite 0.2s",marginLeft:4}}>●</span><span style={{animation:"blink 1.2s infinite 0.4s",marginLeft:4}}>●</span></div></div>}
+</div>
+<div style={{padding:"10px 16px",borderTop:"1px solid rgba(255,255,255,0.05)",display:"flex",gap:10,alignItems:"flex-end",flexShrink:0,paddingBottom:"max(10px,env(safe-area-inset-bottom))"}}>
+<textarea value={inp} onChange={function(e){setInp(e.target.value);e.target.style.height="auto";e.target.style.height=Math.min(e.target.scrollHeight,100)+"px";}} onKeyDown={function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} placeholder="Nachricht..." rows={1} style={{flex:1,padding:"10px 14px",borderRadius:12,resize:"none",border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",minHeight:40,maxHeight:100}}/>
+<button onClick={send} disabled={!inp.trim()||ld} style={{width:40,height:40,borderRadius:12,border:"none",cursor:"pointer",background:inp.trim()?"linear-gradient(135deg,#d4a056,#b8860b)":"rgba(255,255,255,0.06)",color:inp.trim()?"#0a0a0f":"#4a4454",fontSize:18,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>↑</button>
+</div></div>);
+}
 
-    function QuickTool({ apiKey, onBack, toolType }) {
-      const config = {
-        ideas: { title: "Ideen-Generator", prompt: SYSTEM_PROMPTS.ideas, placeholder: "Zu welchem Thema? z.B. 'App-Ideen für Studenten'" },
-        summarize: { title: "Zusammenfassen", prompt: SYSTEM_PROMPTS.summarize, placeholder: "Füge hier den Text ein, den du zusammenfassen möchtest..." },
-        quick: { title: "Schnelle Frage", prompt: SYSTEM_PROMPTS.quick, placeholder: "Was möchtest du wissen?" },
-      }[toolType];
-      const [input, setInput] = useState("");
-      const [result, setResult] = useState("");
-      const [loading, setLoading] = useState(false);
+/* ── APP ── */
+function App(){
+const[apiKey,setApiKey]=useState(function(){return localStorage.getItem(KEY_STORE)||"";});
+const[tab,setTab]=useState("home");
+function logout(){if(confirm("API-Key löschen?")){localStorage.removeItem(KEY_STORE);setApiKey("");}}
+if(!apiKey)return <SetupScreen onSave={setApiKey}/>;
+var page=null;
+if(tab==="home")page=<HomePage/>;
+else if(tab==="recht")page=<RechtPage/>;
+else if(tab==="fitness")page=<FitnessPage/>;
+else if(tab==="finanzen")page=<FinanzenPage/>;
+else if(tab==="chat")page=<ChatPage/>;
+else page=<HomePage/>;
+return(<div style={{height:"100dvh",display:"flex",flexDirection:"column",background:"linear-gradient(170deg,#0a0a0f 0%,#141420 50%,#1a1410 100%)",fontFamily:"'DM Sans',sans-serif"}}>
+<div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
+<div style={{flex:1,overflowY:"auto",paddingTop:"env(safe-area-inset-top)"}}>{page}</div>
+</div>
+<div style={{display:"flex",borderTop:"1px solid rgba(255,255,255,0.06)",background:"rgba(10,10,15,0.95)",backdropFilter:"blur(20px)",flexShrink:0,paddingBottom:"env(safe-area-inset-bottom)"}}>
+{TABS.map(function(t){var active=tab===t.id;return(<button key={t.id} onClick={function(){setTab(t.id);}} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"8px 0 5px",border:"none",cursor:"pointer",background:"none",color:active?"#d4a056":"#4a4454",transition:"color 0.2s"}}><span style={{fontSize:20}}>{t.icon}</span><span style={{fontSize:10,fontWeight:active?600:400}}>{t.label}</span></button>);})}
+</div>
+</div>);
+}
 
-      const run = async () => {
-        if (!input.trim()) return;
-        setLoading(true);
-        setResult("");
-        try {
-          const text = await callClaude(apiKey, [{ role: "user", content: input }], config.prompt);
-          setResult(text);
-        } catch (e) {
-          setResult(`⚠️ ${e.message}`);
-        }
-        setLoading(false);
-      };
-
-      return (
-        <ToolPage title={config.title} onBack={onBack}>
-          <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
-            <textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder={config.placeholder} rows={4} style={{ width: "100%", padding: 14, borderRadius: 12, resize: "vertical", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 15, outline: "none", minHeight: 100 }} />
-            <button onClick={run} disabled={!input.trim() || loading} style={{ width: "100%", padding: 14, marginTop: 12, borderRadius: 12, border: "none", fontWeight: 600, fontSize: 15, cursor: "pointer", background: input.trim() ? "linear-gradient(135deg, #d4a056, #b8860b)" : "rgba(255,255,255,0.06)", color: input.trim() ? "#0a0a0f" : "#6a6474" }}>
-              {loading ? "Claude denkt..." : "Ausführen"}
-            </button>
-            {result && <div style={{ marginTop: 20, padding: 16, borderRadius: 14, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", color: "#e0d8cc", fontSize: 15, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{result}</div>}
-          </div>
-        </ToolPage>
-      );
-    }
-
-    function App() {
-      const [apiKey, setApiKey] = useState(() => localStorage.getItem(KEY_STORAGE) || "");
-      const [page, setPage] = useState("home");
-      const [dailyMsg, setDailyMsg] = useState("");
-      const [dailyLoading, setDailyLoading] = useState(false);
-
-      const greet = () => {
-        const h = new Date().getHours();
-        if (h < 12) return "Guten Morgen";
-        if (h < 17) return "Guten Tag";
-        if (h < 22) return "Guten Abend";
-        return "Gute Nacht";
-      };
-
-      const loadDaily = useCallback(async () => {
-        if (!apiKey) return;
-        setDailyLoading(true);
-        try {
-          const text = await callClaude(apiKey, [{ role: "user", content: `Es ist ${new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}. Gib mir meine Tageszusammenfassung.` }], SYSTEM_PROMPTS.daily);
-          setDailyMsg(text);
-        } catch (e) {
-          setDailyMsg(`⚠️ ${e.message}`);
-        }
-        setDailyLoading(false);
-      }, [apiKey]);
-
-      useEffect(() => { if (apiKey && !dailyMsg) loadDaily(); }, [apiKey]);
-
-      const logout = () => {
-        if (confirm("API-Key löschen und abmelden?")) {
-          localStorage.removeItem(KEY_STORAGE);
-          setApiKey("");
-          setDailyMsg("");
-        }
-      };
-
-      if (!apiKey) return <SetupScreen onSave={setApiKey} />;
-      if (page === "chat") return <ChatPage apiKey={apiKey} onBack={() => setPage("home")} />;
-      if (page === "quick") return <QuickTool apiKey={apiKey} onBack={() => setPage("home")} toolType="quick" />;
-      if (page === "ideas") return <QuickTool apiKey={apiKey} onBack={() => setPage("home")} toolType="ideas" />;
-      if (page === "summarize") return <QuickTool apiKey={apiKey} onBack={() => setPage("home")} toolType="summarize" />;
-
-      return (
-        <div style={{ minHeight: "100dvh", background: "linear-gradient(170deg, #0a0a0f 0%, #141420 50%, #1a1410 100%)", paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}>
-          <div style={{ padding: "24px 20px 12px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif", color: "#f0e6d3", fontSize: 26, margin: 0, letterSpacing: "-0.02em" }}>{greet()}</h1>
-                <p style={{ color: "#6a6474", fontSize: 13, margin: "4px 0 0" }}>{new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}</p>
-              </div>
-              <button onClick={logout} style={{ width: 38, height: 38, borderRadius: 12, border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.03)", color: "#8a8494", cursor: "pointer", fontSize: 16 }}>⚙</button>
-            </div>
-          </div>
-          <div style={{ padding: "4px 16px 24px", display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ animation: "fadeUp 0.4s ease" }}>
-              <DashCard icon="☀" title="Tagesimpuls" accent="#d4a056">
-                {dailyMsg ? <p style={{ color: "#c8c0b4", fontSize: 14, lineHeight: 1.6, margin: 0 }}>{dailyMsg}</p> : <p style={{ color: "#4a4454", fontSize: 14, margin: 0 }}>{dailyLoading ? "Claude bereitet deinen Tag vor..." : "Wird geladen..."}</p>}
-                <button onClick={loadDaily} disabled={dailyLoading} style={{ marginTop: 10, padding: "6px 14px", borderRadius: 8, border: "none", background: "rgba(212,160,86,0.12)", color: "#d4a056", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>↻ Neuer Impuls</button>
-              </DashCard>
-            </div>
-            <div style={{ animation: "fadeUp 0.4s ease 0.05s", animationFillMode: "backwards" }}>
-              <DashCard icon="💬" title="Chat mit Claude" accent="#6baa75" onClick={() => setPage("chat")}>
-                <p style={{ color: "#6a6474", fontSize: 13, margin: 0 }}>Ausführliches Gespräch starten</p>
-              </DashCard>
-            </div>
-            <div style={{ animation: "fadeUp 0.4s ease 0.1s", animationFillMode: "backwards" }}>
-              <DashCard icon="⚡" title="Schnelle Frage" accent="#5b9bd5" onClick={() => setPage("quick")}>
-                <p style={{ color: "#6a6474", fontSize: 13, margin: 0 }}>Kompakte Antwort in Sekunden</p>
-              </DashCard>
-            </div>
-            <div style={{ animation: "fadeUp 0.4s ease 0.15s", animationFillMode: "backwards" }}>
-              <DashCard icon="💡" title="Ideen-Generator" accent="#c4a35a" onClick={() => setPage("ideas")}>
-                <p style={{ color: "#6a6474", fontSize: 13, margin: 0 }}>3 kreative Ideen zu jedem Thema</p>
-              </DashCard>
-            </div>
-            <div style={{ animation: "fadeUp 0.4s ease 0.2s", animationFillMode: "backwards" }}>
-              <DashCard icon="📋" title="Text zusammenfassen" accent="#b07aac" onClick={() => setPage("summarize")}>
-                <p style={{ color: "#6a6474", fontSize: 13, margin: 0 }}>Kernpunkte auf einen Blick</p>
-              </DashCard>
-            </div>
-            <p style={{ color: "#3a3444", fontSize: 11, textAlign: "center", marginTop: 8 }}>Claude Dashboard · Mit deinem API-Key</p>
-          </div>
-        </div>
-      );
-    }
-
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-  </script>
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
 </body>
 </html>
