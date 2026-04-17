@@ -30,36 +30,38 @@ input,textarea,button{font-family:inherit}
 const {useState,useRef,useEffect,useCallback}=React;
 
 const TABS=[
-{id:"home",label:"Home",icon:"🏠"},
-{id:"recht",label:"Recht",icon:"⚖️"},
-{id:"fitness",label:"Fitness",icon:"💪"},
-{id:"finanzen",label:"Finanzen",icon:"💰"},
-{id:"chat",label:"Chat",icon:"💬"},
+{id:"home",label:"Home",icon:"\u{1F3E0}"},
+{id:"recht",label:"Recht",icon:"\u2696\uFE0F"},
+{id:"fitness",label:"Fitness",icon:"\u{1F4AA}"},
+{id:"finanzen",label:"Finanzen",icon:"\u{1F4B0}"},
+{id:"chat",label:"Chat",icon:"\u{1F4AC}"},
 ];
 const CATS=[
-{id:"food",label:"Lebensmittel",icon:"🛒",color:"#4ade80"},
-{id:"household",label:"Haushalt",icon:"🏠",color:"#60a5fa"},
-{id:"transport",label:"Auto/Transport",icon:"🚗",color:"#f59e0b"},
-{id:"leisure",label:"Freizeit",icon:"🎉",color:"#a78bfa"},
-{id:"subscriptions",label:"Abos/Verträge",icon:"📄",color:"#f472b6"},
-{id:"clothing",label:"Kleidung",icon:"👕",color:"#34d399"},
-{id:"other",label:"Sonstiges",icon:"📦",color:"#94a3b8"},
+{id:"food",label:"Lebensmittel",icon:"\u{1F6D2}",color:"#4ade80"},
+{id:"household",label:"Haushalt",icon:"\u{1F3E0}",color:"#60a5fa"},
+{id:"transport",label:"Auto/Transport",icon:"\u{1F697}",color:"#f59e0b"},
+{id:"leisure",label:"Freizeit",icon:"\u{1F389}",color:"#a78bfa"},
+{id:"subscriptions",label:"Abos",icon:"\u{1F4C4}",color:"#f472b6"},
+{id:"clothing",label:"Kleidung",icon:"\u{1F455}",color:"#34d399"},
+{id:"other",label:"Sonstiges",icon:"\u{1F4E6}",color:"#94a3b8"},
 ];
-const P={
-legal:"Du bist juristischer Recherche-Assistent für österreichisches Strafrecht (StGB/StPO). Zitiere Paragraphen, verweise auf Gerichtsentscheidungen (OGH/OLG/LG) als Kommentar: [Gericht, GZ, Datum] - Kernaussage. Unterscheide Rechtslage vs. Einschätzung. Deutsch, praxisnah.",
-docAnalysis:"Du bist juristischer Dokumentenanalyst für österreichisches Recht. Analysiere das Dokument: 1) Dokumenttyp 2) Inhalt 3) Rechtliche Relevanz mit Paragraphen 4) Gerichtsentscheidungen. Deutsch.",
+const PR={
+legal:"Du bist juristischer Recherche-Assistent fuer oesterreichisches Strafrecht (StGB/StPO). Zitiere Paragraphen, verweise auf Gerichtsentscheidungen (OGH/OLG/LG) als Kommentar: [Gericht, GZ, Datum] - Kernaussage. Unterscheide Rechtslage vs. Einschaetzung. Deutsch, praxisnah.",
+docA:"Du bist juristischer Dokumentenanalyst fuer oesterreichisches Recht. Analysiere: 1) Dokumenttyp 2) Inhalt 3) Rechtliche Relevanz mit Paragraphen 4) Gerichtsentscheidungen. Deutsch.",
 text:"Textanalyse-Experte. Zusammenfassen, Kernaussagen, Details. Deutsch, nummeriert.",
-fitness:"Personal Trainer. Pläne für Rudergerät, Ergometer, Bodyweight. Zuhause, flexibel. Deutsch.",
-chat:"Du bist Claude. Antworte auf Deutsch, gründlich aber kompakt.",
-reflection:"Generiere EINE Reflexionsfrage. Thema: Wachstum, Dankbarkeit, Selbsterkenntnis. Nur die Frage. Deutsch.",
-categorize:"Kategorisiere Banktransaktionen. NUR JSON-Array. Kategorien: food,household,transport,leisure,subscriptions,clothing,other. Format: [{\"desc\":\"...\",\"amount\":12.5,\"date\":\"2026-01-15\",\"category\":\"food\"}]. Supermärkte=food, Tankstellen/ÖBB=transport, Netflix=subscriptions, Restaurant=leisure. Nur JSON.",
+fit:"Personal Trainer. Plaene fuer Rudergeraet, Ergometer, Bodyweight. Zuhause, flexibel. Deutsch.",
+chat:"Du bist Claude. Antworte auf Deutsch, gruendlich aber kompakt.",
+refl:"Generiere EINE Reflexionsfrage. Thema: Wachstum, Dankbarkeit, Selbsterkenntnis. Nur die Frage. Deutsch.",
+receipt:"Du bist Rechnungsanalyst. Extrahiere ALLE Produkte. NUR JSON-Array. Format: [{\"produkt\":\"Name\",\"betrag\":1.49,\"kategorie\":\"Lebensmittel\"}]. Kategorien: Lebensmittel, Haushalt, Getraenke, Hygiene, Sonstiges. SUMME nicht listen. Nur JSON.",
+catCSV:"Kategorisiere Banktransaktionen. NUR JSON-Array. Kategorien: food,household,transport,leisure,subscriptions,clothing,other. Format: [{\"desc\":\"...\",\"amount\":12.5,\"date\":\"2026-01-15\",\"category\":\"food\"}]. Nur JSON.",
 };
-const KEY_STORE="claude_dashboard_api_key";
-function S_get(k,fb){try{var v=localStorage.getItem("cd_"+k);return v?JSON.parse(v):fb;}catch(e){return fb;}}
-function S_set(k,v){try{localStorage.setItem("cd_"+k,JSON.stringify(v));}catch(e){}}
+const N8N_WEBHOOK="";
+const KS="claude_dashboard_api_key";
+function SG(k,fb){try{var v=localStorage.getItem("cd_"+k);return v?JSON.parse(v):fb;}catch(e){return fb;}}
+function SS(k,v){try{localStorage.setItem("cd_"+k,JSON.stringify(v));}catch(e){}}
 
-async function callClaude(messages,system){
-var ak=localStorage.getItem(KEY_STORE);
+async function callC(messages,system){
+var ak=localStorage.getItem(KS);
 var h={"Content-Type":"application/json"};
 if(ak){h["x-api-key"]=ak;h["anthropic-version"]="2023-06-01";h["anthropic-dangerous-direct-browser-access"]="true";}
 var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:h,body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:2000,system:system,messages:messages})});
@@ -67,311 +69,246 @@ if(!r.ok){var e=await r.json().catch(function(){return{};});throw new Error(e&&e
 var d=await r.json();
 return d.content.filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("\n");
 }
-
-async function callClaudeVision(base64,mediaType,textPrompt,system){
-var ak=localStorage.getItem(KEY_STORE);
+async function callV(base64,mt,prompt,system){
+var ak=localStorage.getItem(KS);
 var h={"Content-Type":"application/json"};
 if(ak){h["x-api-key"]=ak;h["anthropic-version"]="2023-06-01";h["anthropic-dangerous-direct-browser-access"]="true";}
-var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:h,body:JSON.stringify({
-model:"claude-sonnet-4-5",max_tokens:2000,system:system,
-messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:mediaType,data:base64}},{type:"text",text:textPrompt}]}]
-})});
+var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:h,body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:2000,system:system,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:mt,data:base64}},{type:"text",text:prompt}]}]})});
 if(!r.ok){var e=await r.json().catch(function(){return{};});throw new Error(e&&e.error&&e.error.message||"Fehler "+r.status);}
 var d=await r.json();
 return d.content.filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("\n");
 }
 
-/* ── UI Components ── */
-function SubPage({title,onBack,children}){
-return(<div style={{display:"flex",flexDirection:"column",height:"100%"}}>
-<div style={{display:"flex",alignItems:"center",gap:10,padding:"14px 16px",borderBottom:"1px solid rgba(255,255,255,0.06)",flexShrink:0,paddingTop:"max(14px,env(safe-area-inset-top))"}}>
-<button onClick={onBack} style={{background:"rgba(255,255,255,0.06)",border:"none",color:"#d4a056",width:34,height:34,borderRadius:10,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>‹</button>
-<span style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:18}}>{title}</span>
-</div>
-<div style={{flex:1,overflowY:"auto",padding:16}}>{children}</div>
-</div>);
+/* SMART CAMERA */
+function SmartCamera({onCapture,onClose}){
+const videoRef=useRef(null);const canvasRef=useRef(null);const streamRef=useRef(null);
+const analysisRef=useRef(null);const prevRef=useRef(null);const stableRef=useRef(0);
+const[status,setStatus]=useState("starting");
+const[sharp,setSharp]=useState(0);const[stab,setStab]=useState(0);
+const[borderCol,setBorderCol]=useState("rgba(255,255,255,0.3)");
+const[captured,setCaptured]=useState(null);
+
+function calcSharp(id){var d=id.data,w=id.width,h=id.height,step=4,sum=0,cnt=0;
+for(var y=1;y<h-1;y+=step){for(var x=1;x<w-1;x+=step){
+var i=(y*w+x)*4;var c=d[i]*.299+d[i+1]*.587+d[i+2]*.114;
+var t=d[((y-1)*w+x)*4]*.299+d[((y-1)*w+x)*4+1]*.587+d[((y-1)*w+x)*4+2]*.114;
+var b=d[((y+1)*w+x)*4]*.299+d[((y+1)*w+x)*4+1]*.587+d[((y+1)*w+x)*4+2]*.114;
+var l=d[(y*w+x-1)*4]*.299+d[(y*w+x-1)*4+1]*.587+d[(y*w+x-1)*4+2]*.114;
+var r=d[(y*w+x+1)*4]*.299+d[(y*w+x+1)*4+1]*.587+d[(y*w+x+1)*4+2]*.114;
+var lap=Math.abs(t+b+l+r-4*c);sum+=lap*lap;cnt++;}}
+return cnt>0?Math.sqrt(sum/cnt):0;}
+
+function calcStab(cur,prev){if(!prev)return 0;var diff=0,step=16,cnt=0;
+for(var i=0;i<cur.data.length;i+=step*4){
+var g1=cur.data[i]*.299+cur.data[i+1]*.587+cur.data[i+2]*.114;
+var g2=prev.data[i]*.299+prev.data[i+1]*.587+prev.data[i+2]*.114;
+diff+=Math.abs(g1-g2);cnt++;}
+return Math.max(0,100-(cnt>0?diff/cnt:255)*2);}
+
+function getFrame(){if(!videoRef.current||!canvasRef.current)return null;
+var v=videoRef.current,c=canvasRef.current,ctx=c.getContext("2d");
+c.width=v.videoWidth||640;c.height=v.videoHeight||480;
+ctx.drawImage(v,0,0);return ctx.getImageData(0,0,c.width,c.height);}
+
+function doCapture(){if(!canvasRef.current)return;
+var url=canvasRef.current.toDataURL("image/jpeg",0.9);
+setCaptured(url);setStatus("captured");
+if(analysisRef.current)cancelAnimationFrame(analysisRef.current);
+if(streamRef.current)streamRef.current.getTracks().forEach(function(t){t.stop();});
+if(navigator.vibrate)navigator.vibrate(100);
+onCapture(url.split(",")[1],"image/jpeg",url);}
+
+function loop(){var frame=getFrame();
+if(!frame){analysisRef.current=requestAnimationFrame(loop);return;}
+var s=calcSharp(frame);var st=calcStab(frame,prevRef.current);prevRef.current=frame;
+var ns=Math.min(100,s*3);setSharp(Math.round(ns));setStab(Math.round(st));
+var isS=ns>35,isSt=st>75;
+if(isS&&isSt){stableRef.current++;setBorderCol("#4ade80");setStatus("ready");
+if(stableRef.current>=15){doCapture();return;}}
+else{stableRef.current=Math.max(0,stableRef.current-2);setBorderCol(isS?"#f59e0b":"rgba(255,255,255,0.3)");setStatus("scanning");}
+analysisRef.current=requestAnimationFrame(loop);}
+
+useEffect(function(){var mounted=true;
+async function start(){try{
+var stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment",width:{ideal:1920},height:{ideal:1080}}});
+if(!mounted){stream.getTracks().forEach(function(t){t.stop();});return;}
+streamRef.current=stream;
+if(videoRef.current){videoRef.current.srcObject=stream;
+videoRef.current.onloadedmetadata=function(){videoRef.current.play();setStatus("scanning");analysisRef.current=requestAnimationFrame(loop);};}}
+catch(err){setStatus("error");}}
+start();
+return function(){mounted=false;if(analysisRef.current)cancelAnimationFrame(analysisRef.current);if(streamRef.current)streamRef.current.getTracks().forEach(function(t){t.stop();});};
+},[]);
+
+if(captured)return(<div style={{position:"fixed",inset:0,background:"#000",zIndex:1000,display:"flex",flexDirection:"column"}}><img src={captured} style={{flex:1,objectFit:"contain"}}/><div style={{padding:20,textAlign:"center"}}><span style={{color:"#4ade80",fontSize:14,fontWeight:600}}>Aufgenommen!</span></div></div>);
+
+var stText=status==="starting"?"Kamera startet...":status==="scanning"?"Rechnung ins Bild halten...":status==="ready"?"Erkannt! Halte still...":status==="error"?"Kamera-Zugriff verweigert":"";
+return(<div style={{position:"fixed",inset:0,background:"#000",zIndex:1000,display:"flex",flexDirection:"column"}}>
+<div style={{position:"absolute",top:0,left:0,right:0,zIndex:10,padding:"max(16px,env(safe-area-inset-top)) 16px 16px",background:"linear-gradient(to bottom,rgba(0,0,0,0.7),transparent)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+<button onClick={onClose} style={{background:"rgba(255,255,255,0.15)",border:"none",color:"#fff",width:40,height:40,borderRadius:20,cursor:"pointer",fontSize:20}}>✕</button>
+<span style={{color:"#fff",fontSize:14,fontWeight:600}}>Auto-Scan</span><div style={{width:40}}/></div>
+<video ref={videoRef} playsInline muted autoPlay style={{flex:1,objectFit:"cover"}}/>
+<canvas ref={canvasRef} style={{display:"none"}}/>
+<div style={{position:"absolute",inset:0,pointerEvents:"none"}}>
+<div style={{position:"absolute",top:"15%",left:"8%",right:"8%",bottom:"25%",border:"3px solid "+borderCol,borderRadius:16,transition:"border-color 0.3s"}}>
+{status==="ready"&&<div style={{position:"absolute",bottom:-8,left:"50%",transform:"translateX(-50%)",width:Math.min(80,stableRef.current/15*100)+"%",height:4,background:"#4ade80",borderRadius:2,transition:"width 0.1s"}}/>}
+</div></div>
+<div style={{position:"absolute",bottom:0,left:0,right:0,padding:"20px 16px max(20px,env(safe-area-inset-bottom))",background:"linear-gradient(to top,rgba(0,0,0,0.8),transparent)"}}>
+<div style={{textAlign:"center",marginBottom:12}}>
+<div style={{color:status==="ready"?"#4ade80":"#fff",fontSize:15,fontWeight:600}}>{stText}</div>
+<div style={{display:"flex",justifyContent:"center",gap:20,marginTop:8}}>
+<span style={{fontSize:11,color:sharp>35?"#4ade80":"#f59e0b"}}>Schaerfe: {sharp}%</span>
+<span style={{fontSize:11,color:stab>75?"#4ade80":"#f59e0b"}}>Stabilitaet: {stab}%</span></div></div>
+<div style={{display:"flex",justifyContent:"center"}}><button onClick={doCapture} style={{width:70,height:70,borderRadius:35,border:"4px solid rgba(255,255,255,0.8)",background:"rgba(255,255,255,0.2)",cursor:"pointer"}}><div style={{width:"100%",height:"100%",borderRadius:"50%",background:"rgba(255,255,255,0.9)"}}/></button></div>
+</div></div>);
 }
+
+/* UI */
+function SubPage({title,onBack,children}){return(<div style={{display:"flex",flexDirection:"column",height:"100%"}}><div style={{display:"flex",alignItems:"center",gap:10,padding:"14px 16px",borderBottom:"1px solid rgba(255,255,255,0.06)",flexShrink:0,paddingTop:"max(14px,env(safe-area-inset-top))"}}><button onClick={onBack} style={{background:"rgba(255,255,255,0.06)",border:"none",color:"#d4a056",width:34,height:34,borderRadius:10,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{"\u2039"}</button><span style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:18}}>{title}</span></div><div style={{flex:1,overflowY:"auto",padding:16}}>{children}</div></div>);}
 function Card({children,style,onClick}){return <div onClick={onClick} style={{background:"rgba(255,255,255,0.03)",borderRadius:14,padding:16,border:"1px solid rgba(255,255,255,0.05)",cursor:onClick?"pointer":"default",...style}}>{children}</div>;}
 function Btn({children,onClick,disabled,primary,small,style:s}){return <button onClick={onClick} disabled={disabled} style={{padding:small?"6px 14px":"12px 18px",borderRadius:10,border:"none",fontWeight:600,fontSize:small?12:14,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",background:primary?"linear-gradient(135deg,#d4a056,#b8860b)":"rgba(255,255,255,0.06)",color:primary?"#0a0a0f":"#c8c0b4",opacity:disabled?0.5:1,...s}}>{children}</button>;}
-function AiBox({text,loading}){if(!text&&!loading)return null;return <div style={{marginTop:14,padding:14,borderRadius:12,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.06)",color:"#e0d8cc",fontSize:14,lineHeight:1.65,whiteSpace:"pre-wrap"}}>{text}{loading&&<span style={{color:"#d4a056",animation:"blink 1.2s infinite"}}> ●●●</span>}</div>;}
-function MenuCard({icon,bg,title,desc,onClick}){return <Card onClick={onClick} style={{cursor:"pointer"}}><div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:40,height:40,borderRadius:12,background:bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{icon}</div><div style={{flex:1}}><div style={{color:"#e8e0d4",fontWeight:600,fontSize:15}}>{title}</div><div style={{color:"#6a6474",fontSize:12}}>{desc}</div></div><span style={{color:"#4a4454",fontSize:18}}>›</span></div></Card>;}
-function AiTool({onBack,title,prompt,placeholder,btnLabel}){
-var ref=React.createRef();
-const[q,setQ]=useState("");const[r,setR]=useState("");const[l,setL]=useState(false);
-async function run(){if(!q.trim())return;setL(true);setR("");try{setR(await callClaude([{role:"user",content:q}],prompt));}catch(e){setR("⚠️ "+e.message);}setL(false);}
-return(<SubPage title={title} onBack={onBack}>
-<textarea value={q} onChange={function(e){setQ(e.target.value);}} placeholder={placeholder} rows={3} style={{width:"100%",padding:12,borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",resize:"vertical",minHeight:80}}/>
-<Btn primary onClick={run} disabled={!q.trim()||l} style={{width:"100%",marginTop:10}}>{l?"Lädt...":btnLabel}</Btn>
-<AiBox text={r} loading={l}/>
-</SubPage>);
-}
+function AiBox({text,loading}){if(!text&&!loading)return null;return <div style={{marginTop:14,padding:14,borderRadius:12,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.06)",color:"#e0d8cc",fontSize:14,lineHeight:1.65,whiteSpace:"pre-wrap"}}>{text}{loading&&<span style={{color:"#d4a056",animation:"blink 1.2s infinite"}}> \u25CF\u25CF\u25CF</span>}</div>;}
+function MC({icon,bg,title,desc,onClick}){return <Card onClick={onClick} style={{cursor:"pointer"}}><div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:40,height:40,borderRadius:12,background:bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>{icon}</div><div style={{flex:1}}><div style={{color:"#e8e0d4",fontWeight:600,fontSize:15}}>{title}</div><div style={{color:"#6a6474",fontSize:12}}>{desc}</div></div><span style={{color:"#4a4454",fontSize:18}}>{"\u203A"}</span></div></Card>;}
+function AiTool({onBack,title,prompt,ph,btn}){const[q,setQ]=useState("");const[r,setR]=useState("");const[l,setL]=useState(false);
+async function run(){if(!q.trim())return;setL(true);setR("");try{setR(await callC([{role:"user",content:q}],prompt));}catch(e){setR("\u26A0\uFE0F "+e.message);}setL(false);}
+return(<SubPage title={title} onBack={onBack}><textarea value={q} onChange={function(e){setQ(e.target.value);}} placeholder={ph} rows={3} style={{width:"100%",padding:12,borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",resize:"vertical",minHeight:80}}/><Btn primary onClick={run} disabled={!q.trim()||l} style={{width:"100%",marginTop:10}}>{l?"Laeuft...":btn}</Btn><AiBox text={r} loading={l}/></SubPage>);}
 
-/* ── SETUP ── */
-function SetupScreen({onSave}){
-const[key,setKey]=useState("");const[show,setShow]=useState(false);const[testing,setTesting]=useState(false);const[error,setError]=useState("");
-async function testAndSave(){
-setTesting(true);setError("");
-try{localStorage.setItem(KEY_STORE,key);await callClaude([{role:"user",content:"Hi"}],"Antworte nur OK.");onSave(key);}catch(e){localStorage.removeItem(KEY_STORE);setError(e.message||"Fehlgeschlagen");}
-setTesting(false);
-}
-return(<div style={{minHeight:"100dvh",display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",padding:24,background:"linear-gradient(170deg,#0a0a0f 0%,#141420 50%,#1a1410 100%)"}}>
-<div style={{width:"100%",maxWidth:380}}>
-<div style={{textAlign:"center",marginBottom:40}}>
-<div style={{width:72,height:72,borderRadius:22,margin:"0 auto 20px",background:"linear-gradient(135deg,#d4a056,#b8860b)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 8px 32px rgba(212,160,86,0.3)"}}>
-<svg width="32" height="32" viewBox="0 0 180 180"><path d="M90 40 L140 90 L90 140 L40 90 Z" fill="#0a0a0f"/></svg>
-</div>
-<h1 style={{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:30,color:"#f0e6d3",margin:0}}>Claude Dashboard</h1>
-<p style={{color:"#8a8494",fontSize:14,marginTop:8}}>Dein persönliches KI-Cockpit</p>
-</div>
+/* SETUP */
+function SetupScreen({onSave}){const[key,setKey]=useState("");const[show,setShow]=useState(false);const[testing,setTesting]=useState(false);const[error,setError]=useState("");
+async function go(){setTesting(true);setError("");try{localStorage.setItem(KS,key);await callC([{role:"user",content:"Hi"}],"Antworte OK.");onSave(key);}catch(e){localStorage.removeItem(KS);setError(e.message||"Fehlgeschlagen");}setTesting(false);}
+return(<div style={{minHeight:"100dvh",display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",padding:24,background:"linear-gradient(170deg,#0a0a0f 0%,#141420 50%,#1a1410 100%)"}}><div style={{width:"100%",maxWidth:380}}>
+<div style={{textAlign:"center",marginBottom:40}}><div style={{width:72,height:72,borderRadius:22,margin:"0 auto 20px",background:"linear-gradient(135deg,#d4a056,#b8860b)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 8px 32px rgba(212,160,86,0.3)"}}><svg width="32" height="32" viewBox="0 0 180 180"><path d="M90 40 L140 90 L90 140 L40 90 Z" fill="#0a0a0f"/></svg></div>
+<h1 style={{fontFamily:"'DM Serif Display',Georgia,serif",fontSize:30,color:"#f0e6d3",margin:0}}>Claude Dashboard</h1><p style={{color:"#8a8494",fontSize:14,marginTop:8}}>Dein KI-Cockpit</p></div>
 <div style={{background:"rgba(255,255,255,0.04)",borderRadius:16,padding:24,border:"1px solid rgba(255,255,255,0.06)"}}>
-<label style={{color:"#a09aae",fontSize:12,textTransform:"uppercase",letterSpacing:"0.08em"}}>API-Schlüssel</label>
-<div style={{position:"relative",marginTop:8}}>
-<input type={show?"text":"password"} value={key} onChange={function(e){setKey(e.target.value);}} placeholder="sk-ant-api03-..." autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{width:"100%",padding:"14px 48px 14px 14px",borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:15,fontFamily:"monospace",outline:"none"}}/>
-<button onClick={function(){setShow(!show);}} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#8a8494",cursor:"pointer",fontSize:18}}>{show?"◡":"◉"}</button>
-</div>
-<p style={{color:"#6a6474",fontSize:12,marginTop:10,lineHeight:1.5}}>Key auf <strong style={{color:"#d4a056"}}>platform.claude.com</strong> → API Keys</p>
+<label style={{color:"#a09aae",fontSize:12,textTransform:"uppercase",letterSpacing:"0.08em"}}>API-Schluessel</label>
+<div style={{position:"relative",marginTop:8}}><input type={show?"text":"password"} value={key} onChange={function(e){setKey(e.target.value);}} placeholder="sk-ant-api03-..." autoCapitalize="none" autoCorrect="off" spellCheck="false" style={{width:"100%",padding:"14px 48px 14px 14px",borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:15,fontFamily:"monospace",outline:"none"}}/>
+<button onClick={function(){setShow(!show);}} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#8a8494",cursor:"pointer",fontSize:18}}>{show?"\u25E1":"\u25C9"}</button></div>
+<p style={{color:"#6a6474",fontSize:12,marginTop:10,lineHeight:1.5}}>Key auf <strong style={{color:"#d4a056"}}>console.anthropic.com</strong></p>
 {error&&<p style={{color:"#e85d5d",fontSize:13,marginTop:10,padding:"8px 12px",background:"rgba(232,93,93,0.08)",borderRadius:8}}>{error}</p>}
-<Btn primary onClick={testAndSave} disabled={!key.trim()||testing} style={{width:"100%",marginTop:16}}>{testing?"Prüfe...":"Verbinden & Starten"}</Btn>
-</div>
-<p style={{color:"#3a3444",fontSize:11,textAlign:"center",marginTop:20}}>Key wird nur lokal gespeichert.</p>
-</div></div>);
-}
+<Btn primary onClick={go} disabled={!key.trim()||testing} style={{width:"100%",marginTop:16}}>{testing?"Pruefe...":"Verbinden"}</Btn></div>
+<p style={{color:"#3a3444",fontSize:11,textAlign:"center",marginTop:20}}>Key bleibt lokal.</p></div></div>);}
 
-/* ── HOME ── */
-function HomePage(){
-const[refl,setRefl]=useState("");
-const[cds,setCds]=useState(function(){return S_get("countdowns",[]);});
-const[showAdd,setShowAdd]=useState(false);const[cdN,setCdN]=useState("");const[cdD,setCdD]=useState("");
-var h=new Date().getHours();
-var greetText=h<6?"Gute Nacht":h<12?"Guten Morgen":h<17?"Guten Tag":h<22?"Guten Abend":"Gute Nacht";
-var today=new Date().toLocaleDateString("de-AT",{weekday:"long",day:"numeric",month:"long"});
-var exps=S_get("expenses",[]);
-var mo=new Date().toISOString().slice(0,7);
-var total=exps.filter(function(e){return e.date&&e.date.startsWith(mo);}).reduce(function(s,e){return s+(e.amount||0);},0);
-
-useEffect(function(){callClaude([{role:"user",content:"Es ist "+today}],P.reflection).then(function(t){setRefl(t);}).catch(function(){setRefl("Was hat dir heute Energie gegeben?");});},[]);
-function daysTo(d){return Math.max(0,Math.ceil((new Date(d)-new Date())/86400000));}
-function addCD(){if(!cdN||!cdD)return;var u=cds.concat([{id:Date.now(),name:cdN,date:cdD}]);setCds(u);S_set("countdowns",u);setCdN("");setCdD("");setShowAdd(false);}
-function rmCD(id){var u=cds.filter(function(c){return c.id!==id;});setCds(u);S_set("countdowns",u);}
-
+/* HOME */
+function HomePage(){const[refl,setRefl]=useState("");const[cds,setCds]=useState(function(){return SG("countdowns",[]);});const[sa,setSa]=useState(false);const[cn,setCn]=useState("");const[cd,setCd]=useState("");
+var h=new Date().getHours();var gr=h<6?"Gute Nacht":h<12?"Guten Morgen":h<17?"Guten Tag":h<22?"Guten Abend":"Gute Nacht";
+var td=new Date().toLocaleDateString("de-AT",{weekday:"long",day:"numeric",month:"long"});
+var exps=SG("expenses",[]);var mo=new Date().toISOString().slice(0,7);var tot=exps.filter(function(e){return e.date&&e.date.startsWith(mo);}).reduce(function(s,e){return s+(e.amount||0);},0);
+useEffect(function(){callC([{role:"user",content:"Es ist "+td}],PR.refl).then(function(t){setRefl(t);}).catch(function(){setRefl("Was hat dir heute Energie gegeben?");});},[]);
+function dt(d){return Math.max(0,Math.ceil((new Date(d)-new Date())/86400000));}
+function ac(){if(!cn||!cd)return;var u=cds.concat([{id:Date.now(),name:cn,date:cd}]);setCds(u);SS("countdowns",u);setCn("");setCd("");setSa(false);}
+function rc(id){var u=cds.filter(function(c){return c.id!==id;});setCds(u);SS("countdowns",u);}
 return(<div style={{padding:16,display:"flex",flexDirection:"column",gap:14}}>
-<div><h1 style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:26,margin:0}}>{greetText}</h1><p style={{color:"#6a6474",fontSize:13,margin:"4px 0 0"}}>{today}</p></div>
-{total>0&&<Card><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{color:"#6a6474",fontSize:11}}>Ausgaben Monat</div><div style={{color:"#f0e6d3",fontSize:24,fontWeight:700}}>€{total.toFixed(2)}</div></div><span style={{fontSize:24}}>💰</span></div></Card>}
-{cds.length>0&&<Card><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}><span>🎯</span><span style={{color:"#e8e0d4",fontWeight:600,fontSize:14}}>Countdowns</span></div>
-{cds.map(function(c){return(<div key={c.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}><div><span style={{color:"#c8c0b4",fontSize:14}}>{c.name}</span><span style={{color:"#6a6474",fontSize:12,marginLeft:8}}>{new Date(c.date).toLocaleDateString("de-AT")}</span></div><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{color:"#d4a056",fontWeight:700,fontSize:20}}>{daysTo(c.date)}</span><span style={{color:"#6a6474",fontSize:11}}>Tage</span><button onClick={function(){rmCD(c.id);}} style={{background:"none",border:"none",color:"#4a4454",cursor:"pointer",fontSize:14}}>✕</button></div></div>);})}</Card>}
-<Btn onClick={function(){setShowAdd(!showAdd);}} small>+ Countdown</Btn>
-{showAdd&&<Card>
-<input value={cdN} onChange={function(e){setCdN(e.target.value);}} placeholder="Name (z.B. Urlaub)" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8}}/>
-<input type="date" value={cdD} onChange={function(e){setCdD(e.target.value);}} style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8,colorScheme:"dark"}}/>
-<Btn primary onClick={addCD} small>Speichern</Btn></Card>}
-<Card><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}><span>⚡</span><span style={{color:"#e8e0d4",fontWeight:600,fontSize:14}}>Reflexion</span></div><p style={{color:"#c8c0b4",fontSize:14,lineHeight:1.6,margin:0,fontStyle:"italic"}}>{refl||"Wird geladen..."}</p></Card>
-</div>);
-}
+<div><h1 style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:26,margin:0}}>{gr}</h1><p style={{color:"#6a6474",fontSize:13,margin:"4px 0 0"}}>{td}</p></div>
+{tot>0&&<Card><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{color:"#6a6474",fontSize:11}}>Ausgaben Monat</div><div style={{color:"#f0e6d3",fontSize:24,fontWeight:700}}>{"\u20AC"}{tot.toFixed(2)}</div></div><span style={{fontSize:24}}>{"\u{1F4B0}"}</span></div></Card>}
+{cds.length>0&&<Card><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}><span>{"\u{1F3AF}"}</span><span style={{color:"#e8e0d4",fontWeight:600,fontSize:14}}>Countdowns</span></div>
+{cds.map(function(c){return(<div key={c.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}><span style={{color:"#c8c0b4",fontSize:14}}>{c.name}</span><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{color:"#d4a056",fontWeight:700,fontSize:20}}>{dt(c.date)}</span><span style={{color:"#6a6474",fontSize:11}}>Tage</span><button onClick={function(){rc(c.id);}} style={{background:"none",border:"none",color:"#4a4454",cursor:"pointer",fontSize:14}}>{"\u2715"}</button></div></div>);})}</Card>}
+<Btn onClick={function(){setSa(!sa);}} small>+ Countdown</Btn>
+{sa&&<Card><input value={cn} onChange={function(e){setCn(e.target.value);}} placeholder="Name" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8}}/><input type="date" value={cd} onChange={function(e){setCd(e.target.value);}} style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8,colorScheme:"dark"}}/><Btn primary onClick={ac} small>Speichern</Btn></Card>}
+<Card><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}><span>{"\u26A1"}</span><span style={{color:"#e8e0d4",fontWeight:600,fontSize:14}}>Reflexion</span></div><p style={{color:"#c8c0b4",fontSize:14,lineHeight:1.6,margin:0,fontStyle:"italic"}}>{refl||"Wird geladen..."}</p></Card>
+</div>);}
 
-/* ── RECHT ── */
-function DocAnalysis({onBack}){
-const[preview,setPreview]=useState(null);const[imgData,setImgData]=useState(null);const[mType,setMType]=useState("image/jpeg");
-const[extra,setExtra]=useState("");const[result,setResult]=useState("");const[loading,setLoading]=useState(false);
-const fileRef=useRef(null);
-function handleFile(e){var file=e.target.files&&e.target.files[0];if(!file)return;setMType(file.type||"image/jpeg");var reader=new FileReader();reader.onload=function(ev){setPreview(ev.target.result);setImgData(ev.target.result.split(",")[1]);};reader.readAsDataURL(file);}
-async function analyze(){if(!imgData)return;setLoading(true);setResult("");try{var prompt=extra.trim()?"Analysiere dieses Dokument. Kontext: "+extra:"Analysiere dieses Dokument rechtlich.";setResult(await callClaudeVision(imgData,mType,prompt,P.docAnalysis));}catch(e){setResult("⚠️ "+e.message);}setLoading(false);}
-if(!preview)return(<SubPage title="Dokument analysieren" onBack={onBack}>
-<input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleFile} style={{display:"none"}}/>
-<Btn primary onClick={function(){fileRef.current.click();}} style={{width:"100%",padding:20}}>📷 Foto aufnehmen</Btn>
-<div style={{height:10}}/>
-<Btn onClick={function(){if(fileRef.current){fileRef.current.removeAttribute("capture");fileRef.current.click();}}} style={{width:"100%"}}>📤 Aus Fotos wählen</Btn>
-<p style={{color:"#6a6474",fontSize:12,textAlign:"center",marginTop:12}}>Fotografiere ein Dokument für rechtliche Analyse.</p>
-</SubPage>);
-return(<SubPage title="Dokument analysieren" onBack={onBack}>
-<input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleFile} style={{display:"none"}}/>
-<div style={{borderRadius:12,overflow:"hidden",marginBottom:12,border:"1px solid rgba(255,255,255,0.08)"}}><img src={preview} style={{width:"100%",display:"block"}}/></div>
-<Btn small onClick={function(){setPreview(null);setImgData(null);setResult("");}} style={{marginBottom:12}}>Anderes Foto</Btn>
-<input value={extra} onChange={function(e){setExtra(e.target.value);}} placeholder="Kontext (optional)" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:10}}/>
-<Btn primary onClick={analyze} disabled={loading} style={{width:"100%"}}>{loading?"Analysiert...":"Rechtlich beurteilen"}</Btn>
-<AiBox text={result} loading={loading}/>
-</SubPage>);
-}
-function RechtPage(){
-const[sub,setSub]=useState(null);
-if(sub==="legal")return <AiTool onBack={function(){setSub(null);}} title="Rechtsrecherche" prompt={P.legal} placeholder="z.B. 'Schwerer Diebstahl § 128 StGB?'" btnLabel="Recherchieren"/>;
-if(sub==="doc")return <DocAnalysis onBack={function(){setSub(null);}}/>;
-if(sub==="text")return <AiTool onBack={function(){setSub(null);}} title="Text-Analyse" prompt={P.text} placeholder="Text einfügen..." btnLabel="Analysieren"/>;
-return(<div style={{padding:16,display:"flex",flexDirection:"column",gap:12}}>
-<h2 style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:22,margin:"0 0 4px"}}>Recht & Analyse</h2>
-<MenuCard icon="🔍" bg="rgba(167,139,250,0.15)" title="Rechtsrecherche" desc="StGB, StPO, Gerichtsentscheidungen" onClick={function(){setSub("legal");}}/>
-<MenuCard icon="📷" bg="rgba(74,222,128,0.15)" title="Dokument analysieren" desc="Foto → rechtliche Beurteilung" onClick={function(){setSub("doc");}}/>
-<MenuCard icon="📄" bg="rgba(96,165,250,0.15)" title="Text-Analyse" desc="Zusammenfassen & Kernpunkte" onClick={function(){setSub("text");}}/>
-</div>);
-}
+/* RECHT */
+function DocA({onBack}){const[sc,setSc]=useState(false);const[pv,setPv]=useState(null);const[id,setId]=useState(null);const[ex,setEx]=useState("");const[res,setRes]=useState("");const[ld,setLd]=useState(false);
+function hc(b,m,u){setId(b);setPv(u);setSc(false);}
+async function an(){if(!id)return;setLd(true);setRes("");try{setRes(await callV(id,"image/jpeg",ex.trim()?"Analysiere. Kontext: "+ex:"Analysiere rechtlich.",PR.docA));}catch(e){setRes("\u26A0\uFE0F "+e.message);}setLd(false);}
+if(sc)return <SmartCamera onCapture={hc} onClose={function(){setSc(false);}}/>;
+if(!pv)return(<SubPage title="Dokument analysieren" onBack={onBack}><Btn primary onClick={function(){setSc(true);}} style={{width:"100%",padding:20}}>{"\u{1F4F7}"} Auto-Scan starten</Btn><p style={{color:"#6a6474",fontSize:12,textAlign:"center",marginTop:12}}>Kamera erkennt automatisch das Dokument.</p></SubPage>);
+return(<SubPage title="Dokument analysieren" onBack={onBack}><div style={{borderRadius:12,overflow:"hidden",marginBottom:12,border:"1px solid rgba(255,255,255,0.08)"}}><img src={pv} style={{width:"100%",display:"block"}}/></div><Btn small onClick={function(){setPv(null);setId(null);setRes("");}} style={{marginBottom:12}}>Neues Foto</Btn><input value={ex} onChange={function(e){setEx(e.target.value);}} placeholder="Kontext (optional)" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:10}}/><Btn primary onClick={an} disabled={ld} style={{width:"100%"}}>{ld?"Analysiert...":"Rechtlich beurteilen"}</Btn><AiBox text={res} loading={ld}/></SubPage>);}
+function RechtPage(){const[sub,setSub]=useState(null);
+if(sub==="l")return <AiTool onBack={function(){setSub(null);}} title="Rechtsrecherche" prompt={PR.legal} ph="z.B. 'Schwerer Diebstahl par. 128 StGB?'" btn="Recherchieren"/>;
+if(sub==="d")return <DocA onBack={function(){setSub(null);}}/>;
+if(sub==="t")return <AiTool onBack={function(){setSub(null);}} title="Text-Analyse" prompt={PR.text} ph="Text einfuegen..." btn="Analysieren"/>;
+return(<div style={{padding:16,display:"flex",flexDirection:"column",gap:12}}><h2 style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:22,margin:"0 0 4px"}}>Recht & Analyse</h2>
+<MC icon={"\u{1F50D}"} bg="rgba(167,139,250,0.15)" title="Rechtsrecherche" desc="StGB, StPO, Entscheidungen" onClick={function(){setSub("l");}}/>
+<MC icon={"\u{1F4F7}"} bg="rgba(74,222,128,0.15)" title="Dokument analysieren" desc="Auto-Scan mit Rechtsbewertung" onClick={function(){setSub("d");}}/>
+<MC icon={"\u{1F4C4}"} bg="rgba(96,165,250,0.15)" title="Text-Analyse" desc="Zusammenfassen & Kernpunkte" onClick={function(){setSub("t");}}/></div>);}
 
-/* ── FITNESS ── */
-function IntTimer({onBack}){
-const[ws,setWs]=useState(30);const[rs,setRs]=useState(15);const[rnds,setRnds]=useState(8);
-const[cr,setCr]=useState(0);const[tl,setTl]=useState(0);const[ph,setPh]=useState("idle");const[isRun,setIsRun]=useState(false);
-const timerRef=useRef(null);const acRef=useRef(null);
-function beep(f,d){try{if(!acRef.current)acRef.current=new(window.AudioContext||window.webkitAudioContext)();var o=acRef.current.createOscillator();var g=acRef.current.createGain();o.connect(g);g.connect(acRef.current.destination);o.frequency.value=f||800;g.gain.value=0.3;o.start();o.stop(acRef.current.currentTime+(d||150)/1000);}catch(err){}}
-function startT(){setCr(1);setPh("work");setTl(ws);setIsRun(true);beep(800);}
-function resetT(){setIsRun(false);setPh("idle");setCr(0);setTl(0);}
-useEffect(function(){
-if(!isRun){clearInterval(timerRef.current);return;}
-timerRef.current=setInterval(function(){setTl(function(t){
-if(t<=1){if(ph==="work"){if(cr>=rnds){setPh("done");setIsRun(false);beep(400,500);return 0;}setPh("rest");beep(400);return rs;}else{setCr(function(r){return r+1;});setPh("work");beep(800);return ws;}}
-if(t<=4)beep(600,80);return t-1;});},1000);
-return function(){clearInterval(timerRef.current);};
-},[isRun,ph,cr,rnds,ws,rs]);
-var pct=0;if(ph==="work"&&ws>0)pct=(1-tl/ws)*100;if(ph==="rest"&&rs>0)pct=(1-tl/rs)*100;
-var pc=ph==="work"?"#4ade80":ph==="rest"?"#f59e0b":"#6a6474";
-var mm=String(Math.floor(tl/60)).padStart(2,"0");var ss=String(tl%60).padStart(2,"0");
-var phL=ph==="idle"?"Bereit":ph==="work"?"ARBEIT":ph==="rest"?"PAUSE":"FERTIG!";
-function NI({label,value,onChange,min,max,step}){return(<div style={{flex:1,textAlign:"center"}}><div style={{color:"#6a6474",fontSize:11,marginBottom:4}}>{label}</div><div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><button onClick={function(){onChange(Math.max(min,value-step));}} style={{width:28,height:28,borderRadius:8,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(0,0,0,0.3)",color:"#d4a056",fontSize:16,cursor:"pointer"}}>−</button><span style={{color:"#f0e6d3",fontSize:18,fontWeight:700,minWidth:30}}>{value}</span><button onClick={function(){onChange(Math.min(max,value+step));}} style={{width:28,height:28,borderRadius:8,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(0,0,0,0.3)",color:"#d4a056",fontSize:16,cursor:"pointer"}}>+</button></div></div>);}
+/* FITNESS */
+function IntTimer({onBack}){const[ws,setWs]=useState(30);const[rs,setRs]=useState(15);const[rn,setRn]=useState(8);const[cr,setCr]=useState(0);const[tl,setTl]=useState(0);const[ph,setPh]=useState("idle");const[ir,setIr]=useState(false);const tr=useRef(null);const ac=useRef(null);
+function beep(f,d){try{if(!ac.current)ac.current=new(window.AudioContext||window.webkitAudioContext)();var o=ac.current.createOscillator();var g=ac.current.createGain();o.connect(g);g.connect(ac.current.destination);o.frequency.value=f||800;g.gain.value=0.3;o.start();o.stop(ac.current.currentTime+(d||150)/1000);}catch(e){}}
+function st(){setCr(1);setPh("work");setTl(ws);setIr(true);beep(800);}function rt(){setIr(false);setPh("idle");setCr(0);setTl(0);}
+useEffect(function(){if(!ir){clearInterval(tr.current);return;}tr.current=setInterval(function(){setTl(function(t){if(t<=1){if(ph==="work"){if(cr>=rn){setPh("done");setIr(false);beep(400,500);return 0;}setPh("rest");beep(400);return rs;}else{setCr(function(r){return r+1;});setPh("work");beep(800);return ws;}}if(t<=4)beep(600,80);return t-1;});},1000);return function(){clearInterval(tr.current);};},[ir,ph,cr,rn,ws,rs]);
+var pct=ph==="work"&&ws>0?(1-tl/ws)*100:ph==="rest"&&rs>0?(1-tl/rs)*100:0;var pc=ph==="work"?"#4ade80":ph==="rest"?"#f59e0b":"#6a6474";
+function NI({label,value,onChange,min,max,step}){return(<div style={{flex:1,textAlign:"center"}}><div style={{color:"#6a6474",fontSize:11,marginBottom:4}}>{label}</div><div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><button onClick={function(){onChange(Math.max(min,value-step));}} style={{width:28,height:28,borderRadius:8,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(0,0,0,0.3)",color:"#d4a056",fontSize:16,cursor:"pointer"}}>{"\u2212"}</button><span style={{color:"#f0e6d3",fontSize:18,fontWeight:700,minWidth:30}}>{value}</span><button onClick={function(){onChange(Math.min(max,value+step));}} style={{width:28,height:28,borderRadius:8,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(0,0,0,0.3)",color:"#d4a056",fontSize:16,cursor:"pointer"}}>+</button></div></div>);}
 return(<SubPage title="Intervall-Timer" onBack={onBack}><div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:20}}>
-<div style={{position:"relative",width:200,height:200}}>
-<svg width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8"/><circle cx="100" cy="100" r="90" fill="none" stroke={pc} strokeWidth="8" strokeDasharray={String(2*Math.PI*90)} strokeDashoffset={String(2*Math.PI*90*(1-pct/100))} strokeLinecap="round" transform="rotate(-90 100 100)" style={{transition:"stroke-dashoffset 0.3s"}}/></svg>
-<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}><div style={{fontSize:42,fontWeight:700,color:"#f0e6d3",fontFamily:"monospace"}}>{mm}:{ss}</div><div style={{fontSize:13,color:pc,fontWeight:600}}>{phL}</div>{ph!=="idle"&&ph!=="done"&&<div style={{fontSize:12,color:"#6a6474"}}>Runde {cr}/{rnds}</div>}</div></div>
-<div style={{display:"flex",gap:12}}>
-{ph==="idle"?<Btn primary onClick={startT}>▶ Start</Btn>:<div style={{display:"flex",gap:12}}><Btn primary={isRun} onClick={function(){setIsRun(!isRun);}}>{isRun?"⏸ Pause":"▶ Weiter"}</Btn><Btn onClick={resetT}>↻ Reset</Btn></div>}
-</div>
-{ph==="idle"&&<Card style={{width:"100%"}}><div style={{display:"flex",gap:8}}><NI label="Arbeit (s)" value={ws} onChange={setWs} min={5} max={120} step={5}/><NI label="Pause (s)" value={rs} onChange={setRs} min={5} max={120} step={5}/><NI label="Runden" value={rnds} onChange={setRnds} min={1} max={30} step={1}/></div>
-<div style={{display:"flex",gap:8,marginTop:12,flexWrap:"wrap"}}><Btn small onClick={function(){setWs(20);setRs(10);setRnds(8);}}>Tabata</Btn><Btn small onClick={function(){setWs(30);setRs(30);setRnds(10);}}>HIIT</Btn><Btn small onClick={function(){setWs(45);setRs(15);setRnds(6);}}>Ruder</Btn></div></Card>}
-</div></SubPage>);
-}
-function TrainLog({onBack}){
-const[logs,setLogs]=useState(function(){return S_get("trainlog",[]);});const[type,setType]=useState("Rudergerät");const[dur,setDur]=useState("30");const[note,setNote]=useState("");
-function add(){var u=[{id:Date.now(),type:type,duration:parseInt(dur)||0,note:note,date:new Date().toISOString().split("T")[0]}].concat(logs);setLogs(u);S_set("trainlog",u);setNote("");}
-function rm(id){var u=logs.filter(function(l){return l.id!==id;});setLogs(u);S_set("trainlog",u);}
-return(<SubPage title="Trainingslog" onBack={onBack}>
-<Card><div style={{display:"flex",gap:8,marginBottom:8,flexWrap:"wrap"}}>{["Rudergerät","Ergometer","Bodyweight"].map(function(t){return <Btn key={t} small primary={type===t} onClick={function(){setType(t);}}>{t}</Btn>;})}</div>
-<div style={{display:"flex",gap:8,marginBottom:8}}><input type="number" value={dur} onChange={function(e){setDur(e.target.value);}} style={{flex:1,padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none"}}/><span style={{color:"#6a6474",alignSelf:"center",fontSize:13}}>Min</span></div>
-<input value={note} onChange={function(e){setNote(e.target.value);}} placeholder="Notiz" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8}}/>
-<Btn primary onClick={add} style={{width:"100%"}}>Eintragen</Btn></Card>
-<div style={{marginTop:14,display:"flex",flexDirection:"column",gap:8}}>
-{logs.slice(0,20).map(function(l){return(<Card key={l.id} style={{padding:12}}><div style={{display:"flex",justifyContent:"space-between"}}><div><span style={{color:"#d4a056",fontSize:13,fontWeight:600}}>{l.type}</span><span style={{color:"#6a6474",fontSize:12,marginLeft:8}}>{l.duration}min — {l.date}</span>{l.note&&<div style={{color:"#8a8494",fontSize:12,marginTop:2}}>{l.note}</div>}</div><button onClick={function(){rm(l.id);}} style={{background:"none",border:"none",color:"#4a4454",cursor:"pointer"}}>🗑</button></div></Card>);})}
-{logs.length===0&&<p style={{color:"#4a4454",fontSize:13,textAlign:"center"}}>Noch keine Einträge</p>}
-</div></SubPage>);
-}
-function FitnessPage(){
-const[sub,setSub]=useState(null);
-if(sub==="timer")return <IntTimer onBack={function(){setSub(null);}}/>;
-if(sub==="workout")return <AiTool onBack={function(){setSub(null);}} title="Workout-Planer" prompt={P.fitness} placeholder="z.B. '30min Rudergerät HIIT'" btnLabel="Plan erstellen"/>;
-if(sub==="log")return <TrainLog onBack={function(){setSub(null);}}/>;
-return(<div style={{padding:16,display:"flex",flexDirection:"column",gap:12}}>
-<h2 style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:22,margin:"0 0 4px"}}>Fitness</h2>
-<MenuCard icon="⏱" bg="rgba(74,222,128,0.15)" title="Intervall-Timer" desc="HIIT, Tabata & Custom" onClick={function(){setSub("timer");}}/>
-<MenuCard icon="🏋️" bg="rgba(245,158,11,0.15)" title="Workout-Planer" desc="Rudergerät, Ergometer, Bodyweight" onClick={function(){setSub("workout");}}/>
-<MenuCard icon="📊" bg="rgba(96,165,250,0.15)" title="Trainingslog" desc="Einheiten protokollieren" onClick={function(){setSub("log");}}/>
-</div>);
-}
+<div style={{position:"relative",width:200,height:200}}><svg width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8"/><circle cx="100" cy="100" r="90" fill="none" stroke={pc} strokeWidth="8" strokeDasharray={String(2*Math.PI*90)} strokeDashoffset={String(2*Math.PI*90*(1-pct/100))} strokeLinecap="round" transform="rotate(-90 100 100)" style={{transition:"stroke-dashoffset 0.3s"}}/></svg>
+<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}><div style={{fontSize:42,fontWeight:700,color:"#f0e6d3",fontFamily:"monospace"}}>{String(Math.floor(tl/60)).padStart(2,"0")}:{String(tl%60).padStart(2,"0")}</div><div style={{fontSize:13,color:pc,fontWeight:600}}>{ph==="idle"?"BEREIT":ph==="work"?"ARBEIT":ph==="rest"?"PAUSE":"FERTIG!"}</div>{ph!=="idle"&&ph!=="done"&&<div style={{fontSize:12,color:"#6a6474"}}>Runde {cr}/{rn}</div>}</div></div>
+<div style={{display:"flex",gap:12}}>{ph==="idle"?<Btn primary onClick={st}>{"\u25B6"} Start</Btn>:<div style={{display:"flex",gap:12}}><Btn primary={ir} onClick={function(){setIr(!ir);}}>{ir?"\u23F8 Pause":"\u25B6 Weiter"}</Btn><Btn onClick={rt}>{"\u21BB"} Reset</Btn></div>}</div>
+{ph==="idle"&&<Card style={{width:"100%"}}><div style={{display:"flex",gap:8}}><NI label="Arbeit (s)" value={ws} onChange={setWs} min={5} max={120} step={5}/><NI label="Pause (s)" value={rs} onChange={setRs} min={5} max={120} step={5}/><NI label="Runden" value={rn} onChange={setRn} min={1} max={30} step={1}/></div><div style={{display:"flex",gap:8,marginTop:12,flexWrap:"wrap"}}><Btn small onClick={function(){setWs(20);setRs(10);setRn(8);}}>Tabata</Btn><Btn small onClick={function(){setWs(30);setRs(30);setRn(10);}}>HIIT</Btn><Btn small onClick={function(){setWs(45);setRs(15);setRn(6);}}>Ruder</Btn></div></Card>}
+</div></SubPage>);}
+function TrainLog({onBack}){const[logs,setLogs]=useState(function(){return SG("trainlog",[]);});const[tp,setTp]=useState("Rudergeraet");const[dur,setDur]=useState("30");const[nt,setNt]=useState("");
+function add(){var u=[{id:Date.now(),type:tp,duration:parseInt(dur)||0,note:nt,date:new Date().toISOString().split("T")[0]}].concat(logs);setLogs(u);SS("trainlog",u);setNt("");}
+function rm(id){var u=logs.filter(function(l){return l.id!==id;});setLogs(u);SS("trainlog",u);}
+return(<SubPage title="Trainingslog" onBack={onBack}><Card><div style={{display:"flex",gap:8,marginBottom:8,flexWrap:"wrap"}}>{["Rudergeraet","Ergometer","Bodyweight"].map(function(t){return <Btn key={t} small primary={tp===t} onClick={function(){setTp(t);}}>{t}</Btn>;})}</div><div style={{display:"flex",gap:8,marginBottom:8}}><input type="number" value={dur} onChange={function(e){setDur(e.target.value);}} style={{flex:1,padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none"}}/><span style={{color:"#6a6474",alignSelf:"center",fontSize:13}}>Min</span></div><input value={nt} onChange={function(e){setNt(e.target.value);}} placeholder="Notiz" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8}}/><Btn primary onClick={add} style={{width:"100%"}}>Eintragen</Btn></Card>
+<div style={{marginTop:14,display:"flex",flexDirection:"column",gap:8}}>{logs.slice(0,15).map(function(l){return(<Card key={l.id} style={{padding:12}}><div style={{display:"flex",justifyContent:"space-between"}}><div><span style={{color:"#d4a056",fontSize:13,fontWeight:600}}>{l.type}</span><span style={{color:"#6a6474",fontSize:12,marginLeft:8}}>{l.duration}min</span></div><button onClick={function(){rm(l.id);}} style={{background:"none",border:"none",color:"#4a4454",cursor:"pointer"}}>{"\u{1F5D1}"}</button></div></Card>);})}{logs.length===0&&<p style={{color:"#4a4454",fontSize:13,textAlign:"center"}}>Noch keine Eintraege</p>}</div></SubPage>);}
+function FitnessPage(){const[sub,setSub]=useState(null);
+if(sub==="ti")return <IntTimer onBack={function(){setSub(null);}}/>;
+if(sub==="wo")return <AiTool onBack={function(){setSub(null);}} title="Workout-Planer" prompt={PR.fit} ph="z.B. '30min Rudergeraet HIIT'" btn="Plan erstellen"/>;
+if(sub==="lo")return <TrainLog onBack={function(){setSub(null);}}/>;
+return(<div style={{padding:16,display:"flex",flexDirection:"column",gap:12}}><h2 style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:22,margin:"0 0 4px"}}>Fitness</h2>
+<MC icon={"\u23F1"} bg="rgba(74,222,128,0.15)" title="Intervall-Timer" desc="HIIT, Tabata & Custom" onClick={function(){setSub("ti");}}/>
+<MC icon={"\u{1F3CB}\uFE0F"} bg="rgba(245,158,11,0.15)" title="Workout-Planer" desc="Rudergeraet, Ergometer, Bodyweight" onClick={function(){setSub("wo");}}/>
+<MC icon={"\u{1F4CA}"} bg="rgba(96,165,250,0.15)" title="Trainingslog" desc="Einheiten protokollieren" onClick={function(){setSub("lo");}}/></div>);}
 
-/* ── FINANZEN ── */
-function AddExp({onBack}){
-const[amt,setAmt]=useState("");const[cat,setCat]=useState("food");const[note,setNote]=useState("");
-function save(){if(!amt)return;var e=S_get("expenses",[]);e.unshift({id:Date.now(),amount:parseFloat(amt),category:cat,note:note,date:new Date().toISOString().split("T")[0]});S_set("expenses",e);onBack();}
-return(<SubPage title="Ausgabe erfassen" onBack={onBack}>
-<div style={{marginBottom:14}}><div style={{color:"#6a6474",fontSize:12,marginBottom:6}}>Betrag</div><div style={{position:"relative"}}><span style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",color:"#d4a056",fontSize:18,fontWeight:700}}>€</span><input type="number" value={amt} onChange={function(e){setAmt(e.target.value);}} placeholder="0.00" inputMode="decimal" style={{width:"100%",padding:"14px 14px 14px 32px",borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:22,fontWeight:700,outline:"none"}}/></div></div>
-<div style={{color:"#6a6474",fontSize:12,marginBottom:8}}>Kategorie</div>
-<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:14}}>{CATS.map(function(c){return(<button key={c.id} onClick={function(){setCat(c.id);}} style={{padding:"10px 12px",borderRadius:10,border:cat===c.id?"2px solid "+c.color:"1px solid rgba(255,255,255,0.06)",background:cat===c.id?c.color+"15":"rgba(255,255,255,0.03)",cursor:"pointer",display:"flex",alignItems:"center",gap:8,color:"#e0d8cc",fontSize:13}}><span>{c.icon}</span>{c.label}</button>);})}</div>
-<input value={note} onChange={function(e){setNote(e.target.value);}} placeholder="Notiz (optional)" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:14}}/>
-<Btn primary onClick={save} disabled={!amt} style={{width:"100%"}}>Speichern</Btn>
-</SubPage>);
-}
-function CsvImport({onBack}){
-const[raw,setRaw]=useState([]);const[categorized,setCategorized]=useState([]);const[loading,setLoading]=useState(false);const[imported,setImported]=useState(false);const fileRef=useRef(null);
-function parseCSV(text){var lines=text.split("\n").filter(function(l){return l.trim();});if(lines.length<2)return[];var sep=lines[0].indexOf(";")>=0?";":","
-;var headers=lines[0].split(sep).map(function(h){return h.replace(/"/g,"").trim().toLowerCase();});var dateIdx=headers.findIndex(function(h){return h.indexOf("buchung")>=0||h.indexOf("datum")>=0;});var descIdx=headers.findIndex(function(h){return h.indexOf("empfänger")>=0||h.indexOf("auftraggeber")>=0||h.indexOf("text")>=0||h.indexOf("verwendung")>=0;});var amtIdx=headers.findIndex(function(h){return h.indexOf("betrag")>=0||h.indexOf("amount")>=0||h.indexOf("umsatz")>=0;});var results=[];for(var i=1;i<lines.length;i++){var cols=lines[i].split(sep).map(function(c){return c.replace(/"/g,"").trim();});if(cols.length<3)continue;var amtStr=(cols[amtIdx>=0?amtIdx:cols.length-2]||"0").replace(/[^\d,.\-]/g,"").replace(",",".");var amt=parseFloat(amtStr);if(isNaN(amt)||amt>=0)continue;var dateStr=cols[dateIdx>=0?dateIdx:0]||"";var dm=dateStr.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);if(dm)dateStr=dm[3]+"-"+dm[2].padStart(2,"0")+"-"+dm[1].padStart(2,"0");results.push({desc:cols[descIdx>=0?descIdx:1]||"Unbekannt",amount:Math.abs(amt),date:dateStr});}return results;}
-function handleFile(e){var file=e.target.files&&e.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(ev){setRaw(parseCSV(ev.target.result));};reader.readAsText(file,"utf-8");}
-async function categorize(){if(!raw.length)return;setLoading(true);try{var input=raw.map(function(t){return t.date+" | "+t.desc+" | "+t.amount.toFixed(2);}).join("\n");var result=await callClaude([{role:"user",content:input}],P.categorize);var m=result.match(/\[[\s\S]*\]/);if(m){setCategorized(JSON.parse(m[0]));}else{throw new Error("Fehlgeschlagen");}}catch(e){alert("Fehler: "+e.message);}setLoading(false);}
-function doImport(){var existing=S_get("expenses",[]);var ne=categorized.map(function(t){return{id:Date.now()+Math.random(),amount:t.amount,category:t.category||"other",note:t.desc,date:t.date,source:"csv"};});S_set("expenses",ne.concat(existing));setImported(true);}
-if(imported)return(<SubPage title="CSV" onBack={onBack}><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:16}}>✅</div><div style={{color:"#4ade80",fontSize:18,fontWeight:600}}>{categorized.length} importiert!</div><Btn onClick={onBack} style={{marginTop:16}}>Zurück</Btn></div></SubPage>);
-if(raw.length===0)return(<SubPage title="CSV importieren" onBack={onBack}><input ref={fileRef} type="file" accept=".csv,.txt" onChange={handleFile} style={{display:"none"}}/><Btn primary onClick={function(){fileRef.current.click();}} style={{width:"100%",padding:20}}>📤 CSV auswählen</Btn>
-<Card style={{marginTop:14}}><div style={{color:"#e8e0d4",fontWeight:600,fontSize:14,marginBottom:8}}>easybank Export:</div><div style={{color:"#8a8494",fontSize:13,lineHeight:1.8}}>1. easybank App → Konto → Umsätze<br/>2. Zeitraum wählen<br/>3. Exportieren → CSV<br/>4. Hier hochladen</div></Card></SubPage>);
-if(categorized.length===0)return(<SubPage title="CSV importieren" onBack={onBack}><Card style={{marginBottom:12}}><div style={{color:"#4ade80",fontWeight:600}}>{raw.length} Ausgaben gefunden</div><div style={{color:"#6a6474",fontSize:12}}>€{raw.reduce(function(s,t){return s+t.amount;},0).toFixed(2)}</div></Card><Btn primary onClick={categorize} disabled={loading} style={{width:"100%"}}>{loading?"Kategorisiert...":"Automatisch kategorisieren"}</Btn></SubPage>);
-return(<SubPage title="CSV importieren" onBack={onBack}><Card style={{marginBottom:12}}><div style={{color:"#4ade80",fontWeight:600}}>{categorized.length} kategorisiert</div></Card>
-<div style={{maxHeight:300,overflowY:"auto",marginBottom:12}}>{categorized.map(function(t,i){var cat=CATS.find(function(c){return c.id===t.category;})||CATS[6];return(<div key={i} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid rgba(255,255,255,0.04)"}}><span style={{color:"#c8c0b4",fontSize:12}}>{cat.icon} {t.desc}</span><span style={{color:"#e0d8cc",fontSize:13,fontWeight:600}}>€{(t.amount||0).toFixed(2)}</span></div>);})}</div>
-<Btn primary onClick={doImport} style={{width:"100%"}}>Alle importieren</Btn></SubPage>);
-}
-function MonthView({onBack}){
-var exps=S_get("expenses",[]);var mo=new Date().toISOString().slice(0,7);var tm=exps.filter(function(e){return e.date&&e.date.startsWith(mo);});var total=tm.reduce(function(s,e){return s+e.amount;},0);
-var byCat=CATS.map(function(c){return{id:c.id,label:c.label,icon:c.icon,color:c.color,total:tm.filter(function(e){return e.category===c.id;}).reduce(function(s,e){return s+e.amount;},0)};}).filter(function(c){return c.total>0;}).sort(function(a,b){return b.total-a.total;});
-return(<SubPage title="Monatsübersicht" onBack={onBack}>
-<Card style={{marginBottom:14}}><div style={{color:"#6a6474",fontSize:12}}>Gesamt {new Date().toLocaleDateString("de-AT",{month:"long",year:"numeric"})}</div><div style={{color:"#f0e6d3",fontSize:28,fontWeight:700}}>€{total.toFixed(2)}</div></Card>
-{byCat.map(function(c){return(<Card key={c.id} style={{padding:12,marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><span style={{color:"#e0d8cc",fontSize:14}}>{c.icon} {c.label}</span><span style={{color:"#d4a056",fontWeight:700}}>€{c.total.toFixed(2)}</span></div><div style={{height:6,borderRadius:3,background:"rgba(255,255,255,0.06)"}}><div style={{height:"100%",borderRadius:3,background:c.color,width:(total>0?c.total/total*100:0)+"%"}}/></div></Card>);})}
-{byCat.length===0&&<p style={{color:"#4a4454",fontSize:13,textAlign:"center"}}>Keine Ausgaben</p>}
-</SubPage>);
-}
-function Goals({onBack}){
-const[goals,setGoals]=useState(function(){return S_get("savgoals",[]);});const[show,setShow]=useState(false);const[n,setN]=useState("");const[t,setT]=useState("");
-function addG(){if(!n||!t)return;var u=goals.concat([{id:Date.now(),name:n,target:parseFloat(t),current:0}]);setGoals(u);S_set("savgoals",u);setN("");setT("");setShow(false);}
-function updG(id,v){var u=goals.map(function(g){return g.id===id?Object.assign({},g,{current:Math.max(0,v)}):g;});setGoals(u);S_set("savgoals",u);}
-function rmG(id){var u=goals.filter(function(g){return g.id!==id;});setGoals(u);S_set("savgoals",u);}
-return(<SubPage title="Sparziele" onBack={onBack}>
-{goals.map(function(g){var p=Math.min(100,g.current/g.target*100);return(<Card key={g.id} style={{marginBottom:12}}>
-<div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><span style={{color:"#e8e0d4",fontWeight:600,fontSize:15}}>{g.name}</span><button onClick={function(){rmG(g.id);}} style={{background:"none",border:"none",color:"#4a4454",cursor:"pointer"}}>🗑</button></div>
-<div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><span style={{color:"#d4a056",fontWeight:700,fontSize:18}}>€{g.current.toFixed(0)}</span><span style={{color:"#6a6474",fontSize:13}}>von €{g.target.toFixed(0)} ({p.toFixed(0)}%)</span></div>
-<div style={{height:10,borderRadius:5,background:"rgba(255,255,255,0.06)",marginBottom:8}}><div style={{height:"100%",borderRadius:5,background:p>=100?"#4ade80":"linear-gradient(90deg,#d4a056,#b8860b)",width:p+"%",transition:"width 0.5s"}}/></div>
-<div style={{display:"flex",gap:6}}>{[10,50,100].map(function(v){return <Btn key={v} small onClick={function(){updG(g.id,g.current+v);}}>+€{v}</Btn>;})}</div>
-</Card>);})}
-{!show?<Btn onClick={function(){setShow(true);}} style={{width:"100%"}}>+ Neues Sparziel</Btn>:
-<Card><input value={n} onChange={function(e){setN(e.target.value);}} placeholder="Name" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8}}/>
-<input type="number" value={t} onChange={function(e){setT(e.target.value);}} placeholder="Zielbetrag €" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8}}/>
-<div style={{display:"flex",gap:8}}><Btn primary onClick={addG}>Anlegen</Btn><Btn onClick={function(){setShow(false);}}>Abbrechen</Btn></div></Card>}
-</SubPage>);
-}
-function FinanzenPage(){
-const[sub,setSub]=useState(null);
-var exps=S_get("expenses",[]);var total=exps.filter(function(e){return e.date&&e.date.startsWith(new Date().toISOString().slice(0,7));}).reduce(function(s,e){return s+(e.amount||0);},0);
-if(sub==="add")return <AddExp onBack={function(){setSub(null);}}/>;
-if(sub==="csv")return <CsvImport onBack={function(){setSub(null);}}/>;
-if(sub==="overview")return <MonthView onBack={function(){setSub(null);}}/>;
-if(sub==="goals")return <Goals onBack={function(){setSub(null);}}/>;
-return(<div style={{padding:16,display:"flex",flexDirection:"column",gap:12}}>
-<h2 style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:22,margin:"0 0 4px"}}>Finanzen</h2>
-<Card><div style={{color:"#6a6474",fontSize:12,marginBottom:4}}>Diesen Monat</div><div style={{color:"#f0e6d3",fontSize:32,fontWeight:700}}>€{total.toFixed(2)}</div></Card>
-<MenuCard icon="➕" bg="rgba(74,222,128,0.15)" title="Ausgabe erfassen" desc="Manuell eintragen" onClick={function(){setSub("add");}}/>
-<MenuCard icon="📤" bg="rgba(212,160,86,0.15)" title="CSV importieren" desc="easybank Umsätze einlesen" onClick={function(){setSub("csv");}}/>
-<MenuCard icon="📊" bg="rgba(96,165,250,0.15)" title="Monatsübersicht" desc="Ausgaben nach Kategorien" onClick={function(){setSub("overview");}}/>
-<MenuCard icon="🎯" bg="rgba(167,139,250,0.15)" title="Sparziele" desc="Fortschritt tracken" onClick={function(){setSub("goals");}}/>
-</div>);
-}
+/* RECEIPT SCANNER */
+function ReceiptScan({onBack}){const[sc,setSc]=useState(false);const[pv,setPv]=useState(null);const[id,setId]=useState(null);const[prods,setProds]=useState([]);const[ld,setLd]=useState(false);const[saved,setSaved]=useState(false);
+function hc(b,m,u){setId(b);setPv(u);setSc(false);}
+async function an(){if(!id)return;setLd(true);try{
+if(N8N_WEBHOOK){var r=await fetch(N8N_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:id,mediaType:"image/jpeg"})});var d=await r.json();if(d.products){setProds(d.products);setLd(false);return;}}
+var res=await callV(id,"image/jpeg","Analysiere diese Rechnung.",PR.receipt);var m=res.match(/\[[\s\S]*\]/);
+if(m){var p=JSON.parse(m[0]);var cm={"Lebensmittel":"food","Haushalt":"household","Getraenke":"food","Hygiene":"household","Sonstiges":"other"};
+setProds(p.map(function(x){return{produkt:x.produkt,betrag:Math.abs(x.betrag||0),kategorie:x.kategorie,cid:cm[x.kategorie]||"other"};}));}
+}catch(e){alert("Fehler: "+e.message);}setLd(false);}
+function sv(){var exps=SG("expenses",[]);prods.forEach(function(p){exps.unshift({id:Date.now()+Math.random(),amount:p.betrag,category:p.cid||"other",note:p.produkt,date:new Date().toISOString().split("T")[0],source:"receipt"});});SS("expenses",exps);setSaved(true);}
+if(sc)return <SmartCamera onCapture={hc} onClose={function(){setSc(false);}}/>;
+if(saved)return(<SubPage title="Rechnung" onBack={onBack}><div style={{textAlign:"center",padding:40}}><div style={{fontSize:48,marginBottom:16}}>{"\u2705"}</div><div style={{color:"#4ade80",fontSize:18,fontWeight:600}}>{prods.length} Produkte gespeichert!</div><div style={{color:"#d4a056",fontSize:22,fontWeight:700,marginTop:8}}>{"\u20AC"}{prods.reduce(function(s,p){return s+p.betrag;},0).toFixed(2)}</div><Btn onClick={onBack} style={{marginTop:20}}>Zurueck</Btn></div></SubPage>);
+if(!pv)return(<SubPage title="Rechnung scannen" onBack={onBack}><Btn primary onClick={function(){setSc(true);}} style={{width:"100%",padding:20}}>{"\u{1F4F7}"} Auto-Scan starten</Btn><p style={{color:"#6a6474",fontSize:12,textAlign:"center",marginTop:12}}>Halte die Kamera auf die Rechnung. Foto wird automatisch ausgeloest.</p></SubPage>);
+if(prods.length===0)return(<SubPage title="Rechnung scannen" onBack={onBack}><div style={{borderRadius:12,overflow:"hidden",marginBottom:12,border:"1px solid rgba(255,255,255,0.08)"}}><img src={pv} style={{width:"100%",display:"block"}}/></div><Btn primary onClick={an} disabled={ld} style={{width:"100%"}}>{ld?"KI analysiert...":"Produkte erkennen"}</Btn>{ld&&<div style={{marginTop:12,textAlign:"center",color:"#d4a056",animation:"blink 1.2s infinite",fontSize:14}}>{"\u25CF\u25CF\u25CF"} Claude liest die Rechnung</div>}<Btn small onClick={function(){setPv(null);setId(null);}} style={{marginTop:10}}>Neues Foto</Btn></SubPage>);
+var total=prods.reduce(function(s,p){return s+p.betrag;},0);
+return(<SubPage title="Rechnung scannen" onBack={onBack}><Card style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{color:"#4ade80",fontWeight:600,fontSize:15}}>{prods.length} Produkte erkannt</div></div><div style={{color:"#d4a056",fontSize:22,fontWeight:700}}>{"\u20AC"}{total.toFixed(2)}</div></div></Card>
+<div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:14}}>{prods.map(function(p,i){var cat=CATS.find(function(c){return c.id===p.cid;})||CATS[6];return(<div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 12px",background:"rgba(255,255,255,0.03)",borderRadius:10,border:"1px solid rgba(255,255,255,0.04)"}}><div><span style={{marginRight:6}}>{cat.icon}</span><span style={{color:"#e0d8cc",fontSize:14}}>{p.produkt}</span><div style={{color:"#6a6474",fontSize:11,marginTop:2}}>{p.kategorie}</div></div><span style={{color:"#d4a056",fontWeight:700,fontSize:15}}>{"\u20AC"}{p.betrag.toFixed(2)}</span></div>);})}</div>
+<Btn primary onClick={sv} style={{width:"100%"}}>Alle {prods.length} Produkte speichern</Btn><Btn small onClick={function(){setProds([]);setPv(null);setId(null);}} style={{width:"100%",marginTop:8}}>Verwerfen</Btn></SubPage>);}
 
-/* ── CHAT ── */
-function ChatPage(){
-const[msgs,setMsgs]=useState([]);const[inp,setInp]=useState("");const[ld,setLd]=useState(false);const scrollRef=useRef(null);
-useEffect(function(){if(scrollRef.current)scrollRef.current.scrollTo({top:scrollRef.current.scrollHeight,behavior:"smooth"});},[msgs,ld]);
-async function send(){if(!inp.trim()||ld)return;var t=inp.trim();setInp("");var nm=msgs.concat([{role:"user",content:t}]);setMsgs(nm);setLd(true);try{var r=await callClaude(nm.map(function(m){return{role:m.role,content:m.content};}),P.chat);setMsgs(nm.concat([{role:"assistant",content:r}]));}catch(e){setMsgs(nm.concat([{role:"assistant",content:"⚠️ "+e.message}]));}setLd(false);}
-return(<div style={{display:"flex",flexDirection:"column",height:"100%"}}>
-<div ref={scrollRef} style={{flex:1,overflowY:"auto",padding:"16px 16px 8px"}}>
-{msgs.length===0&&<p style={{color:"#4a4454",textAlign:"center",marginTop:40,fontSize:14}}>Starte ein Gespräch...</p>}
-{msgs.map(function(m,i){var isU=m.role==="user";return(<div key={i} style={{display:"flex",justifyContent:isU?"flex-end":"flex-start",marginBottom:10}}><div style={{maxWidth:"82%",padding:"12px 16px",borderRadius:16,fontSize:14,lineHeight:1.55,whiteSpace:"pre-wrap",wordBreak:"break-word",background:isU?"linear-gradient(135deg,#d4a056,#b8860b)":"rgba(255,255,255,0.05)",color:isU?"#0a0a0f":"#e0d8cc",borderBottomRightRadius:isU?4:16,borderBottomLeftRadius:isU?16:4}}>{m.content}</div></div>);})}
-{ld&&<div style={{display:"flex",marginBottom:10}}><div style={{padding:"12px 16px",borderRadius:16,borderBottomLeftRadius:4,background:"rgba(255,255,255,0.05)",color:"#d4a056"}}><span style={{animation:"blink 1.2s infinite"}}>●</span><span style={{animation:"blink 1.2s infinite 0.2s",marginLeft:4}}>●</span><span style={{animation:"blink 1.2s infinite 0.4s",marginLeft:4}}>●</span></div></div>}
-</div>
-<div style={{padding:"10px 16px",borderTop:"1px solid rgba(255,255,255,0.05)",display:"flex",gap:10,alignItems:"flex-end",flexShrink:0,paddingBottom:"max(10px,env(safe-area-inset-bottom))"}}>
-<textarea value={inp} onChange={function(e){setInp(e.target.value);e.target.style.height="auto";e.target.style.height=Math.min(e.target.scrollHeight,100)+"px";}} onKeyDown={function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} placeholder="Nachricht..." rows={1} style={{flex:1,padding:"10px 14px",borderRadius:12,resize:"none",border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",minHeight:40,maxHeight:100}}/>
-<button onClick={send} disabled={!inp.trim()||ld} style={{width:40,height:40,borderRadius:12,border:"none",cursor:"pointer",background:inp.trim()?"linear-gradient(135deg,#d4a056,#b8860b)":"rgba(255,255,255,0.06)",color:inp.trim()?"#0a0a0f":"#4a4454",fontSize:18,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>↑</button>
-</div></div>);
-}
+/* FINANZEN */
+function AddExp({onBack}){const[am,setAm]=useState("");const[ca,setCa]=useState("food");const[no,setNo]=useState("");
+function sv(){if(!am)return;var e=SG("expenses",[]);e.unshift({id:Date.now(),amount:parseFloat(am),category:ca,note:no,date:new Date().toISOString().split("T")[0]});SS("expenses",e);onBack();}
+return(<SubPage title="Ausgabe erfassen" onBack={onBack}><div style={{marginBottom:14}}><div style={{color:"#6a6474",fontSize:12,marginBottom:6}}>Betrag</div><div style={{position:"relative"}}><span style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",color:"#d4a056",fontSize:18,fontWeight:700}}>{"\u20AC"}</span><input type="number" value={am} onChange={function(e){setAm(e.target.value);}} placeholder="0.00" inputMode="decimal" style={{width:"100%",padding:"14px 14px 14px 32px",borderRadius:10,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:22,fontWeight:700,outline:"none"}}/></div></div>
+<div style={{color:"#6a6474",fontSize:12,marginBottom:8}}>Kategorie</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:14}}>{CATS.map(function(c){return(<button key={c.id} onClick={function(){setCa(c.id);}} style={{padding:"10px 12px",borderRadius:10,border:ca===c.id?"2px solid "+c.color:"1px solid rgba(255,255,255,0.06)",background:ca===c.id?c.color+"15":"rgba(255,255,255,0.03)",cursor:"pointer",display:"flex",alignItems:"center",gap:8,color:"#e0d8cc",fontSize:13}}><span>{c.icon}</span>{c.label}</button>);})}</div>
+<input value={no} onChange={function(e){setNo(e.target.value);}} placeholder="Notiz" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:14}}/><Btn primary onClick={sv} disabled={!am} style={{width:"100%"}}>Speichern</Btn></SubPage>);}
+function Goals({onBack}){const[goals,setGoals]=useState(function(){return SG("savgoals",[]);});const[sh,setSh]=useState(false);const[n,setN]=useState("");const[t,setT]=useState("");
+function ag(){if(!n||!t)return;var u=goals.concat([{id:Date.now(),name:n,target:parseFloat(t),current:0}]);setGoals(u);SS("savgoals",u);setN("");setT("");setSh(false);}
+function ug(id,v){var u=goals.map(function(g){return g.id===id?Object.assign({},g,{current:Math.max(0,v)}):g;});setGoals(u);SS("savgoals",u);}
+function rg(id){var u=goals.filter(function(g){return g.id!==id;});setGoals(u);SS("savgoals",u);}
+return(<SubPage title="Sparziele" onBack={onBack}>{goals.map(function(g){var p=Math.min(100,g.current/g.target*100);return(<Card key={g.id} style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><span style={{color:"#e8e0d4",fontWeight:600,fontSize:15}}>{g.name}</span><button onClick={function(){rg(g.id);}} style={{background:"none",border:"none",color:"#4a4454",cursor:"pointer"}}>{"\u{1F5D1}"}</button></div><div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><span style={{color:"#d4a056",fontWeight:700,fontSize:18}}>{"\u20AC"}{g.current.toFixed(0)}</span><span style={{color:"#6a6474",fontSize:13}}>von {"\u20AC"}{g.target.toFixed(0)} ({p.toFixed(0)}%)</span></div><div style={{height:10,borderRadius:5,background:"rgba(255,255,255,0.06)",marginBottom:8}}><div style={{height:"100%",borderRadius:5,background:p>=100?"#4ade80":"linear-gradient(90deg,#d4a056,#b8860b)",width:p+"%",transition:"width 0.5s"}}/></div><div style={{display:"flex",gap:6}}>{[10,50,100].map(function(v){return <Btn key={v} small onClick={function(){ug(g.id,g.current+v);}}>+{"\u20AC"}{v}</Btn>;})}</div></Card>);})}
+{!sh?<Btn onClick={function(){setSh(true);}} style={{width:"100%"}}>+ Neues Sparziel</Btn>:<Card><input value={n} onChange={function(e){setN(e.target.value);}} placeholder="Name" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8}}/><input type="number" value={t} onChange={function(e){setT(e.target.value);}} placeholder="Zielbetrag" style={{width:"100%",padding:10,borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",marginBottom:8}}/><div style={{display:"flex",gap:8}}><Btn primary onClick={ag}>Anlegen</Btn><Btn onClick={function(){setSh(false);}}>Abbrechen</Btn></div></Card>}</SubPage>);}
+function FinanzenPage(){const[sub,setSub]=useState(null);var exps=SG("expenses",[]);var tot=exps.filter(function(e){return e.date&&e.date.startsWith(new Date().toISOString().slice(0,7));}).reduce(function(s,e){return s+(e.amount||0);},0);
+if(sub==="rc")return <ReceiptScan onBack={function(){setSub(null);}}/>;
+if(sub==="ad")return <AddExp onBack={function(){setSub(null);}}/>;
+if(sub==="go")return <Goals onBack={function(){setSub(null);}}/>;
+return(<div style={{padding:16,display:"flex",flexDirection:"column",gap:12}}><h2 style={{fontFamily:"'DM Serif Display',Georgia,serif",color:"#f0e6d3",fontSize:22,margin:"0 0 4px"}}>Finanzen</h2>
+<Card><div style={{color:"#6a6474",fontSize:12,marginBottom:4}}>Diesen Monat</div><div style={{color:"#f0e6d3",fontSize:32,fontWeight:700}}>{"\u20AC"}{tot.toFixed(2)}</div></Card>
+<MC icon={"\u{1F4F7}"} bg="rgba(74,222,128,0.15)" title="Rechnung scannen" desc="Auto-Scan mit Produkterkennung" onClick={function(){setSub("rc");}}/>
+<MC icon="+" bg="rgba(96,165,250,0.15)" title="Manuell eintragen" desc="Betrag & Kategorie" onClick={function(){setSub("ad");}}/>
+<MC icon={"\u{1F3AF}"} bg="rgba(167,139,250,0.15)" title="Sparziele" desc="Fortschritt tracken" onClick={function(){setSub("go");}}/></div>);}
 
-/* ── APP ── */
+/* CHAT */
+function ChatPage(){const[msgs,setMsgs]=useState([]);const[inp,setInp]=useState("");const[ld,setLd]=useState(false);const ref=useRef(null);
+useEffect(function(){if(ref.current)ref.current.scrollTo({top:ref.current.scrollHeight,behavior:"smooth"});},[msgs,ld]);
+async function send(){if(!inp.trim()||ld)return;var t=inp.trim();setInp("");var nm=msgs.concat([{role:"user",content:t}]);setMsgs(nm);setLd(true);try{var r=await callC(nm.map(function(m){return{role:m.role,content:m.content};}),PR.chat);setMsgs(nm.concat([{role:"assistant",content:r}]));}catch(e){setMsgs(nm.concat([{role:"assistant",content:"\u26A0\uFE0F "+e.message}]));}setLd(false);}
+return(<div style={{display:"flex",flexDirection:"column",height:"100%"}}><div ref={ref} style={{flex:1,overflowY:"auto",padding:"16px 16px 8px"}}>{msgs.length===0&&<p style={{color:"#4a4454",textAlign:"center",marginTop:40,fontSize:14}}>Starte ein Gespraech...</p>}{msgs.map(function(m,i){var u=m.role==="user";return(<div key={i} style={{display:"flex",justifyContent:u?"flex-end":"flex-start",marginBottom:10}}><div style={{maxWidth:"82%",padding:"12px 16px",borderRadius:16,fontSize:14,lineHeight:1.55,whiteSpace:"pre-wrap",wordBreak:"break-word",background:u?"linear-gradient(135deg,#d4a056,#b8860b)":"rgba(255,255,255,0.05)",color:u?"#0a0a0f":"#e0d8cc",borderBottomRightRadius:u?4:16,borderBottomLeftRadius:u?16:4}}>{m.content}</div></div>);})}{ld&&<div style={{display:"flex",marginBottom:10}}><div style={{padding:"12px 16px",borderRadius:16,borderBottomLeftRadius:4,background:"rgba(255,255,255,0.05)",color:"#d4a056"}}>{"\u25CF\u25CF\u25CF"}</div></div>}</div>
+<div style={{padding:"10px 16px",borderTop:"1px solid rgba(255,255,255,0.05)",display:"flex",gap:10,alignItems:"flex-end",flexShrink:0,paddingBottom:"max(10px,env(safe-area-inset-bottom))"}}><textarea value={inp} onChange={function(e){setInp(e.target.value);e.target.style.height="auto";e.target.style.height=Math.min(e.target.scrollHeight,100)+"px";}} onKeyDown={function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} placeholder="Nachricht..." rows={1} style={{flex:1,padding:"10px 14px",borderRadius:12,resize:"none",border:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.3)",color:"#f0e6d3",fontSize:14,outline:"none",minHeight:40,maxHeight:100}}/><button onClick={send} disabled={!inp.trim()||ld} style={{width:40,height:40,borderRadius:12,border:"none",cursor:"pointer",background:inp.trim()?"linear-gradient(135deg,#d4a056,#b8860b)":"rgba(255,255,255,0.06)",color:inp.trim()?"#0a0a0f":"#4a4454",fontSize:18,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>{"\u2191"}</button></div></div>);}
+
+/* APP */
 function App(){
-const[apiKey,setApiKey]=useState(function(){return localStorage.getItem(KEY_STORE)||"";});
+const[apiKey,setApiKey]=useState(function(){return localStorage.getItem(KS)||"";});
 const[tab,setTab]=useState("home");
-function logout(){if(confirm("API-Key löschen?")){localStorage.removeItem(KEY_STORE);setApiKey("");}}
 if(!apiKey)return <SetupScreen onSave={setApiKey}/>;
-var page=null;
-if(tab==="home")page=<HomePage/>;
-else if(tab==="recht")page=<RechtPage/>;
-else if(tab==="fitness")page=<FitnessPage/>;
-else if(tab==="finanzen")page=<FinanzenPage/>;
-else if(tab==="chat")page=<ChatPage/>;
-else page=<HomePage/>;
+var pg=null;if(tab==="home")pg=<HomePage/>;else if(tab==="recht")pg=<RechtPage/>;else if(tab==="fitness")pg=<FitnessPage/>;else if(tab==="finanzen")pg=<FinanzenPage/>;else if(tab==="chat")pg=<ChatPage/>;else pg=<HomePage/>;
 return(<div style={{height:"100dvh",display:"flex",flexDirection:"column",background:"linear-gradient(170deg,#0a0a0f 0%,#141420 50%,#1a1410 100%)",fontFamily:"'DM Sans',sans-serif"}}>
-<div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
-<div style={{flex:1,overflowY:"auto",paddingTop:"env(safe-area-inset-top)"}}>{page}</div>
-</div>
+<div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}><div style={{flex:1,overflowY:"auto",paddingTop:"env(safe-area-inset-top)"}}>{pg}</div></div>
 <div style={{display:"flex",borderTop:"1px solid rgba(255,255,255,0.06)",background:"rgba(10,10,15,0.95)",backdropFilter:"blur(20px)",flexShrink:0,paddingBottom:"env(safe-area-inset-bottom)"}}>
-{TABS.map(function(t){var active=tab===t.id;return(<button key={t.id} onClick={function(){setTab(t.id);}} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"8px 0 5px",border:"none",cursor:"pointer",background:"none",color:active?"#d4a056":"#4a4454",transition:"color 0.2s"}}><span style={{fontSize:20}}>{t.icon}</span><span style={{fontSize:10,fontWeight:active?600:400}}>{t.label}</span></button>);})}
-</div>
-</div>);
-}
+{TABS.map(function(t){var a=tab===t.id;return(<button key={t.id} onClick={function(){setTab(t.id);}} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"8px 0 5px",border:"none",cursor:"pointer",background:"none",color:a?"#d4a056":"#4a4454",transition:"color 0.2s"}}><span style={{fontSize:20}}>{t.icon}</span><span style={{fontSize:10,fontWeight:a?600:400}}>{t.label}</span></button>);})}</div>
+</div>);}
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
