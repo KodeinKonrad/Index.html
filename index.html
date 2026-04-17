@@ -62,7 +62,8 @@ const PR = {
   fit: "Personal Trainer. Pläne für Rudergerät, Ergometer, Bodyweight. Zuhause, flexibel. Deutsch.",
   receipt: "Du bist Rechnungsanalyst. Extrahiere den GESCHÄFTSNAMEN und ALLE Einzelpositionen. WICHTIG: Beachte STÜCKZAHLEN! '3x Joghurt 0.99' = Betrag 2.97. 'Menge: 2' = multipliziere Einzelpreis. Achte auf STK, x, Menge, Anz. Antworte NUR mit JSON-Objekt: {\"store\":\"Geschäftsname\",\"items\":[{\"produkt\":\"Name\",\"menge\":3,\"einzelpreis\":0.99,\"betrag\":2.97,\"kategorie\":\"Lebensmittel\"}]}. Kategorien: Lebensmittel, Getränke, Haushalt, Drogerie, Transport, Gastronomie, Abos, Kleidung, Gesundheit, Sonstiges. SUMME/TOTAL NICHT listen. Nur JSON.",
   catCSV: "Kategorisiere diese Banktransaktionen. NUR JSON-Array. Bei NEGATIVEN Beträgen = Ausgabe. Bei POSITIVEN = Einnahme. Ausgaben-Kategorien: food,drinks,household,drugstore,transport,gastro,subscriptions,clothing,health,other. Einnahmen-Kategorien: salary,side,other_in. Format: [{\"desc\":\"...\",\"amount\":12.5,\"date\":\"2026-01-15\",\"category\":\"food\",\"type\":\"expense\"}] oder type:\"income\". Gehalt/Lohn=salary. Supermarkt=food. Restaurant/Cafe=gastro. Tankstelle/ÖBB=transport. DM/Bipa=drugstore. Apotheke=health. Netflix/Spotify=subscriptions. Nur JSON.",
-  noteTag: "Du bekommst eine Notiz. Analysiere den Inhalt und antworte NUR mit JSON: {\"title\":\"Kurztitel max 5 Worte\",\"category\":\"passende Kategorie\",\"tags\":[\"tag1\",\"tag2\"],\"type\":\"notiz|todo|idee|merker\"}. Wähle Kategorie frei passend zum Inhalt (z.B. Arbeit, Privat, Finanzen, Gesundheit, Ideen, Einkauf, Recht). Nur JSON.",
+  noteTag: "Du bekommst eine Notiz. Analysiere den Inhalt und antworte NUR mit JSON: {\"title\":\"Kurztitel max 5 Worte\",\"category\":\"passende Kategorie\",\"tags\":[\"tag1\",\"tag2\"],\"type\":\"notiz|todo|idee|merker\"}. Wähle Kategorie frei passend zum Inhalt. Nur JSON.",
+  noteAnalyze: "Analysiere diesen Text und extrahiere strukturierte Aktionen. Antworte NUR mit JSON. Heute ist DATUM_HEUTE. Felder: {\"todos\":[{\"text\":\"Aufgabe\",\"date\":\"YYYY-MM-DD oder leer\",\"time\":\"HH:MM oder leer\",\"priority\":\"high|medium|low\"}],\"shopping\":[{\"name\":\"Artikel\",\"qty\":1}],\"note\":{\"save\":true,\"title\":\"Kurztitel\",\"category\":\"Kategorie\"},\"summary\":\"Was wurde erkannt\"}. Montag/Dienstag etc = nächster Wochentag. Bei Arzttermin priority=high. Wenn kein Todo: todos:[]. Wenn kein Einkauf: shopping:[]. Nur JSON.",
 };
 const N8N = "";
 function SG(k, fb) { try { var v = localStorage.getItem("cd_" + k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } }
@@ -448,77 +449,176 @@ function NotizenPage() {
   var [loading, setLoading] = useState(false);
   var [filter, setFilter] = useState("all");
   var [selNote, setSelNote] = useState(null);
+  var [suggestions, setSuggestions] = useState(null); // null = input mode, object = suggestions mode
+  var [selTodos, setSelTodos] = useState([]);
+  var [selShop, setSelShop] = useState([]);
+  var [selNote2, setSelNote2] = useState(true);
   var recognitionRef = useRef(null);
 
   function startVoice() {
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) { alert("Spracheingabe wird von diesem Browser nicht unterstützt. Bitte tippe deine Notiz."); return; }
+    if (!SR) { alert("Spracheingabe wird von diesem Browser nicht unterstützt."); return; }
     var rec = new SR();
     rec.lang = "de-DE"; rec.continuous = false; rec.interimResults = true;
     rec.onresult = function(e) { var t = ""; for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; setInput(t); };
-    rec.onerror = function(e) { console.log("Speech error:", e.error); setRecording(false); };
+    rec.onerror = function() { setRecording(false); };
     rec.onend = function() { setRecording(false); };
-    try { rec.start(); recognitionRef.current = rec; setRecording(true); } catch(e) { alert("Fehler beim Starten der Aufnahme: " + e.message); }
+    try { rec.start(); recognitionRef.current = rec; setRecording(true); } catch(e) { alert("Fehler: " + e.message); }
   }
   function stopVoice() { try { if (recognitionRef.current) { recognitionRef.current.stop(); recognitionRef.current = null; } } catch(e) {} setRecording(false); }
 
-  async function saveNote() {
+  async function analyze() {
     if (!input.trim()) return;
     setLoading(true);
-    var noteText = input.trim();
-    var meta = { title: noteText.slice(0, 30), category: "Allgemein", tags: [], type: "notiz" };
+    var today = new Date().toLocaleDateString("de-AT", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    var prompt = PR.noteAnalyze.replace("DATUM_HEUTE", today);
+    var result = { todos: [], shopping: [], note: { save: true, title: input.slice(0, 30), category: "Allgemein" }, summary: "" };
     try {
-      var res = await callC([{ role: "user", content: noteText }], PR.noteTag);
+      var res = await callC([{ role: "user", content: input.trim() }], prompt);
       var m = res.match(/\{[\s\S]*\}/);
-      if (m) meta = JSON.parse(m[0]);
+      if (m) result = JSON.parse(m[0]);
     } catch (e) {}
-    var newNote = { id: Date.now(), text: noteText, title: meta.title || noteText.slice(0, 30), category: meta.category || "Allgemein", tags: meta.tags || [], type: meta.type || "notiz", date: new Date().toISOString().split("T")[0], time: new Date().toLocaleTimeString("de-AT", { hour: "2-digit", minute: "2-digit" }) };
-    var u = [newNote].concat(notes);
-    setNotes(u); SS("notes", u); setInput(""); setLoading(false);
+    setSuggestions(result);
+    setSelTodos((result.todos || []).map(function(_, i) { return i; }));
+    setSelShop((result.shopping || []).map(function(_, i) { return i; }));
+    setSelNote2(result.note && result.note.save !== false);
+    setLoading(false);
+  }
+
+  function confirmSave() {
+    var today = new Date().toISOString().split("T")[0];
+    var time = new Date().toLocaleTimeString("de-AT", { hour: "2-digit", minute: "2-digit" });
+    // Save selected todos
+    if (selTodos.length > 0) {
+      var todos = SG("todos", []);
+      selTodos.forEach(function(i) {
+        var t = suggestions.todos[i];
+        var prioMap = { high: "high", medium: "medium", low: "low" };
+        todos.push({ id: Date.now() + i, name: t.text + (t.time ? " um " + t.time : ""), priority: prioMap[t.priority] || "medium", due: t.date || "", done: false, created: today });
+      });
+      SS("todos", todos);
+    }
+    // Save selected shopping items
+    if (selShop.length > 0) {
+      var shoplist = SG("shoplist", []);
+      selShop.forEach(function(i) {
+        var s = suggestions.shopping[i];
+        shoplist.push({ id: Date.now() + i + 100, name: s.name, qty: s.qty || 1, done: false });
+      });
+      SS("shoplist", shoplist);
+    }
+    // Save note
+    if (selNote2) {
+      var n2 = suggestions.note || {};
+      var newNote = { id: Date.now(), text: input.trim(), title: n2.title || input.slice(0, 30), category: n2.category || "Allgemein", tags: n2.tags || [], type: n2.type || "notiz", date: today, time: time };
+      var u = [newNote].concat(notes);
+      setNotes(u); SS("notes", u);
+    }
+    setSuggestions(null); setInput("");
   }
 
   function rmNote(id) { var u = notes.filter(function(n) { return n.id !== id; }); setNotes(u); SS("notes", u); setSelNote(null); }
-  function updateTag(noteId, newCat, newTags) { var u = notes.map(function(n) { return n.id === noteId ? Object.assign({}, n, { category: newCat, tags: newTags }) : n; }); setNotes(u); SS("notes", u); }
-
   var categories = ["all"].concat(Array.from(new Set(notes.map(function(n) { return n.category; }))));
   var filtered = filter === "all" ? notes : notes.filter(function(n) { return n.category === filter; });
   var typeIcons = { notiz: "📝", todo: "✅", idee: "💡", merker: "📌" };
 
+  function toggleIdx(arr, setArr, i) { setArr(arr.includes(i) ? arr.filter(function(x) { return x !== i; }) : arr.concat([i])); }
+
+  // Detail view
   if (selNote) {
     var n = notes.find(function(x) { return x.id === selNote; });
     if (!n) { setSelNote(null); return null; }
     return (<SubPage title={n.title} onBack={function() { setSelNote(null); }}>
       <div style={{ color: "#6a6474", fontSize: 12, marginBottom: 12 }}>{n.date} · {n.time} · {typeIcons[n.type] || "📝"} {n.type}</div>
       <Card style={{ marginBottom: 14 }}><p style={{ color: "#e0d8cc", fontSize: 15, lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap" }}>{n.text}</p></Card>
-      <div style={{ color: "#6a6474", fontSize: 12, marginBottom: 6 }}>Kategorie</div>
-      <input value={n.category} onChange={function(e) { updateTag(n.id, e.target.value, n.tags); }} style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 12 }} />
-      <div style={{ color: "#6a6474", fontSize: 12, marginBottom: 6 }}>Tags</div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>{(n.tags || []).map(function(t, i) { return <span key={i} style={{ background: "rgba(212,160,86,0.15)", color: "#d4a056", padding: "4px 10px", borderRadius: 8, fontSize: 12 }}>#{t}</span>; })}</div>
-      <Btn danger onClick={function() { rmNote(n.id); }} style={{ width: "100%" }}><span style={{fontSize:16}}>🗑</span>Notiz löschen</Btn>
+      <div style={{ color: "#6a6474", fontSize: 12, marginBottom: 6 }}>Kategorie: <span style={{ color: "#d4a056" }}>{n.category}</span></div>
+      {(n.tags || []).length > 0 && <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>{n.tags.map(function(t, i) { return <span key={i} style={{ background: "rgba(212,160,86,0.1)", color: "#d4a056", padding: "4px 10px", borderRadius: 8, fontSize: 12 }}>#{t}</span>; })}</div>}
+      <Btn danger onClick={function() { rmNote(n.id); }} style={{ width: "100%", marginTop: 8 }}>🗑 Notiz löschen</Btn>
     </SubPage>);
   }
 
+  // Suggestions view
+  if (suggestions) {
+    var hasTodos = (suggestions.todos || []).length > 0;
+    var hasShop = (suggestions.shopping || []).length > 0;
+    var prioColors = { high: "#ef4444", medium: "#f59e0b", low: "#4ade80" };
+    var prioLabel = { high: "Hoch", medium: "Mittel", low: "Niedrig" };
+    return (<div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
+        <button onClick={function() { setSuggestions(null); }} style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#d4a056", width: 34, height: 34, borderRadius: 10, cursor: "pointer", fontSize: 18 }}>‹</button>
+        <span style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 18 }}>KI-Vorschläge</span>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
+        <Card style={{ marginBottom: 14, borderColor: "rgba(212,160,86,0.2)" }}>
+          <div style={{ color: "#6a6474", fontSize: 11, marginBottom: 4 }}>Original</div>
+          <p style={{ color: "#c8c0b4", fontSize: 13, margin: 0, fontStyle: "italic" }}>{input}</p>
+        </Card>
+        {suggestions.summary ? <p style={{ color: "#4ade80", fontSize: 13, marginBottom: 14 }}>✓ {suggestions.summary}</p> : null}
+
+        {/* TODOS */}
+        {hasTodos && <div style={{ marginBottom: 16 }}>
+          <div style={{ color: "#e8e0d4", fontWeight: 600, fontSize: 15, marginBottom: 8 }}>✅ Todo-Liste</div>
+          {suggestions.todos.map(function(t, i) {
+            var sel = selTodos.includes(i);
+            return (<div key={i} onClick={function() { toggleIdx(selTodos, setSelTodos, i); }} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "12px", borderRadius: 10, marginBottom: 6, background: sel ? "rgba(74,222,128,0.08)" : "rgba(255,255,255,0.03)", border: sel ? "2px solid #4ade80" : "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}>
+              <div style={{ width: 22, height: 22, borderRadius: 6, border: sel ? "none" : "2px solid rgba(255,255,255,0.2)", background: sel ? "#4ade80" : "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>{sel && <span style={{ color: "#0a0a0f", fontSize: 14 }}>✓</span>}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: "#e0d8cc", fontSize: 14, fontWeight: 500 }}>{t.text}</div>
+                <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                  {t.date && <span style={{ color: "#6a6474", fontSize: 11 }}>📅 {t.date}</span>}
+                  {t.time && <span style={{ color: "#6a6474", fontSize: 11 }}>🕐 {t.time}</span>}
+                  {t.priority && <span style={{ color: prioColors[t.priority] || "#f59e0b", fontSize: 11 }}>{prioLabel[t.priority] || "Mittel"}</span>}
+                </div>
+              </div>
+            </div>);
+          })}
+        </div>}
+
+        {/* SHOPPING */}
+        {hasShop && <div style={{ marginBottom: 16 }}>
+          <div style={{ color: "#e8e0d4", fontWeight: 600, fontSize: 15, marginBottom: 8 }}>🛒 Einkaufsliste</div>
+          {suggestions.shopping.map(function(s, i) {
+            var sel = selShop.includes(i);
+            return (<div key={i} onClick={function() { toggleIdx(selShop, setSelShop, i); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px", borderRadius: 10, marginBottom: 6, background: sel ? "rgba(74,222,128,0.08)" : "rgba(255,255,255,0.03)", border: sel ? "2px solid #4ade80" : "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}>
+              <div style={{ width: 22, height: 22, borderRadius: 6, border: sel ? "none" : "2px solid rgba(255,255,255,0.2)", background: sel ? "#4ade80" : "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{sel && <span style={{ color: "#0a0a0f", fontSize: 14 }}>✓</span>}</div>
+              <span style={{ color: "#e0d8cc", fontSize: 14 }}>{s.qty > 1 ? s.qty + "x " : ""}{s.name}</span>
+            </div>);
+          })}
+        </div>}
+
+        {/* NOTE */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ color: "#e8e0d4", fontWeight: 600, fontSize: 15, marginBottom: 8 }}>📝 Als Notiz speichern</div>
+          <div onClick={function() { setSelNote2(!selNote2); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px", borderRadius: 10, background: selNote2 ? "rgba(212,160,86,0.08)" : "rgba(255,255,255,0.03)", border: selNote2 ? "2px solid #d4a056" : "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}>
+            <div style={{ width: 22, height: 22, borderRadius: 6, border: selNote2 ? "none" : "2px solid rgba(255,255,255,0.2)", background: selNote2 ? "#d4a056" : "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{selNote2 && <span style={{ color: "#0a0a0f", fontSize: 14 }}>✓</span>}</div>
+            <div><div style={{ color: "#e0d8cc", fontSize: 14 }}>{(suggestions.note && suggestions.note.title) || input.slice(0, 40)}</div><div style={{ color: "#6a6474", fontSize: 11, marginTop: 2 }}>{(suggestions.note && suggestions.note.category) || "Allgemein"}</div></div>
+          </div>
+        </div>
+
+        {!hasTodos && !hasShop && <p style={{ color: "#6a6474", fontSize: 13, textAlign: "center" }}>Keine Todos oder Einkäufe erkannt — wird als Notiz gespeichert.</p>}
+      </div>
+      <div style={{ padding: 16, borderTop: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
+        <Btn primary onClick={confirmSave} style={{ width: "100%", padding: 16, fontSize: 16 }}>
+          ✓ Auswahl speichern ({selTodos.length + selShop.length + (selNote2 ? 1 : 0)} Einträge)
+        </Btn>
+      </div>
+    </div>);
+  }
+
+  // Input view
   return (<div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
     <div style={{ padding: 16, flexShrink: 0 }}>
       <h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 22, margin: "0 0 12px" }}>Notizen</h2>
       <Card style={{ marginBottom: 12 }}>
-        <textarea value={input} onChange={function(e) { setInput(e.target.value); }} placeholder="Notiz eingeben oder diktieren..." rows={3} style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", resize: "vertical", minHeight: 60 }} />
+        <textarea value={input} onChange={function(e) { setInput(e.target.value); }} placeholder="Notiz eingeben oder diktieren..." rows={3} style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", resize: "vertical", minHeight: 80 }} />
         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          {!recording ? (
-            <button onClick={startVoice} style={{ width: 44, height: 44, borderRadius: 12, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.06)", color: "#c8c0b4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🎤</button>
-          ) : null}
-          <Btn primary onClick={saveNote} disabled={!input.trim() || loading || recording} style={{ flex: 1 }}>{loading ? "Claude taggt..." : "Speichern"}</Btn>
+          {!recording && <button onClick={startVoice} style={{ width: 44, height: 44, borderRadius: 12, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.06)", color: "#c8c0b4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🎤</button>}
+          <Btn primary onClick={analyze} disabled={!input.trim() || loading || recording} style={{ flex: 1 }}>{loading ? "KI analysiert..." : "🧠 Analysieren & Speichern"}</Btn>
         </div>
-        {recording && (
-          <button onClick={stopVoice} style={{ width: "100%", marginTop: 10, padding: "14px", borderRadius: 12, border: "3px solid #ef4444", background: "rgba(239,68,68,0.15)", color: "#ef4444", cursor: "pointer", fontWeight: 700, fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, animation: "blink 1.5s infinite" }}>
-            <span style={{ fontSize: 20 }}>⏹</span> AUFNAHME STOPPEN
-          </button>
-        )}
+        {recording && <button onClick={stopVoice} style={{ width: "100%", marginTop: 10, padding: "14px", borderRadius: 12, border: "3px solid #ef4444", background: "rgba(239,68,68,0.15)", color: "#ef4444", cursor: "pointer", fontWeight: 700, fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, animation: "blink 1.5s infinite" }}><span style={{ fontSize: 20 }}>⏹</span> AUFNAHME STOPPEN</button>}
       </Card>
-
       {categories.length > 2 && <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8 }}>{categories.map(function(c) { return <Btn key={c} small primary={filter === c} onClick={function() { setFilter(c); }}>{c === "all" ? "Alle" : c}</Btn>; })}</div>}
     </div>
-
     <div style={{ flex: 1, overflowY: "auto", padding: "0 16px 16px" }}>
       {filtered.map(function(n) { return (<Card key={n.id} onClick={function() { setSelNote(n.id); }} style={{ cursor: "pointer", marginBottom: 8, padding: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
