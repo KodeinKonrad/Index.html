@@ -170,7 +170,7 @@ function HomePage({ setTab }) {
 
     {budget > 0 && budgetPct >= 80 && (
       <Card style={{ borderColor: budgetPct >= 100 ? "rgba(239,68,68,0.3)" : "rgba(245,158,11,0.3)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}><AlertTriangle size={16} color={budgetPct >= 100 ? "#ef4444" : "#f59e0b"} /><span style={{ color: budgetPct >= 100 ? "#ef4444" : "#f59e0b", fontWeight: 600, fontSize: 14 }}>{budgetPct >= 100 ? "Budget überschritten!" : "Budget-Warnung: " + budgetPct + "% erreicht"}</span></div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{fontSize:16,color:budgetPct >= 100 ? "#ef4444" : "#f59e0b"}}>⚠️</span><span style={{ color: budgetPct >= 100 ? "#ef4444" : "#f59e0b", fontWeight: 600, fontSize: 14 }}>{budgetPct >= 100 ? "Budget überschritten!" : "Budget-Warnung: " + budgetPct + "% erreicht"}</span></div>
         <div style={{ height: 6, borderRadius: 3, background: "rgba(255,255,255,0.06)", marginTop: 8 }}><div style={{ height: "100%", borderRadius: 3, background: budgetPct >= 100 ? "#ef4444" : "#f59e0b", width: Math.min(100, budgetPct) + "%" }} /></div>
         <div style={{ color: "#6a6474", fontSize: 12, marginTop: 4 }}>€{totExp.toFixed(0)} von €{budget} Budget</div>
       </Card>
