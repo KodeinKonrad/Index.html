@@ -187,11 +187,33 @@ function WeatherWidget() {
 
   async function fetchWeather(lat, lon) {
     try {
-      var url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=temperature_2m,weather_code&timezone=auto";
+      var url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&forecast_days=2&timezone=auto";
       var r = await fetch(url);
       var d = await r.json();
       if (d.current) {
-        var nw = { temp: Math.round(d.current.temperature_2m), code: d.current.weather_code, fetched: Date.now() };
+        // Build 12h forecast at 2h intervals starting from next 2h
+        var hourly = [];
+        if (d.hourly && d.hourly.time) {
+          var now = new Date();
+          var startIdx = -1;
+          for (var i = 0; i < d.hourly.time.length; i++) {
+            var t = new Date(d.hourly.time[i]);
+            if (t.getTime() > now.getTime()) { startIdx = i; break; }
+          }
+          if (startIdx >= 0) {
+            for (var j = 0; j < 6; j++) {
+              var idx = startIdx + j * 2;
+              if (idx >= d.hourly.time.length) break;
+              var ht = new Date(d.hourly.time[idx]);
+              hourly.push({
+                hour: ht.getHours(),
+                temp: Math.round(d.hourly.temperature_2m[idx]),
+                code: d.hourly.weather_code[idx]
+              });
+            }
+          }
+        }
+        var nw = { temp: Math.round(d.current.temperature_2m), code: d.current.weather_code, hourly: hourly, fetched: Date.now() };
         setW(nw); SS("weather", nw);
       }
     } catch (e) { setErr("Wetter-Abruf fehlgeschlagen"); }
@@ -222,6 +244,11 @@ function WeatherWidget() {
     );
   }
 
+  function openZamg() {
+    // GeoSphere Austria (ehemals ZAMG) - Wetter heute
+    window.open("https://www.geosphere.at/de/wetter/oesterreich", "_blank", "noopener,noreferrer");
+  }
+
   useEffect(function() {
     var stale = !w || (Date.now() - (w.fetched || 0)) > 30 * 60 * 1000; // 30 min cache
     if (stale) loadLocation();
@@ -231,16 +258,39 @@ function WeatherWidget() {
   if (!w) return (<div style={{ padding: 20, textAlign: "center", color: "#6a6474", fontSize: 13 }}>Lade Wetter...</div>);
 
   var info = codeToIcon(w.code);
+  var hourly = w.hourly || [];
   return (
-    <div style={{ position: "relative", padding: "20px 16px", textAlign: "center" }}>
-      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 180, height: 180, borderRadius: "50%", background: info.glow, filter: "blur(40px)", pointerEvents: "none" }} />
-      <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
-        <div style={{ fontSize: 56, lineHeight: 1, filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.4))" }}>{info.icon}</div>
-        <div style={{ textAlign: "left" }}>
-          <div style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 42, lineHeight: 1, fontWeight: 400 }}>{w.temp}°</div>
-          <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, marginTop: 4 }}>{info.desc}{loc ? " · " + loc : ""}</div>
+    <div style={{ position: "relative" }}>
+      <div style={{ position: "absolute", top: 60, left: "50%", transform: "translateX(-50%)", width: 180, height: 180, borderRadius: "50%", background: info.glow, filter: "blur(40px)", pointerEvents: "none" }} />
+      {/* Current weather - clickable */}
+      <div onClick={openZamg} style={{ position: "relative", padding: "20px 16px 14px", textAlign: "center", cursor: "pointer" }} title="Auf GeoSphere Austria öffnen">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
+          <div style={{ fontSize: 56, lineHeight: 1, filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.4))" }}>{info.icon}</div>
+          <div style={{ textAlign: "left" }}>
+            <div style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 42, lineHeight: 1, fontWeight: 400 }}>{w.temp}°</div>
+            <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, marginTop: 4 }}>{info.desc}{loc ? " · " + loc : ""}</div>
+          </div>
         </div>
+        <div style={{ color: "rgba(212,160,86,0.6)", fontSize: 10, marginTop: 8, textTransform: "uppercase", letterSpacing: "0.1em" }}>Tippen für Details auf geosphere.at ↗</div>
       </div>
+      {/* Hourly forecast (next 12h in 2h steps) */}
+      {hourly.length > 0 && (
+        <div style={{ position: "relative", borderTop: "1px solid rgba(255,255,255,0.06)", padding: "12px 6px 14px" }}>
+          <div style={{ color: "rgba(212,160,86,0.7)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 600, marginBottom: 8, paddingLeft: 10 }}>Nächste 12 Stunden</div>
+          <div style={{ display: "flex", justifyContent: "space-around", gap: 4 }}>
+            {hourly.map(function(h, i) {
+              var hi = codeToIcon(h.code);
+              return (
+                <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "6px 2px", borderRadius: 8, background: "rgba(255,255,255,0.02)" }}>
+                  <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 11, fontWeight: 600 }}>{String(h.hour).padStart(2, "0")}:00</div>
+                  <div style={{ fontSize: 20, lineHeight: 1 }}>{hi.icon}</div>
+                  <div style={{ color: "#f0e6d3", fontSize: 13, fontWeight: 600 }}>{h.temp}°</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -260,7 +310,7 @@ function HomePage({ setTab }) {
   var budgetPct = budget > 0 ? Math.round(totExp / budget * 100) : 0;
   function dt(d) { return Math.max(0, Math.ceil((new Date(d) - new Date()) / 86400000)); }
   function ac() { if (!cn || !cd) return; var u = cds.concat([{ id: Date.now(), name: cn, date: cd }]); setCds(u); SS("countdowns", u); setCn(""); setCd(""); setSa(false); }
-  function rc(id) { var u = cds.filter(function(c) { return c.id !== id; }); setCds(u); SS("countdowns", u); }
+  function rc(id) { if (!confirm("Countdown wirklich löschen?")) return; var u = cds.filter(function(c) { return c.id !== id; }); setCds(u); SS("countdowns", u); }
 
   return (
     <div style={{ position: "relative", minHeight: "100%" }}>
@@ -332,8 +382,8 @@ function HomePage({ setTab }) {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             <Card onClick={function() { setTab("finanzen"); }} style={{ cursor: "pointer", padding: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)" }}><div style={{ fontSize: 22, marginBottom: 6 }}>📷</div><div style={{ color: "#e0d8cc", fontSize: 13, fontWeight: 500 }}>Rechnung scannen</div></Card>
             <Card onClick={function() { setTab("listen"); }} style={{ cursor: "pointer", padding: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)" }}><div style={{ fontSize: 22, marginBottom: 6 }}>🛒</div><div style={{ color: "#e0d8cc", fontSize: 13, fontWeight: 500 }}>Einkaufsliste</div></Card>
-            <Card onClick={function() { setTab("notizen"); }} style={{ cursor: "pointer", padding: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)" }}><div style={{ fontSize: 22, marginBottom: 6 }}>🧠</div><div style={{ color: "#e0d8cc", fontSize: 13, fontWeight: 500 }}>Notiz erstellen</div></Card>
-            <Card onClick={function() { setTab("fitness"); }} style={{ cursor: "pointer", padding: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)" }}><div style={{ fontSize: 22, marginBottom: 6 }}>⏱</div><div style={{ color: "#e0d8cc", fontSize: 13, fontWeight: 500 }}>Timer starten</div></Card>
+            <Card onClick={function() { try { localStorage.setItem("cd_openTodoDirect", "1"); } catch(e) {} setTab("listen"); }} style={{ cursor: "pointer", padding: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)" }}><div style={{ fontSize: 22, marginBottom: 6 }}>✅</div><div style={{ color: "#e0d8cc", fontSize: 13, fontWeight: 500 }}>Todo-Liste</div></Card>
+            <Card onClick={function() { setTab("finanzen"); }} style={{ cursor: "pointer", padding: 14, background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)" }}><div style={{ fontSize: 22, marginBottom: 6 }}>📊</div><div style={{ color: "#e0d8cc", fontSize: 13, fontWeight: 500 }}>Monatsübersicht</div></Card>
           </div>
         </div>
       </div>
@@ -347,7 +397,7 @@ function RechtPage() { var [sub, setSub] = useState(null); if (sub === "l") retu
 
 // ─── FITNESS (same as before) ───
 function IntTimer({ onBack }) { var [ws, setWs] = useState(30); var [rs, setRs] = useState(15); var [rn, setRn] = useState(8); var [cr, setCr] = useState(0); var [tl, setTl] = useState(0); var [ph, setPh] = useState("idle"); var [ir, setIr] = useState(false); var tr = useRef(null); var ac = useRef(null); function beep(f, d) { try { if (!ac.current) ac.current = new (window.AudioContext || window.webkitAudioContext)(); var o = ac.current.createOscillator(); var g = ac.current.createGain(); o.connect(g); g.connect(ac.current.destination); o.frequency.value = f || 800; g.gain.value = 0.3; o.start(); o.stop(ac.current.currentTime + (d || 150) / 1000); } catch (e) {} } function st() { setCr(1); setPh("work"); setTl(ws); setIr(true); beep(800); } function rt() { setIr(false); setPh("idle"); setCr(0); setTl(0); } useEffect(function() { if (!ir) { clearInterval(tr.current); return; } tr.current = setInterval(function() { setTl(function(t) { if (t <= 1) { if (ph === "work") { if (cr >= rn) { setPh("done"); setIr(false); beep(400, 500); return 0; } setPh("rest"); beep(400); return rs; } else { setCr(function(r) { return r + 1; }); setPh("work"); beep(800); return ws; } } if (t <= 4) beep(600, 80); return t - 1; }); }, 1000); return function() { clearInterval(tr.current); }; }, [ir, ph, cr, rn, ws, rs]); var pct = ph === "work" && ws > 0 ? (1 - tl / ws) * 100 : ph === "rest" && rs > 0 ? (1 - tl / rs) * 100 : 0; var pc = ph === "work" ? "#4ade80" : ph === "rest" ? "#f59e0b" : "#6a6474"; function NI({ label, value, onChange, min, max, step }) { return (<div style={{ flex: 1, textAlign: "center" }}><div style={{ color: "#6a6474", fontSize: 11, marginBottom: 4 }}>{label}</div><div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><button onClick={function() { onChange(Math.max(min, value - step)); }} style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "#d4a056", fontSize: 16, cursor: "pointer" }}>−</button><span style={{ color: "#f0e6d3", fontSize: 18, fontWeight: 700, minWidth: 30 }}>{value}</span><button onClick={function() { onChange(Math.min(max, value + step)); }} style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "#d4a056", fontSize: 16, cursor: "pointer" }}>+</button></div></div>); } return (<SubPage title="Intervall-Timer" onBack={onBack}><div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}><div style={{ position: "relative", width: 200, height: 200 }}><svg width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" /><circle cx="100" cy="100" r="90" fill="none" stroke={pc} strokeWidth="8" strokeDasharray={String(2 * Math.PI * 90)} strokeDashoffset={String(2 * Math.PI * 90 * (1 - pct / 100))} strokeLinecap="round" transform="rotate(-90 100 100)" style={{ transition: "stroke-dashoffset 0.3s" }} /></svg><div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}><div style={{ fontSize: 42, fontWeight: 700, color: "#f0e6d3", fontFamily: "monospace" }}>{String(Math.floor(tl / 60)).padStart(2, "0")}:{String(tl % 60).padStart(2, "0")}</div><div style={{ fontSize: 13, color: pc, fontWeight: 600 }}>{ph === "idle" ? "BEREIT" : ph === "work" ? "ARBEIT" : ph === "rest" ? "PAUSE" : "FERTIG!"}</div>{ph !== "idle" && ph !== "done" && <div style={{ fontSize: 12, color: "#6a6474" }}>Runde {cr}/{rn}</div>}</div></div><div style={{ display: "flex", gap: 12 }}>{ph === "idle" ? <Btn primary onClick={st}><span style={{fontSize:16}}>▶</span>Start</Btn> : <div style={{ display: "flex", gap: 12 }}><Btn primary={ir} onClick={function() { setIr(!ir); }}>{ir ? <><span style={{fontSize:16}}>⏸</span>Pause</> : <><span style={{fontSize:16}}>▶</span>Weiter</>}</Btn><Btn onClick={rt}><span style={{fontSize:16}}>↻</span>Reset</Btn></div>}</div>{ph === "idle" && <Card style={{ width: "100%" }}><div style={{ display: "flex", gap: 8 }}><NI label="Arbeit (s)" value={ws} onChange={setWs} min={5} max={120} step={5} /><NI label="Pause (s)" value={rs} onChange={setRs} min={5} max={120} step={5} /><NI label="Runden" value={rn} onChange={setRn} min={1} max={30} step={1} /></div><div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}><Btn small onClick={function() { setWs(20); setRs(10); setRn(8); }}>Tabata</Btn><Btn small onClick={function() { setWs(30); setRs(30); setRn(10); }}>HIIT</Btn><Btn small onClick={function() { setWs(45); setRs(15); setRn(6); }}>Ruder</Btn></div></Card>}</div></SubPage>); }
-function TrainLog({ onBack }) { var [logs, setLogs] = useState(function() { return SG("trainlog", []); }); var [tp, setTp] = useState("Rudergerät"); var [dur, setDur] = useState("30"); var [nt, setNt] = useState(""); function add() { var u = [{ id: Date.now(), type: tp, duration: parseInt(dur) || 0, note: nt, date: new Date().toISOString().split("T")[0] }].concat(logs); setLogs(u); SS("trainlog", u); setNt(""); } function rm(id) { var u = logs.filter(function(l) { return l.id !== id; }); setLogs(u); SS("trainlog", u); } return (<SubPage title="Trainingslog" onBack={onBack}><Card><div style={{ display: "flex", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>{["Rudergerät", "Ergometer", "Bodyweight"].map(function(t) { return <Btn key={t} small primary={tp === t} onClick={function() { setTp(t); }}>{t}</Btn>; })}</div><div style={{ display: "flex", gap: 8, marginBottom: 8 }}><input type="number" value={dur} onChange={function(e) { setDur(e.target.value); }} style={{ flex: 1, padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none" }} /><span style={{ color: "#6a6474", alignSelf: "center", fontSize: 13 }}>Min</span></div><input value={nt} onChange={function(e) { setNt(e.target.value); }} placeholder="Notiz" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 8 }} /><Btn primary onClick={add} style={{ width: "100%" }}>Eintragen</Btn></Card><div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>{logs.slice(0, 15).map(function(l) { return (<Card key={l.id} style={{ padding: 12 }}><div style={{ display: "flex", justifyContent: "space-between" }}><div><span style={{ color: "#d4a056", fontSize: 13, fontWeight: 600 }}>{l.type}</span><span style={{ color: "#6a6474", fontSize: 12, marginLeft: 8 }}>{l.duration}min — {l.date}</span></div><button onClick={function() { rm(l.id); }} style={{ background: "none", border: "none", color: "#4a4454", cursor: "pointer" }}><span style={{fontSize:16}}>🗑</span></button></div></Card>); })}{logs.length === 0 && <p style={{ color: "#4a4454", fontSize: 13, textAlign: "center" }}>Noch keine Einträge</p>}</div></SubPage>); }
+function TrainLog({ onBack }) { var [logs, setLogs] = useState(function() { return SG("trainlog", []); }); var [tp, setTp] = useState("Rudergerät"); var [dur, setDur] = useState("30"); var [nt, setNt] = useState(""); function add() { var u = [{ id: Date.now(), type: tp, duration: parseInt(dur) || 0, note: nt, date: new Date().toISOString().split("T")[0] }].concat(logs); setLogs(u); SS("trainlog", u); setNt(""); } function rm(id) { var l = logs.find(function(x) { return x.id === id; }); if (l && !confirm("Eintrag \"" + l.type + " " + l.duration + "min\" wirklich löschen?")) return; var u = logs.filter(function(l) { return l.id !== id; }); setLogs(u); SS("trainlog", u); } return (<SubPage title="Trainingslog" onBack={onBack}><Card><div style={{ display: "flex", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>{["Rudergerät", "Ergometer", "Bodyweight"].map(function(t) { return <Btn key={t} small primary={tp === t} onClick={function() { setTp(t); }}>{t}</Btn>; })}</div><div style={{ display: "flex", gap: 8, marginBottom: 8 }}><input type="number" value={dur} onChange={function(e) { setDur(e.target.value); }} style={{ flex: 1, padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none" }} /><span style={{ color: "#6a6474", alignSelf: "center", fontSize: 13 }}>Min</span></div><input value={nt} onChange={function(e) { setNt(e.target.value); }} placeholder="Notiz" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 8 }} /><Btn primary onClick={add} style={{ width: "100%" }}>Eintragen</Btn></Card><div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>{logs.slice(0, 15).map(function(l) { return (<Card key={l.id} style={{ padding: 12 }}><div style={{ display: "flex", justifyContent: "space-between" }}><div><span style={{ color: "#d4a056", fontSize: 13, fontWeight: 600 }}>{l.type}</span><span style={{ color: "#6a6474", fontSize: 12, marginLeft: 8 }}>{l.duration}min — {l.date}</span></div><button onClick={function() { rm(l.id); }} style={{ background: "none", border: "none", color: "#4a4454", cursor: "pointer" }}><span style={{fontSize:16}}>🗑</span></button></div></Card>); })}{logs.length === 0 && <p style={{ color: "#4a4454", fontSize: 13, textAlign: "center" }}>Noch keine Einträge</p>}</div></SubPage>); }
 function YoutubeWorkouts({ onBack }) {
   var [videos, setVideos] = useState(function() { return SG("ytworkouts", []); });
   var [url, setUrl] = useState("");
@@ -377,7 +427,7 @@ function YoutubeWorkouts({ onBack }) {
     setVideos(u); SS("ytworkouts", u); setUrl(""); setLoading(false);
   }
 
-  function rmVideo(id) { var u = videos.filter(function(v) { return v.id !== id; }); setVideos(u); SS("ytworkouts", u); }
+  function rmVideo(id) { var v = videos.find(function(x) { return x.id === id; }); if (!confirm("Video \"" + (v ? v.title.slice(0,40) : "") + "\" wirklich entfernen?")) return; var u = videos.filter(function(v) { return v.id !== id; }); setVideos(u); SS("ytworkouts", u); }
   function clearAll() { if (confirm("Alle Videos löschen?")) { setVideos([]); SS("ytworkouts", []); } }
 
   return (<SubPage title="YouTube Workouts" onBack={onBack}>
@@ -616,7 +666,7 @@ function AddIncome({ onBack }) { var [am, setAm] = useState(""); var [ca, setCa]
 
 function BudgetSetting({ onBack }) { var [b, setB] = useState(function() { return String(SG("budget", 0)); }); function sv() { SS("budget", parseFloat(b) || 0); onBack(); } return (<SubPage title="Budget-Limit" onBack={onBack}><div style={{ color: "#6a6474", fontSize: 12, marginBottom: 6 }}>Monatliches Budget</div><div style={{ position: "relative" }}><span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#d4a056", fontSize: 18, fontWeight: 700 }}>€</span><input type="number" value={b} onChange={function(e) { setB(e.target.value); }} placeholder="z.B. 2000" inputMode="decimal" style={{ width: "100%", padding: "14px 14px 14px 32px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 22, fontWeight: 700, outline: "none" }} /></div><p style={{ color: "#6a6474", fontSize: 12, marginTop: 8 }}>Warnung erscheint bei 80%</p><Btn primary onClick={sv} style={{ width: "100%", marginTop: 16 }}>Speichern</Btn></SubPage>); }
 
-function Goals({ onBack }) { var [goals, setGoals] = useState(function() { return SG("savgoals", []); }); var [sh, setSh] = useState(false); var [n, setN] = useState(""); var [t, setT] = useState(""); function ag() { if (!n || !t) return; var u = goals.concat([{ id: Date.now(), name: n, target: parseFloat(t), current: 0 }]); setGoals(u); SS("savgoals", u); setN(""); setT(""); setSh(false); } function ug(id, v) { var u = goals.map(function(g) { return g.id === id ? Object.assign({}, g, { current: Math.max(0, v) }) : g; }); setGoals(u); SS("savgoals", u); } function rg(id) { var u = goals.filter(function(g) { return g.id !== id; }); setGoals(u); SS("savgoals", u); } return (<SubPage title="Sparziele" onBack={onBack}>{goals.map(function(g) { var p = Math.min(100, g.current / g.target * 100); return (<Card key={g.id} style={{ marginBottom: 12 }}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}><span style={{ color: "#e8e0d4", fontWeight: 600, fontSize: 15 }}>{g.name}</span><button onClick={function() { rg(g.id); }} style={{ background: "none", border: "none", color: "#4a4454", cursor: "pointer" }}><span style={{fontSize:16}}>🗑</span></button></div><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}><span style={{ color: "#d4a056", fontWeight: 700, fontSize: 18 }}>€{g.current.toFixed(0)}</span><span style={{ color: "#6a6474", fontSize: 13 }}>von €{g.target.toFixed(0)} ({p.toFixed(0)}%)</span></div><div style={{ height: 10, borderRadius: 5, background: "rgba(255,255,255,0.06)", marginBottom: 8 }}><div style={{ height: "100%", borderRadius: 5, background: p >= 100 ? "#4ade80" : "linear-gradient(90deg,#d4a056,#b8860b)", width: p + "%", transition: "width 0.5s" }} /></div><div style={{ display: "flex", gap: 6 }}>{[10, 50, 100].map(function(v) { return <Btn key={v} small onClick={function() { ug(g.id, g.current + v); }}>+€{v}</Btn>; })}</div></Card>); })}{!sh ? <Btn onClick={function() { setSh(true); }} style={{ width: "100%" }}><span style={{fontSize:16}}>+</span>Neues Sparziel</Btn> : <Card><input value={n} onChange={function(e) { setN(e.target.value); }} placeholder="Name" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 8 }} /><input type="number" value={t} onChange={function(e) { setT(e.target.value); }} placeholder="Zielbetrag €" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 8 }} /><div style={{ display: "flex", gap: 8 }}><Btn primary onClick={ag}>Anlegen</Btn><Btn onClick={function() { setSh(false); }}>Abbrechen</Btn></div></Card>}</SubPage>); }
+function Goals({ onBack }) { var [goals, setGoals] = useState(function() { return SG("savgoals", []); }); var [sh, setSh] = useState(false); var [n, setN] = useState(""); var [t, setT] = useState(""); function ag() { if (!n || !t) return; var u = goals.concat([{ id: Date.now(), name: n, target: parseFloat(t), current: 0 }]); setGoals(u); SS("savgoals", u); setN(""); setT(""); setSh(false); } function ug(id, v) { var u = goals.map(function(g) { return g.id === id ? Object.assign({}, g, { current: Math.max(0, v) }) : g; }); setGoals(u); SS("savgoals", u); } function rg(id) { var g = goals.find(function(x) { return x.id === id; }); if (!confirm("Sparziel \"" + (g ? g.name : "") + "\" wirklich löschen?")) return; var u = goals.filter(function(g) { return g.id !== id; }); setGoals(u); SS("savgoals", u); } return (<SubPage title="Sparziele" onBack={onBack}>{goals.map(function(g) { var p = Math.min(100, g.current / g.target * 100); return (<Card key={g.id} style={{ marginBottom: 12 }}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}><span style={{ color: "#e8e0d4", fontWeight: 600, fontSize: 15 }}>{g.name}</span><button onClick={function() { rg(g.id); }} style={{ background: "none", border: "none", color: "#4a4454", cursor: "pointer" }}><span style={{fontSize:16}}>🗑</span></button></div><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}><span style={{ color: "#d4a056", fontWeight: 700, fontSize: 18 }}>€{g.current.toFixed(0)}</span><span style={{ color: "#6a6474", fontSize: 13 }}>von €{g.target.toFixed(0)} ({p.toFixed(0)}%)</span></div><div style={{ height: 10, borderRadius: 5, background: "rgba(255,255,255,0.06)", marginBottom: 8 }}><div style={{ height: "100%", borderRadius: 5, background: p >= 100 ? "#4ade80" : "linear-gradient(90deg,#d4a056,#b8860b)", width: p + "%", transition: "width 0.5s" }} /></div><div style={{ display: "flex", gap: 6 }}>{[10, 50, 100].map(function(v) { return <Btn key={v} small onClick={function() { ug(g.id, g.current + v); }}>+€{v}</Btn>; })}</div></Card>); })}{!sh ? <Btn onClick={function() { setSh(true); }} style={{ width: "100%" }}><span style={{fontSize:16}}>+</span>Neues Sparziel</Btn> : <Card><input value={n} onChange={function(e) { setN(e.target.value); }} placeholder="Name" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 8 }} /><input type="number" value={t} onChange={function(e) { setT(e.target.value); }} placeholder="Zielbetrag €" style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 8 }} /><div style={{ display: "flex", gap: 8 }}><Btn primary onClick={ag}>Anlegen</Btn><Btn onClick={function() { setSh(false); }}>Abbrechen</Btn></div></Card>}</SubPage>); }
 
 function FinanzenPage() {
   var [sub, setSub] = useState(null);
@@ -647,10 +697,17 @@ function FinanzenPage() {
 function ShoppingList({ onBack }) {
   var [items, setItems] = useState(function() { return SG("shoplist", []); });
   var [name, setName] = useState(""); var [qty, setQty] = useState("1");
-  function add() { if (!name.trim()) return; var u = items.concat([{ id: Date.now(), name: name, qty: parseInt(qty) || 1, done: false }]); setItems(u); SS("shoplist", u); setName(""); setQty("1"); }
+  // Beim Öffnen: alle offenen Einträge als "gesehen" markieren (für Badge-Logik)
+  useEffect(function() {
+    var cur = SG("shoplist", []);
+    var changed = false;
+    var u = cur.map(function(i) { if (!i.seen) { changed = true; return Object.assign({}, i, { seen: true }); } return i; });
+    if (changed) { setItems(u); SS("shoplist", u); }
+  }, []);
+  function add() { if (!name.trim()) return; var u = items.concat([{ id: Date.now(), name: name, qty: parseInt(qty) || 1, done: false, seen: true }]); setItems(u); SS("shoplist", u); setName(""); setQty("1"); }
   function toggle(id) { var u = items.map(function(i) { return i.id === id ? Object.assign({}, i, { done: !i.done }) : i; }); setItems(u); SS("shoplist", u); }
-  function rm(id) { var u = items.filter(function(i) { return i.id !== id; }); setItems(u); SS("shoplist", u); }
-  function clearDone() { var u = items.filter(function(i) { return !i.done; }); setItems(u); SS("shoplist", u); }
+  function rm(id) { var it = items.find(function(i) { return i.id === id; }); if (it && !confirm("Eintrag \"" + (it.qty > 1 ? it.qty + "x " : "") + it.name + "\" wirklich löschen?")) return; var u = items.filter(function(i) { return i.id !== id; }); setItems(u); SS("shoplist", u); }
+  function clearDone() { if (!confirm("Alle erledigten Einträge löschen?")) return; var u = items.filter(function(i) { return !i.done; }); setItems(u); SS("shoplist", u); }
   function clearAll() { if (confirm("Gesamte Liste löschen?")) { setItems([]); SS("shoplist", []); } }
   var pending = items.filter(function(i) { return !i.done; }); var done = items.filter(function(i) { return i.done; });
   return (<SubPage title="Einkaufsliste" onBack={onBack}>
@@ -670,16 +727,82 @@ function ShoppingList({ onBack }) {
 function TodoList({ onBack }) {
   var [todos, setTodos] = useState(function() { return SG("todos", []); });
   var [name, setName] = useState(""); var [prio, setPrio] = useState("medium"); var [due, setDue] = useState("");
-  function add() { if (!name.trim()) return; var u = todos.concat([{ id: Date.now(), name: name, priority: prio, due: due, done: false, created: new Date().toISOString().split("T")[0] }]); setTodos(u); SS("todos", u); setName(""); setDue(""); }
+  var [editing, setEditing] = useState(null); // id des aktuell bearbeiteten Todos
+  var [edName, setEdName] = useState(""); var [edPrio, setEdPrio] = useState("medium"); var [edDue, setEdDue] = useState("");
+  // Beim Öffnen: alle als "gesehen" markieren (für Badge-Logik)
+  useEffect(function() {
+    var cur = SG("todos", []);
+    var changed = false;
+    var u = cur.map(function(t) { if (!t.seen) { changed = true; return Object.assign({}, t, { seen: true }); } return t; });
+    if (changed) { setTodos(u); SS("todos", u); }
+  }, []);
+  function add() { if (!name.trim()) return; var u = todos.concat([{ id: Date.now(), name: name, priority: prio, due: due, done: false, seen: true, order: todos.length, created: new Date().toISOString().split("T")[0] }]); setTodos(u); SS("todos", u); setName(""); setDue(""); }
   function toggle(id) { var u = todos.map(function(t) { return t.id === id ? Object.assign({}, t, { done: !t.done }) : t; }); setTodos(u); SS("todos", u); }
-  function rm(id) { var u = todos.filter(function(t) { return t.id !== id; }); setTodos(u); SS("todos", u); }
-  function clearDone() { var u = todos.filter(function(t) { return !t.done; }); setTodos(u); SS("todos", u); }
+  function rm(id) { var t = todos.find(function(x) { return x.id === id; }); if (t && !confirm("Aufgabe \"" + t.name + "\" wirklich löschen?")) return; var u = todos.filter(function(x) { return x.id !== id; }); setTodos(u); SS("todos", u); }
+  function clearDone() { if (!confirm("Alle erledigten Aufgaben löschen?")) return; var u = todos.filter(function(t) { return !t.done; }); setTodos(u); SS("todos", u); }
   function clearAll() { if (confirm("Alle Aufgaben löschen?")) { setTodos([]); SS("todos", []); } }
+
+  // Bearbeiten: Modal öffnen
+  function startEdit(t) { setEditing(t.id); setEdName(t.name); setEdPrio(t.priority || "medium"); setEdDue(t.due || ""); }
+  function saveEdit() {
+    if (!edName.trim()) return;
+    var u = todos.map(function(t) { return t.id === editing ? Object.assign({}, t, { name: edName.trim(), priority: edPrio, due: edDue }) : t; });
+    setTodos(u); SS("todos", u);
+    setEditing(null);
+  }
+  function cancelEdit() { setEditing(null); }
+
+  // Verschieben nach oben / unten (nur innerhalb "pending", das wird durch Neuzuweisen von order erreicht)
+  function move(id, dir) {
+    var pendingList = todos.filter(function(t) { return !t.done; }).slice().sort(sortPending);
+    var idx = pendingList.findIndex(function(t) { return t.id === id; });
+    var newIdx = idx + dir;
+    if (idx < 0 || newIdx < 0 || newIdx >= pendingList.length) return;
+    // Swap order values (falls nicht gesetzt, anhand Position zuweisen)
+    var reordered = pendingList.slice();
+    var tmp = reordered[idx]; reordered[idx] = reordered[newIdx]; reordered[newIdx] = tmp;
+    // Neue order-Werte vergeben
+    var orderMap = {};
+    reordered.forEach(function(t, i) { orderMap[t.id] = i; });
+    var u = todos.map(function(t) { return orderMap[t.id] !== undefined ? Object.assign({}, t, { order: orderMap[t.id] }) : t; });
+    setTodos(u); SS("todos", u);
+  }
+
   var prioColors = { high: "#ef4444", medium: "#f59e0b", low: "#4ade80" };
   var prioLabels = { high: "Hoch", medium: "Mittel", low: "Niedrig" };
-  var pending = todos.filter(function(t) { return !t.done; }).sort(function(a, b) { var p = { high: 0, medium: 1, low: 2 }; return p[a.priority] - p[b.priority]; });
+
+  // Sortierung für offene Aufgaben: wenn manuelle Reihenfolge (order) existiert, diese verwenden, sonst Priorität
+  function sortPending(a, b) {
+    var ao = typeof a.order === "number"; var bo = typeof b.order === "number";
+    if (ao && bo) return a.order - b.order;
+    if (ao && !bo) return -1;
+    if (!ao && bo) return 1;
+    var p = { high: 0, medium: 1, low: 2 };
+    return p[a.priority] - p[b.priority];
+  }
+  var pending = todos.filter(function(t) { return !t.done; }).sort(sortPending);
   var done = todos.filter(function(t) { return t.done; });
+  var editingTodo = editing ? todos.find(function(t) { return t.id === editing; }) : null;
+
   return (<SubPage title="Todo-Liste" onBack={onBack}>
+    {/* EDIT MODAL */}
+    {editingTodo && (
+      <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={cancelEdit}>
+        <div onClick={function(e) { e.stopPropagation(); }} style={{ background: "#1a1420", borderRadius: 16, padding: 20, width: "100%", maxWidth: 400, border: "1px solid rgba(212,160,86,0.3)" }}>
+          <div style={{ color: "#d4a056", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 600, marginBottom: 10 }}>Aufgabe bearbeiten</div>
+          <input value={edName} onChange={function(e) { setEdName(e.target.value); }} placeholder="Aufgabe..." style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 10 }} />
+          <div style={{ color: "#6a6474", fontSize: 11, marginBottom: 4 }}>Priorität</div>
+          <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>{["high", "medium", "low"].map(function(p) { return <Btn key={p} small primary={edPrio === p} onClick={function() { setEdPrio(p); }} style={{ borderColor: prioColors[p] }}>{prioLabels[p]}</Btn>; })}</div>
+          <div style={{ color: "#6a6474", fontSize: 11, marginBottom: 4 }}>Fälligkeitsdatum</div>
+          <input type="date" value={edDue} onChange={function(e) { setEdDue(e.target.value); }} style={{ width: "100%", padding: 8, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 13, outline: "none", colorScheme: "dark", marginBottom: 14 }} />
+          <div style={{ display: "flex", gap: 8 }}>
+            <Btn primary onClick={saveEdit} style={{ flex: 1 }}>✓ Speichern</Btn>
+            <Btn onClick={cancelEdit} style={{ flex: 1 }}>Abbrechen</Btn>
+          </div>
+        </div>
+      </div>
+    )}
+
     <Card style={{ marginBottom: 14 }}>
       <input value={name} onChange={function(e) { setName(e.target.value); }} onKeyDown={function(e) { if (e.key === "Enter") add(); }} placeholder="Neue Aufgabe..." style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 14, outline: "none", marginBottom: 8 }} />
       <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>{["high", "medium", "low"].map(function(p) { return <Btn key={p} small primary={prio === p} onClick={function() { setPrio(p); }} style={{ borderColor: prioColors[p] }}>{prioLabels[p]}</Btn>; })}</div>
@@ -688,8 +811,22 @@ function TodoList({ onBack }) {
         <Btn primary onClick={add}><span style={{fontSize:16}}>+</span></Btn>
       </div>
     </Card>
+    {pending.length > 1 && <div style={{ color: "#6a6474", fontSize: 11, marginBottom: 6, fontStyle: "italic" }}>Tippe auf eine Aufgabe zum Bearbeiten · Pfeile zum Verschieben</div>}
     {todos.length > 0 && <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 4 }}><Btn small danger onClick={clearAll}><span style={{fontSize:16}}>🗑</span>Alle löschen</Btn></div>}
-    {pending.map(function(t) { return (<div key={t.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", marginBottom: 6, background: "rgba(255,255,255,0.03)", borderRadius: 10, borderLeft: "3px solid " + prioColors[t.priority] }}><button onClick={function() { toggle(t.id); }} style={{ background: "none", border: "2px solid " + prioColors[t.priority], width: 22, height: 22, borderRadius: 6, cursor: "pointer", flexShrink: 0 }} /><div style={{ flex: 1 }}><div style={{ color: "#e0d8cc", fontSize: 14 }}>{t.name}</div>{t.due && <div style={{ color: "#6a6474", fontSize: 11, marginTop: 2 }}><span style={{fontSize:16}}>📅</span>{t.due}</div>}</div><button onClick={function() { rm(t.id); }} style={{ background: "rgba(239,68,68,0.1)", border: "none", color: "#ef4444", cursor: "pointer", padding: "6px 8px", borderRadius: 8, display: "flex", alignItems: "center", flexShrink: 0 }}><span style={{fontSize:16}}>🗑</span></button></div>); })}
+    {pending.map(function(t, idx) { return (<div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", marginBottom: 6, background: "rgba(255,255,255,0.03)", borderRadius: 10, borderLeft: "3px solid " + prioColors[t.priority] }}>
+      <button onClick={function(e) { e.stopPropagation(); toggle(t.id); }} style={{ background: "none", border: "2px solid " + prioColors[t.priority], width: 22, height: 22, borderRadius: 6, cursor: "pointer", flexShrink: 0 }} />
+      {/* Inhalt: klickbar zum Bearbeiten */}
+      <div onClick={function() { startEdit(t); }} style={{ flex: 1, cursor: "pointer", minWidth: 0 }}>
+        <div style={{ color: "#e0d8cc", fontSize: 14 }}>{t.name}</div>
+        {t.due && <div style={{ color: "#6a6474", fontSize: 11, marginTop: 2 }}>📅 {t.due}</div>}
+      </div>
+      {/* Verschieben nach oben */}
+      <button onClick={function(e) { e.stopPropagation(); move(t.id, -1); }} disabled={idx === 0} style={{ background: idx === 0 ? "transparent" : "rgba(212,160,86,0.08)", border: "none", color: idx === 0 ? "#2a2430" : "#d4a056", cursor: idx === 0 ? "default" : "pointer", padding: "4px 6px", borderRadius: 6, fontSize: 14, flexShrink: 0, opacity: idx === 0 ? 0.3 : 1 }} title="Nach oben">▲</button>
+      {/* Verschieben nach unten */}
+      <button onClick={function(e) { e.stopPropagation(); move(t.id, 1); }} disabled={idx === pending.length - 1} style={{ background: idx === pending.length - 1 ? "transparent" : "rgba(212,160,86,0.08)", border: "none", color: idx === pending.length - 1 ? "#2a2430" : "#d4a056", cursor: idx === pending.length - 1 ? "default" : "pointer", padding: "4px 6px", borderRadius: 6, fontSize: 14, flexShrink: 0, opacity: idx === pending.length - 1 ? 0.3 : 1 }} title="Nach unten">▼</button>
+      {/* Löschen */}
+      <button onClick={function(e) { e.stopPropagation(); rm(t.id); }} style={{ background: "rgba(239,68,68,0.1)", border: "none", color: "#ef4444", cursor: "pointer", padding: "6px 8px", borderRadius: 8, display: "flex", alignItems: "center", flexShrink: 0 }}><span style={{fontSize:16}}>🗑</span></button>
+    </div>); })}
     {done.length > 0 && <div style={{ marginTop: 14 }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}><span style={{ color: "#6a6474", fontSize: 12 }}>Erledigt ({done.length})</span><Btn small danger onClick={clearDone}>Erledigte löschen</Btn></div></div>}
     {done.map(function(t) { return (<div key={t.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", marginBottom: 4, opacity: 0.4 }}><button onClick={function() { toggle(t.id); }} style={{ background: "#4ade80", border: "none", width: 22, height: 22, borderRadius: 6, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{fontSize:16}}>✓</span></button><span style={{ color: "#6a6474", textDecoration: "line-through", fontSize: 13, flex: 1 }}>{t.name}</span><button onClick={function() { rm(t.id); }} style={{ background: "none", border: "none", color: "#4a4454", cursor: "pointer" }}><span style={{fontSize:16}}>🗑</span></button></div>); })}
     {todos.length === 0 && <p style={{ color: "#4a4454", fontSize: 13, textAlign: "center" }}>Keine Aufgaben</p>}
@@ -697,15 +834,19 @@ function TodoList({ onBack }) {
 }
 
 function ListenPage() {
-  var [sub, setSub] = useState(null);
-  var shopCount = SG("shoplist", []).filter(function(i) { return !i.done; }).length;
-  var todoCount = SG("todos", []).filter(function(t) { return !t.done; }).length;
+  // Direkter Sprung zur Todo-Liste wenn vom Home-Schnellzugriff kommend
+  var initSub = null;
+  try { if (localStorage.getItem("cd_openTodoDirect") === "1") { localStorage.removeItem("cd_openTodoDirect"); initSub = "todo"; } } catch(e) {}
+  var [sub, setSub] = useState(initSub);
+  // Badge: nur neue (noch nicht gesehene) Einträge zählen
+  var shopNew = SG("shoplist", []).filter(function(i) { return !i.done && !i.seen; }).length;
+  var todoNew = SG("todos", []).filter(function(t) { return !t.done && !t.seen; }).length;
   if (sub === "shop") return <ShoppingList onBack={function() { setSub(null); }} />;
   if (sub === "todo") return <TodoList onBack={function() { setSub(null); }} />;
   return (<div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
     <h2 style={{ fontFamily: "'DM Serif Display',Georgia,serif", color: "#f0e6d3", fontSize: 22, margin: "0 0 4px" }}>Listen</h2>
-    <MC icon={<span style={{fontSize:16}}>🛒</span>} bg="rgba(74,222,128,0.15)" title="Einkaufsliste" desc="Mit Mengenangaben" onClick={function() { setSub("shop"); }} badge={shopCount > 0 ? String(shopCount) : null} />
-    <MC icon={<span style={{fontSize:16}}>📋</span>} bg="rgba(167,139,250,0.15)" title="Todo-Liste" desc="Prioritäten & Fälligkeitsdatum" onClick={function() { setSub("todo"); }} badge={todoCount > 0 ? String(todoCount) : null} />
+    <MC icon={<span style={{fontSize:16}}>🛒</span>} bg="rgba(74,222,128,0.15)" title="Einkaufsliste" desc="Mit Mengenangaben" onClick={function() { setSub("shop"); }} badge={shopNew > 0 ? String(shopNew) : null} />
+    <MC icon={<span style={{fontSize:16}}>📋</span>} bg="rgba(167,139,250,0.15)" title="Todo-Liste" desc="Prioritäten & Fälligkeitsdatum" onClick={function() { setSub("todo"); }} badge={todoNew > 0 ? String(todoNew) : null} />
   </div>);
 }
 
@@ -762,7 +903,7 @@ function NotizenPage() {
       selTodos.forEach(function(i) {
         var t = suggestions.todos[i];
         var prioMap = { high: "high", medium: "medium", low: "low" };
-        todos.push({ id: Date.now() + i, name: t.text + (t.time ? " um " + t.time : ""), priority: prioMap[t.priority] || "medium", due: t.date || "", done: false, created: today });
+        todos.push({ id: Date.now() + i, name: t.text + (t.time ? " um " + t.time : ""), priority: prioMap[t.priority] || "medium", due: t.date || "", done: false, seen: false, created: today });
       });
       SS("todos", todos);
     }
@@ -771,7 +912,7 @@ function NotizenPage() {
       var shoplist = SG("shoplist", []);
       selShop.forEach(function(i) {
         var s = suggestions.shopping[i];
-        shoplist.push({ id: Date.now() + i + 100, name: s.name, qty: s.qty || 1, done: false });
+        shoplist.push({ id: Date.now() + i + 100, name: s.name, qty: s.qty || 1, done: false, seen: false });
       });
       SS("shoplist", shoplist);
     }
@@ -785,23 +926,35 @@ function NotizenPage() {
     setSuggestions(null); setInput("");
   }
 
-  function rmNote(id) { var u = notes.filter(function(n) { return n.id !== id; }); setNotes(u); SS("notes", u); setSelNote(null); }
+  function rmNote(id) { var n = notes.find(function(x) { return x.id === id; }); if (!confirm("Notiz \"" + (n ? n.title : "") + "\" wirklich löschen?")) return; var u = notes.filter(function(x) { return x.id !== id; }); setNotes(u); SS("notes", u); setSelNote(null); }
   var categories = ["all"].concat(Array.from(new Set(notes.map(function(n) { return n.category; }))));
   var filtered = filter === "all" ? notes : notes.filter(function(n) { return n.category === filter; });
   var typeIcons = { notiz: "📝", todo: "✅", idee: "💡", merker: "📌" };
 
   function toggleIdx(arr, setArr, i) { setArr(arr.includes(i) ? arr.filter(function(x) { return x !== i; }) : arr.concat([i])); }
 
-  // Detail view
+  // Detail view (mit Bearbeitung)
   if (selNote) {
     var n = notes.find(function(x) { return x.id === selNote; });
     if (!n) { setSelNote(null); return null; }
-    return (<SubPage title={n.title} onBack={function() { setSelNote(null); }}>
+    return (<SubPage title="Notiz" onBack={function() { setSelNote(null); }}>
       <div style={{ color: "#6a6474", fontSize: 12, marginBottom: 12 }}>{n.date} · {n.time} · {typeIcons[n.type] || "📝"} {n.type}</div>
-      <Card style={{ marginBottom: 14 }}><p style={{ color: "#e0d8cc", fontSize: 15, lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap" }}>{n.text}</p></Card>
-      <div style={{ color: "#6a6474", fontSize: 12, marginBottom: 6 }}>Kategorie: <span style={{ color: "#d4a056" }}>{n.category}</span></div>
+      <div style={{ color: "#6a6474", fontSize: 11, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>Titel</div>
+      <input defaultValue={n.title} id={"note-title-" + n.id} style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(212,160,86,0.25)", background: "rgba(0,0,0,0.3)", color: "#f0e6d3", fontSize: 16, fontWeight: 600, outline: "none", marginBottom: 10 }} />
+      <div style={{ color: "#6a6474", fontSize: 11, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>Inhalt</div>
+      <textarea defaultValue={n.text} id={"note-text-" + n.id} rows={5} style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.07)", background: "rgba(0,0,0,0.3)", color: "#e0d8cc", fontSize: 15, lineHeight: 1.6, outline: "none", resize: "vertical", minHeight: 100, marginBottom: 10 }} />
+      <div style={{ color: "#6a6474", fontSize: 11, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>Kategorie</div>
+      <input defaultValue={n.category} id={"note-cat-" + n.id} style={{ width: "100%", padding: "8px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.07)", background: "rgba(0,0,0,0.3)", color: "#d4a056", fontSize: 13, outline: "none", marginBottom: 14 }} />
       {(n.tags || []).length > 0 && <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>{n.tags.map(function(t, i) { return <span key={i} style={{ background: "rgba(212,160,86,0.1)", color: "#d4a056", padding: "4px 10px", borderRadius: 8, fontSize: 12 }}>#{t}</span>; })}</div>}
-      <Btn danger onClick={function() { rmNote(n.id); }} style={{ width: "100%", marginTop: 8 }}>🗑 Notiz löschen</Btn>
+      <Btn primary onClick={function() {
+        var newTitle = document.getElementById("note-title-" + n.id).value.trim();
+        var newText = document.getElementById("note-text-" + n.id).value.trim();
+        var newCat = document.getElementById("note-cat-" + n.id).value.trim();
+        if (!newText) return;
+        var u = notes.map(function(x) { return x.id === n.id ? Object.assign({}, x, { title: newTitle || newText.slice(0, 30), text: newText, category: newCat || x.category }) : x; });
+        setNotes(u); SS("notes", u); setSelNote(null);
+      }} style={{ width: "100%", marginBottom: 8 }}>✓ Änderungen speichern</Btn>
+      <Btn danger onClick={function() { rmNote(n.id); }} style={{ width: "100%" }}>🗑 Notiz löschen</Btn>
     </SubPage>);
   }
 
@@ -934,7 +1087,12 @@ function App() {
             var a = tab === t.id;
             var col = a ? "#d4a056" : "#8a8494";
             var badge = null;
-            if (t.id === "listen") { var c = SG("todos", []).filter(function(x) { return !x.done; }).length; if (c > 0) badge = c; }
+            if (t.id === "listen") {
+              var cShop = SG("shoplist", []).filter(function(x) { return !x.done && !x.seen; }).length;
+              var cTodo = SG("todos", []).filter(function(x) { return !x.done && !x.seen; }).length;
+              var cTotal = cShop + cTodo;
+              if (cTotal > 0) badge = cTotal;
+            }
             return (
               <button key={t.id} onClick={function() { setTab(t.id); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, padding: "6px 4px 4px", border: "none", cursor: "pointer", background: "none", position: "relative" }}>
                 {a && <div style={{ position: "absolute", top: 0, left: "25%", right: "25%", height: 2, borderRadius: "0 0 3px 3px", background: "linear-gradient(90deg,#d4a056,#f0c070)" }} />}
